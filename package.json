@@ -1,6 +1,6 @@
 {
   "name": "js-lib-sample",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "js-lib-sample",
   "main": "dist/index.js",
   "module": "dist/index.es.js",

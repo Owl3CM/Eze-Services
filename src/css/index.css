@@ -1,7 +1,3 @@
-@import "containers.css"; 
-@import "root.css";
-@import "sample.css";
-
 :root {
   --shark: #8e9a9b;      --white:#ffffff;
   --goat: #b9cad4;       --black:#000000;
