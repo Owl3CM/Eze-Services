@@ -1,0 +1,41 @@
+{
+  "name": "js-lib-sample",
+  "version": "0.0.2",
+  "description": "js-lib-sample",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-storybook": "build-storybook",
+    "storybook": "start-storybook -p 6006",
+    "build": "rm -rf dist && rollup -c --exports auto",
+    "prod": "yarn build && yarn publish",
+    "start": "yarn build && start-storybook -p 6006"
+  },
+  "author": "Owl7CM",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.20.12",
+    "@babel/preset-react": "^7.18.6",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@storybook/addon-actions": "^6.5.16",
+    "@storybook/addon-essentials": "^6.5.16",
+    "@storybook/addon-links": "^6.5.16",
+    "@storybook/react": "^6.5.16",
+    "babel-loader": "^9.1.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rollup": "^3.16.0",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-terser": "^7.0.2"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "dependencies": {
+    "postcss": "^8.4.21"
+  }
+}
