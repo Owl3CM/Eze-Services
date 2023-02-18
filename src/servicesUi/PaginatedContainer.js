@@ -1,18 +1,5 @@
 import React from 'react'
 const postions = {}
-
-/**
- * @param {Object} props
- * @param {Object} props.service
- * @param {Function} props.onRefresh
- * @param {Boolean} props.useRefresh
- * @param {String} props.className
- * @param {ReactNode} props.children
- * @param {String} props.id
- * <PaginatedContainer service={service} onRefresh={service.reload} useRefresh >
- * {children}
- * </PaginatedContainer>
- */
 const PaginatedContainer = ({
   service,
   onRefresh,
@@ -40,8 +27,8 @@ class PaginatedContainerClass extends React.Component {
   componentDidMount() {
     this.container = document.getElementById(this.id)
     const top = postions[this.id]
+    console.log({ postions }, { id: this.id })
     top && this.container.scrollTo({ top, left: 0, behavior: 'auto' })
-    console.log('this.refresh', this.refresh)
     if (this.refresh) {
       pullToRefreshEvent(this.container, this.props.service, this.refresh)
     }
@@ -85,24 +72,22 @@ class PaginatedContainerClass extends React.Component {
 }
 
 const pullToRefreshEvent = (container, service, refresh) => {
-  console.log({ container })
+  if (!container) return
   let reloader = container.firstChild
 
   reloader.remove = () => {
     reloader.style = ''
     reloader.className = 'reloading disappearing'
     setTimeout(() => {
-      reloader.className = 'disappearing'
+      reloader.className === 'reloading disappearing' &&
+        (reloader.className = 'disappearing')
     }, 1000)
   }
   reloader.remove()
 
   let diff = 0
-  if (!container) return
-
   const onSwipeDown = (e) => {
     diff = e.touches[0].clientY - service.startY
-    console.log({ diff })
     if (diff > 20) {
       if (diff > 200) diff = 200
       let diffPersent = diff / 100
@@ -138,14 +123,8 @@ const pullToRefreshEvent = (container, service, refresh) => {
   }, 300)
 
   container.addEventListener('touchstart', (e) => {
-    console.log({
-      scrollTop: container.scrollTop,
-      pulling: service.pulling,
-      state: service.state
-    })
     if (container.scrollTop > 5 || service.pulling || service.state !== 'none')
       return
-    console.log('start')
     service.pulling = true
     reloader.style.opacity = '0'
     reloader.style.marginTop = '-80px'

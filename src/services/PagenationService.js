@@ -163,13 +163,15 @@ export default class PagenationService {
     this.queryParams = values
     this.search()
   }
-  updateQueryParams = (child) => {
-    if (Utils.hasValue(child.value))
-      this.queryParams[child.id] = {
-        value: child.value,
-        title: child.title || '_'
+  updateQueryParams = (queryParma = { value: 'jhon', title: 'the name' }) => {
+    console.log(this.queryParams.value)
+    if (Utils.hasValue(queryParma.value)) {
+      this.queryParams[queryParma.id] = {
+        value: queryParma.value,
+        title: queryParma.title || '_'
       }
-    else delete this.queryParams[child.id]
+    } else delete this.queryParams[queryParma.id]
+
     this.search()
   }
 

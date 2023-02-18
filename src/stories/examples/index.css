@@ -1,0 +1,6 @@
+@font-face {font-family: "'BoutrosMBCDinkum Medium'";src: url('../fonts/light.ttf');}
+@font-face {font-family: "'GE Dinkum Medium'";src: url("../fonts/bold.ttf");}
+:root{
+    --light:"'GE Dinkum Medium'";
+    --bold:"'BoutrosMBCDinkum Medium'";
+}

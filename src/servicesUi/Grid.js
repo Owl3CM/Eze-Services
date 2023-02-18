@@ -1,14 +1,4 @@
 import React from 'react'
-/**
- * @param {Object} service
- * @param {Function} ItemBuilder
- * @param {string} className
- * @param {Function} onClick
- * @returns {JSX.Element}
- * @example
- * <Grid service={service} ItemBuilder={ItemBuilder} className="grid" onClick={onClick} />
- *  */
-
 const Grid = ({ service, ItemBuilder, className = 'grid', onClick }) => {
   ;[service.items, service.setItems] = React.useState(service.items)
   service.setItem = React.useMemo(

@@ -34,6 +34,21 @@ class RecyclerListClass extends React.Component {
     color: '#63cfc999',
     backgroundColor: '#63cfc955'
   }
+  static defaultProps = {
+    service: {},
+    itemBuilder: () => {},
+    nodeBuilder: null,
+    gridClass: 'grid',
+    containerClass: 'wrapper relative hide-scroller',
+    viewedItems: 25,
+    indecator: {
+      width: 6,
+      borderRadius: 3,
+      color: '#63cfc999',
+      backgroundColor: '#63cfc955'
+    },
+    children: null
+  }
   constructor({
     service,
     itemBuilder,
@@ -44,7 +59,7 @@ class RecyclerListClass extends React.Component {
     indecator,
     children
   }) {
-    super({ children })
+    super(RecyclerList.defaultProps)
     this.dir = document.documentElement.getAttribute('dir') || 'ltr'
     // this.useRecycler = localStorage.getItem("useRecycler") !== "Disable Recycler";
     this.service = service
@@ -198,7 +213,8 @@ const createIndecator = (recycler) => {
   indecatorContainer.style.width = `${recycler.indecatorProps.width}px`
 
   const scrollerIndecator = document.createElement('p')
-  scrollerIndecator.className = 'scroller-indecator'
+  scrollerIndecator.style.position = 'absolute' //'scroller-indecator'
+  scrollerIndecator.style.transition = 'top 0.1s linear'
   scrollerIndecator.style.backgroundColor = recycler.indecatorProps.color
   scrollerIndecator.style.width = `${recycler.indecatorProps.width}px`
   scrollerIndecator.style.borderRadius = `${recycler.indecatorProps.borderRadius}px`
@@ -258,9 +274,9 @@ const createIndecator = (recycler) => {
 
   scrollerIndecator.addEventListener('mousedown', (e) => {
     recycler.lastPointerY = e.clientY
-    // scrollerIndecator.style.transition = "unset";
+    scrollerIndecator.style.transition = 'unset'
     const mouseUp = () => {
-      // scrollerIndecator.style.transition = "top 0.1s linear";
+      scrollerIndecator.style.transition = 'top 0.1s linear'
       if (recycler.lastItem - recycler.viewedItems < 0)
         recycler.lastItem = recycler.viewedItems
       else if (recycler.lastItem > recycler.service.items.length)
