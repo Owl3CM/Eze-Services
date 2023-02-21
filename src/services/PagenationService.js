@@ -1,26 +1,6 @@
 import Utils from '../utils/Utils'
 export default class PagenationService {
   /**
-   * @typedef {Object} PagenationService
-   * @property {Array} items
-   * @property {Function} setItems
-   * @property {string} state
-   * @property {Function} setState
-   * @property {number} offset
-   * @property {number} limit
-   * @property {string} query
-   * @property {boolean} canFetch
-   * @property {Object} queryParams
-   * @property {Function} callback
-   * @property {Function} onResult
-   * @property {Function} onError
-   * @property {Function} loadMore
-   * @property {Function} search
-   * @property {Function} reload
-   * @property {boolean} useCash
-   * @property {string} storageKey
-   * @property {Object} storage
-   * @property {Function} constructor
    * @param {Object} props           - PagenationService props
    * @param {Function} props.onResult
    * @param {string} props.storageKey

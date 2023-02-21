@@ -17,7 +17,7 @@ body{
     font-weight: bold;
     color: var(--crow);
     padding: 0 !important;
-    font-family: var(--bold);
+    font-family: var(--font-bold);
     background-color: var(--bg);
     font-size: 11px !important;
     letter-spacing: 1px;

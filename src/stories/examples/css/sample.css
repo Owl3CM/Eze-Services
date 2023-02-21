@@ -1,5 +1,5 @@
 .input[type="number"],.input[type="text"],.input[type="password"] {
-  font-family: var(--bold);
+  font-family: var(--font-bold);
   padding: var(--sm) var(--md);
   outline: none;
   border: none;
@@ -26,7 +26,7 @@
   border-radius: var(--md);
   padding: var(--sm) var(--md);
   font-weight: bold;
-  font-family: var(--bold);
+  font-family: var(--font-bold);
   border: none;
   cursor: pointer;
   letter-spacing: 1px;
@@ -44,48 +44,4 @@
   border-radius: 0 0 10px 0 ;
   box-shadow: var(--shadow-lg);
   cursor: pointer;
-}
-
-
-#refresher{
-  width: 100px;
-  margin-inline: auto;
-  height: 100px;
-  margin-top: -100px;
-  position: fixed;
-  left: 0;
-  right: 0;
-}
-
-.refresher-svg {
-  /* filter: drop-shadow( 0px 0px 15px #a5eb7877); */
-  box-shadow:  0px 0px 20px #a5eb7877;
-  border-radius: 50%;
-  margin: 25px;
-  fill: #000!important;
-}
-
-.pulling{
-  transition: unset;
-}
-.reloading {
-  opacity: 1;
-  transition: all 300ms ease-out;
-  margin-top: 0 !important;
-  animation: reload 600ms linear infinite;
-}
-.disappearing{
-  transition: all 0.3s ease-in-out;
-  margin-top: -100px !important;
-  opacity: 0;
-}
-
-
-@keyframes reload {
-  0% {
-    transform: rotate(360deg);
-  }
-  100% {
-    transform: rotate(720deg);
-  }
 }

@@ -35,7 +35,7 @@
 }
 
 .font-bold {
-    font-family: var(--bold);
+    font-family: var(--font-bold);
     font-weight: bold;
 }
 

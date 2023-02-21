@@ -31,7 +31,7 @@ const PagenatedScroller = ({
         top && ref.scrollTo({ top, left: 0, behavior: 'auto' })
       }}
       service={service}
-      className='wrapper scroller'
+      className='local-wrapper scroller'
       id={service.scrollerId}
       onRefresh={service.useCash ? service.reload : null}
     >

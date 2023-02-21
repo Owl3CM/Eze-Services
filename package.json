@@ -1,6 +1,6 @@
 {
   "name": "js-lib-sample",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "js-lib-sample",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -23,6 +23,7 @@
     "@storybook/addon-links": "^6.5.16",
     "@storybook/react": "^6.5.16",
     "babel-loader": "^9.1.2",
+    "postcss": "^8.4.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rollup": "^3.16.0",
@@ -35,7 +36,5 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
-  "dependencies": {
-    "postcss": "^8.4.21"
-  }
+  "dependencies": {}
 }

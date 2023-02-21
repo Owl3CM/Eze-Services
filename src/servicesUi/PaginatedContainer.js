@@ -34,7 +34,11 @@ class PaginatedContainerClass extends React.Component {
     }
   }
   render() {
-    const { service, children, className = 'wrapper scroller' } = this.props
+    const {
+      service,
+      children,
+      className = 'local-wrapper scroller'
+    } = this.props
     return (
       <div
         id={this.id}

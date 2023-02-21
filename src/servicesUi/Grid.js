@@ -1,5 +1,5 @@
 import React from 'react'
-const Grid = ({ service, ItemBuilder, className = 'grid', onClick }) => {
+const Grid = ({ service, ItemBuilder, className = 'local-grid', onClick }) => {
   ;[service.items, service.setItems] = React.useState(service.items)
   service.setItem = React.useMemo(
     () => (item) =>

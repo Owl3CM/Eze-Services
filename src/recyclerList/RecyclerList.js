@@ -38,8 +38,8 @@ class RecyclerListClass extends React.Component {
     service: {},
     itemBuilder: () => {},
     nodeBuilder: null,
-    gridClass: 'grid',
-    containerClass: 'wrapper relative hide-scroller',
+    gridClass: 'local-grid',
+    containerClass: 'local-wrapper relative hide-scroller',
     viewedItems: 25,
     indecator: {
       width: 6,
@@ -64,7 +64,8 @@ class RecyclerListClass extends React.Component {
     // this.useRecycler = localStorage.getItem("useRecycler") !== "Disable Recycler";
     this.service = service
     this.Card = itemBuilder
-    this.containerClass = containerClass ||= 'wrapper relative hide-scroller'
+    this.containerClass = containerClass ||=
+      'local-wrapper relative hide-scroller'
     this.children = children
     if (indecator) {
       Object.entries(indecator).forEach(([key, value]) => {
@@ -91,7 +92,7 @@ class RecyclerListClass extends React.Component {
       : (item) => convertToNode(itemBuilder, item)
 
     this.grid = document.createElement('div')
-    this.grid.className = gridClass || 'grid'
+    this.grid.className = gridClass || 'local-grid'
     this.grid.append(
       ...service.items
         .slice(0, this.initItemsToCalculate)
@@ -300,7 +301,7 @@ const createIndecator = (recycler) => {
   const parent = recycler.container.parentElement
 
   indecatorContainer.append(scrollerIndecator)
-  parent.style.display = 'grid'
+  parent.style.display = 'local-grid'
   if (recycler.dir === 'ltr') {
     parent.style.gridTemplateColumns = 'auto 1fr'
     parent.prepend(indecatorContainer)

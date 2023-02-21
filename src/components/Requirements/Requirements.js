@@ -1,4 +1,3 @@
-import '../../styles.css'
 import { Requirement } from '../Requirement'
 import React, { useCallback, useEffect } from 'react'
 
