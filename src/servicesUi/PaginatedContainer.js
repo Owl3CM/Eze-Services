@@ -96,8 +96,8 @@ class PaginatedContainerClass extends React.Component {
           postions[service.scrollerId] = target.scrollTop
         }}
       >
-        {this.refresh && <div id='refresher'>{this.props.refresher}</div>}
         {children}
+        {this.refresh && <div id='refresher'>{this.props.refresher}</div>}
         {/* <ServiceStateBuilder service={service} /> */}
       </div>
     )
