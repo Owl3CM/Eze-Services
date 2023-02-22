@@ -106,8 +106,7 @@ class PaginatedContainerClass extends React.Component {
 
 const pullToRefreshEvent = (container, service, refresh, refresherProps) => {
   if (!container) return
-  let reloader = container.firstChild
-
+  let reloader = container.querySelector('#refresher')
   reloader.remove = () => {
     let defaultClass = `${refresherProps.reloadingClass} ${refresherProps.disappearingClass}`
     reloader.style = ''
