@@ -1,7 +1,7 @@
 {
-  "name": "js-lib-sample",
-  "version": "0.0.5",
-  "description": "js-lib-sample",
+  "name": "morabaa-services",
+  "version": "1.0.24",
+  "description": "morabaa-services",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "scripts": {
