@@ -1,6 +1,6 @@
 {
   "name": "js-lib-sample",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "js-lib-sample",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -9,7 +9,7 @@
     "build-storybook": "build-storybook",
     "storybook": "start-storybook -p 6006",
     "build": "rm -rf dist && rollup -c --exports auto",
-    "prod": "yarn build && yarn publish",
+    "prod": "git add . && yarn build && yarn publish",
     "start": "yarn build && start-storybook -p 6006"
   },
   "author": "Owl7CM",

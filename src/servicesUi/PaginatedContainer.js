@@ -1,16 +1,49 @@
 import React from 'react'
 const postions = {}
+const defaultRefresh = (
+  <svg className='refresher-svg' viewBox='0 0 512 512'>
+    <path
+      fill='#A5EB78'
+      d='M256,0C114.615,0,0,114.615,0,256s114.615,256,256,256s256-114.615,256-256S397.385,0,256,0z'
+    />
+    <path
+      className='fill-throne'
+      d='M256,431.967c-97.03,0-175.967-78.939-175.967-175.967c0-28.668,7.013-56.655,20.156-81.677l-25.144-16.639l107.282-54.228l-7.974,119.943l-26.111-17.279c-7.203,15.517-11.041,32.51-11.041,49.879c0,65.507,53.294,118.801,118.801,118.801s118.801-53.294,118.801-118.801s-53.295-118.8-118.802-118.8V80.033c97.028,0,175.967,78.938,175.967,175.967S353.028,431.967,256,431.967z'
+    />
+  </svg>
+)
+const defaultRefresherProps = {
+  id: 'refresher',
+  reloadingClass: 'reloading',
+  disappearingClass: 'disappearing',
+  pullingClass: 'pulling',
+  onPull: ({ diff, diffPersent, refresher }) => {
+    let rotateAngle = 720 - diffPersent * 360
+    refresher.style.transform = `rotate(${rotateAngle}deg)`
+  }
+}
 const PaginatedContainer = ({
   service,
   onRefresh,
   useRefresh,
   className,
   children,
-  id
+  id,
+  refresher = defaultRefresh,
+  refresherProps = defaultRefresherProps
 }) => {
   return (
     <PaginatedContainerClass
-      {...{ service, onRefresh, useRefresh, className, children, id }}
+      {...{
+        service,
+        onRefresh,
+        useRefresh,
+        className,
+        children,
+        id,
+        refresher,
+        refresherProps
+      }}
     />
   )
 }
@@ -24,13 +57,22 @@ class PaginatedContainerClass extends React.Component {
       ? props.onRefresh || props.service.reload
       : props.onRefresh
   }
+  refresherProps = defaultRefresherProps
   componentDidMount() {
     this.container = document.getElementById(this.id)
     const top = postions[this.id]
     console.log({ postions }, { id: this.id })
     top && this.container.scrollTo({ top, left: 0, behavior: 'auto' })
     if (this.refresh) {
-      pullToRefreshEvent(this.container, this.props.service, this.refresh)
+      Object.entries(this.props.refresherProps).forEach(([key, value]) => {
+        this.refresherProps[key] = value
+      })
+      pullToRefreshEvent(
+        this.container,
+        this.props.service,
+        this.refresh,
+        this.refresherProps
+      )
     }
   }
   render() {
@@ -54,20 +96,7 @@ class PaginatedContainerClass extends React.Component {
           postions[service.scrollerId] = target.scrollTop
         }}
       >
-        {this.refresh && (
-          <div id='refresher'>
-            <svg className='refresher-svg' viewBox='0 0 512 512'>
-              <path
-                fill='#A5EB78'
-                d='M256,0C114.615,0,0,114.615,0,256s114.615,256,256,256s256-114.615,256-256S397.385,0,256,0z'
-              />
-              <path
-                className='fill-throne'
-                d='M256,431.967c-97.03,0-175.967-78.939-175.967-175.967c0-28.668,7.013-56.655,20.156-81.677l-25.144-16.639l107.282-54.228l-7.974,119.943l-26.111-17.279c-7.203,15.517-11.041,32.51-11.041,49.879c0,65.507,53.294,118.801,118.801,118.801s118.801-53.294,118.801-118.801s-53.295-118.8-118.802-118.8V80.033c97.028,0,175.967,78.938,175.967,175.967S353.028,431.967,256,431.967z'
-              />
-            </svg>
-          </div>
-        )}
+        {this.refresh && <div id='refresher'>{this.props.refresher}</div>}
         {children}
         {/* <ServiceStateBuilder service={service} /> */}
       </div>
@@ -75,16 +104,17 @@ class PaginatedContainerClass extends React.Component {
   }
 }
 
-const pullToRefreshEvent = (container, service, refresh) => {
+const pullToRefreshEvent = (container, service, refresh, refresherProps) => {
   if (!container) return
   let reloader = container.firstChild
 
   reloader.remove = () => {
+    let defaultClass = `${refresherProps.reloadingClass} ${refresherProps.disappearingClass}`
     reloader.style = ''
-    reloader.className = 'reloading disappearing'
+    reloader.className = defaultClass
     setTimeout(() => {
-      reloader.className === 'reloading disappearing' &&
-        (reloader.className = 'disappearing')
+      reloader.className === defaultClass &&
+        (reloader.className = refresherProps.disappearingClass)
     }, 1000)
   }
   reloader.remove()
@@ -96,10 +126,9 @@ const pullToRefreshEvent = (container, service, refresh) => {
       if (diff > 200) diff = 200
       let diffPersent = diff / 100
       let offset = (1 - diffPersent) * reloader.offsetHeight
-      let rotateAngle = 720 - diffPersent * 360
       reloader.style.marginTop = -offset + 'px'
       reloader.style.opacity = diffPersent
-      reloader.style.rotate = `${rotateAngle}deg`
+      refresherProps.onPull({ diff, diffPersent, refresher: reloader })
     }
   }
 
@@ -112,7 +141,7 @@ const pullToRefreshEvent = (container, service, refresh) => {
       service.pulling = false
       return
     }
-    reloader.className = 'reloading'
+    reloader.className = refresherProps.reloadingClass
     setTimeout(async () => {
       await refresh()
       reloader?.remove()
@@ -132,7 +161,7 @@ const pullToRefreshEvent = (container, service, refresh) => {
     service.pulling = true
     reloader.style.opacity = '0'
     reloader.style.marginTop = '-80px'
-    reloader.className = 'pulling'
+    reloader.className = refresherProps.pullingClass
     diff = 0
 
     container.addEventListener('touchmove', onSwipeDown, { passive: true })

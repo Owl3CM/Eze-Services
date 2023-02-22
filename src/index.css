@@ -1,4 +1,5 @@
-.local-wrapper{
+@layer services-lib {
+  .local-wrapper{
   width: 100%;
   height: 100vh;
   flex-direction: column;
@@ -61,8 +62,6 @@
   margin-top: -100px !important;
   opacity: 0;
 }
-
-
 @keyframes reload {
   0% {
     transform: rotate(360deg);
@@ -70,4 +69,5 @@
   100% {
     transform: rotate(720deg);
   }
+}
 }
