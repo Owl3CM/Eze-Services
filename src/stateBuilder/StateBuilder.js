@@ -7,7 +7,8 @@ let defaultProps = {
   service: {},
   state: 'idel',
   test: false,
-  singleState: false
+  singleState: false,
+  className: ''
 }
 
 const StateBuilder = (args = defaultProps) => {
@@ -16,6 +17,7 @@ const StateBuilder = (args = defaultProps) => {
   return (
     <div
       style={{ display: 'none' }}
+      className={args.className ?? ''}
       ref={(_ref) => {
         if (!_ref) return
         let ref = _ref

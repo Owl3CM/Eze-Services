@@ -1,38 +1,21 @@
-import Utils from '../utils/Utils'
+const hasValue = (value) => [undefined, null, ''].includes(value) === false
+
+const generateQuery = (query, url) => {
+  query = Object.entries(query).reduce((acc, [id, value]) => {
+    if (hasValue(value.value)) acc += `${id}=${value.value}&`
+    return acc
+  }, '')
+  return `${url ? `/${url}` : ''}?${query.trimEnd('&')}`
+}
+
 export default class PagenationService {
-  /**
-   * @param {Object} props           - PagenationService props
-   * @param {Function} props.onResult
-   * @param {string} props.storageKey
-   * @param {Object} props.storage
-   * @param {Function} props.callback
-   * @param {boolean} props.useCash
-   * @param {number} props.limit
-   * @param {string} props.endpoint
-   * @returns {PagenationService}
-   * @example
-   * const service = new PagenationService({
-   *    onResult: (result, service) => {
-   *       service.setItems(result.items);
-   *      service.setState("none");
-   *     service.canFetch = true;
-   *   },
-   * storageKey: "key",
-   * storage: localStorage,
-   * callback: (query) => fetch(query),
-   * useCash: true,
-   * limit: 25,
-   * endpoint: "endpoint",
-   * });
-   * service.search();
-   */
   items = []
   setItems = (items, clear) => {
     this.items = clear ? items : [...this.items, ...items]
   }
 
-  state = 'none'
-  setState = (state) => {
+  state = 'idle'
+  setState = ({ state = 'idle', parentId, props }) => {
     this.state = state
   }
 
@@ -44,25 +27,25 @@ export default class PagenationService {
   queryParams = {}
   callback
 
-  onResult = (result, service) => {
-    return result
-  }
+  onResponse = (result, service) => result
   onError = (error, service) => {}
 
+  load = async () => {}
   loadMore = async () => {}
-  search = async () => {}
   reload = async () => {}
 
   #_init = false
 
   constructor({
-    onResult,
+    onResponse,
+    onError,
     storageKey,
     storage,
     callback,
     useCash = false,
     limit = 25,
-    endpoint
+    endpoint,
+    queryGenerator = generateQuery
   }) {
     this.useCash = useCash && !!storageKey
     if (this.useCash) {
@@ -72,16 +55,18 @@ export default class PagenationService {
         storageKey + text.replace(/[?&=/!]/g, '-')
     }
     // this.autoFetch = autoFetch;
-    this.onResult = onResult
+    this.onResponse = onResponse
+    this.onError = onError
     this.limit = limit
     this.callback = callback
-    this.search = async () => {
+    this.queryGenerator = queryGenerator
+    this.load = async () => {
       this.canFetch = false
       this.offset = 0
       if (!this.queryParams.limit && this.limit)
         this.queryParams.limit = { value: this.limit, title: '_' }
 
-      this.query = Utils.generateQuery(this.queryParams, endpoint)
+      this.query = generateQuery(this.queryParams, endpoint)
 
       if (this.useCash) {
         let cashItems = this.getStored(this.query)
@@ -98,11 +83,11 @@ export default class PagenationService {
           return
         }
       }
-      this.state = 'searching'
-      this.setState('searching')
+      this.state = 'loading'
+      this.setState('loading')
       try {
         const result = await this.callback(this.query)
-        this.#onResult(result, this)
+        this.#onResponse(result, this)
       } catch (error) {
         this.#onError(error, this)
       }
@@ -111,12 +96,12 @@ export default class PagenationService {
     this.reload = async () => {
       this.canFetch = false
       this.offset = 0
-      this.query = Utils.generateQuery(this.queryParams, endpoint)
+      this.query = generateQuery(this.queryParams, endpoint)
       this.setState('reloading')
       try {
         const result = await this.callback(this.query)
         this.clearStorage()
-        this.#onResult(result, this)
+        this.#onResponse(result, this)
       } catch (error) {
         this.#onError(error, this)
       }
@@ -125,10 +110,10 @@ export default class PagenationService {
     this.loadMore = async () => {
       this.canFetch = false
       let query = this.query + `&offset=${this.offset}`
-      this.setState('itemsLoading')
+      this.setState('loadingMore')
       try {
         const result = await this.callback(query)
-        this.#onResult(result, this)
+        this.#onResponse(result, this)
       } catch (error) {
         this.#onError(error, this)
       }
@@ -137,36 +122,33 @@ export default class PagenationService {
 
   initQueryParams = (values) => {
     this.queryParams = values
-    this.search()
+    this.load()
   }
   setQueryParmas = (values) => {
     this.queryParams = values
-    this.search()
+    this.load()
   }
   updateQueryParams = (queryParma = { value: 'jhon', title: 'the name' }) => {
     console.log(this.queryParams.value)
-    if (Utils.hasValue(queryParma.value)) {
+    if (hasValue(queryParma.value)) {
       this.queryParams[queryParma.id] = {
         value: queryParma.value,
         title: queryParma.title || '_'
       }
     } else delete this.queryParams[queryParma.id]
-
-    this.search()
+    this.load()
   }
 
   #onError = (error, service) => {
     console.log(error)
-    service.onError(error, service)
+    service.onError?.(error, service)
     if (error.stack) error = { message: error.message, stack: error.stack }
-    service.setState({ state: 'error', error })
+    service.setState({ state: 'error', props: { error } })
   }
 
-  #onResult = async (data, service) => {
-    if (service.onResult) {
-      let modfied = await service.onResult(data, service)
-      if (modfied) data = modfied
-    }
+  #onResponse = async (data, service) => {
+    data = (await service.onResponse?.(data, service)) ?? data
+
     let items = []
     let _data = {}
     if (!Array.isArray(data)) {
@@ -207,7 +189,7 @@ export default class PagenationService {
     //     }, 100);
     // } else
     service.setState(
-      service.items.length > 0 || items.length > 0 ? 'none' : 'noData'
+      service.items.length > 0 || items.length > 0 ? 'none' : 'noContent'
     )
   }
   getStored = (store_key) =>
