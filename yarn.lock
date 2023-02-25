@@ -6365,6 +6365,11 @@ jest-worker@^27.4.5:
     merge-stream "^2.0.0"
     supports-color "^8.0.0"
 
+js-node-tools@^0.0.40:
+  version "0.0.40"
+  resolved "https://registry.yarnpkg.com/js-node-tools/-/js-node-tools-0.0.40.tgz#ed999333a36090b014130d7151e7faa25c484935"
+  integrity sha512-NDCCRIrumDbd//F7egTy9rWMpkGT0fdRJuw7kR2UQC/zWkm9GHDTaHS0nZVx5Uam4fCatWNNIMcfw0PUI+94gA==
+
 js-string-escape@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/js-string-escape/-/js-string-escape-1.0.1.tgz#e2625badbc0d67c7533e9edc1068c587ae4137ef"

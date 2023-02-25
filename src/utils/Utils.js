@@ -81,4 +81,38 @@ export default class Utils {
       }
     }
   }
+
+  static ReactToNode = ({ reactComponent, props = {} }) => {
+    const fn = reactComponent?.type ?? reactComponent
+    if (typeof fn === 'function') return create(fn(props))
+  }
+}
+
+const create = (reactComponent) => {
+  if (!reactComponent) return document.createTextNode('')
+  if (typeof reactComponent === 'string')
+    return document.createTextNode(reactComponent)
+
+  let element
+  if (typeof reactComponent.type === 'function') {
+    element = create(reactComponent.type(reactComponent.props))
+  } else element = document.createElement(reactComponent.type)
+
+  Object.entries(reactComponent.props).map(([key, value]) => {
+    if (key === 'children') return
+    else if (key === 'style')
+      return Object.entries(value).map(
+        ([styleKey, styleValue]) => (element.style[styleKey] = styleValue)
+      )
+    else if (key !== 'className') key = key.toLocaleLowerCase()
+    element[key] = value
+  })
+  if (typeof reactComponent.props.children === 'object') {
+    Array.isArray(reactComponent.props.children)
+      ? Object.values(reactComponent.props.children).forEach((nestedChild) =>
+          element.append(create(nestedChild))
+        )
+      : element.append(create(reactComponent.props.children))
+  } else element.append(reactComponent.props.children ?? '')
+  return element
 }
