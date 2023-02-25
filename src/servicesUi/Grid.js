@@ -1,5 +1,12 @@
 import React from 'react'
-const Grid = ({ service, ItemBuilder, className = 'local-grid', onClick }) => {
+const Grid = ({
+  service,
+  ItemBuilder,
+  className = 'local-grid',
+  onClick,
+  children,
+  ...props
+}) => {
   ;[service.items, service.setItems] = React.useState(service.items)
   service.setItem = React.useMemo(
     () => (item) =>
@@ -9,10 +16,11 @@ const Grid = ({ service, ItemBuilder, className = 'local-grid', onClick }) => {
     []
   )
   return (
-    <div id='grid-container' className={className} onClick={onClick}>
+    <div id='grid-container' className={className} onClick={onClick} {...props}>
       {service.items.map((item, i) => (
         <ItemBuilder key={i} item={item} />
       ))}
+      {children}
     </div>
   )
 }
