@@ -94,9 +94,10 @@ const create = (reactComponent) => {
     return document.createTextNode(reactComponent)
 
   let element
-  if (typeof reactComponent.type === 'function') {
+  if (reactComponent.type === 'svg') return createSvg(reactComponent)
+  else if (typeof reactComponent.type === 'function')
     element = create(reactComponent.type(reactComponent.props))
-  } else element = document.createElement(reactComponent.type)
+  else element = document.createElement(reactComponent.type)
 
   Object.entries(reactComponent.props).map(([key, value]) => {
     if (key === 'children') return
@@ -116,3 +117,33 @@ const create = (reactComponent) => {
   } else element.append(reactComponent.props.children ?? '')
   return element
 }
+
+const createSvg = (svg) => {
+  let element = document.createElementNS('http://www.w3.org/2000/svg', svg.type)
+  const children = svg.props.children
+  Object.entries(svg.props).map(([key, value]) => {
+    if (key === 'children') return
+    else if (key === 'style')
+      return Object.entries(value).map(
+        ([styleKey, styleValue]) => (element.style[styleKey] = styleValue)
+      )
+    else if (NS_KEYS[key]) {
+      element.setAttribute(NS_KEYS[key], value)
+    } else element.setAttribute(camelToDashCase(key).toLowerCase(), value)
+  })
+  if (typeof children === 'object') {
+    Array.isArray(children)
+      ? Object.values(children).forEach((nestedChild) =>
+          element.append(createSvg(nestedChild))
+        )
+      : element.append(createSvg(children))
+  } else element.append(children ?? '')
+  return element
+}
+
+const NS_KEYS = {
+  className: 'class',
+  viewBox: 'viewBox'
+}
+const camelToDashCase = (str) =>
+  str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
