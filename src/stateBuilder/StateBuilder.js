@@ -5,7 +5,7 @@ import { Utils } from '../utils'
 let defaultProps = {
   ...StateKit,
   service: {},
-  state: 'idel',
+  state: 'idle',
   test: false,
   singleState: false,
   className: ''
@@ -16,7 +16,7 @@ const StateBuilder = (args = defaultProps) => {
 
   return (
     <div
-      style={{ display: args.state === 'idel' ? 'none' : 'block' }}
+      style={{ display: args.state === 'idle' ? 'none' : 'block' }}
       className={args.className ?? ''}
       ref={(_ref) => {
         if (!_ref) return
