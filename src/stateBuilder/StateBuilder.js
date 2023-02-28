@@ -16,7 +16,7 @@ const StateBuilder = (args = defaultProps) => {
 
   return (
     <div
-      style={{ display: 'none' }}
+      style={{ display: args.state === 'idel' ? 'none' : 'block' }}
       className={args.className ?? ''}
       ref={(_ref) => {
         if (!_ref) return
