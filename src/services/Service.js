@@ -44,7 +44,7 @@ export default class Service {
       this.query = queryGenerator(this.queryParams, endpoint)
       this.setState('searching')
       try {
-        const result = await this.callback(this.query)
+        let result = await this.callback(this.query)
         if (this.onResponse)
           result = (await this.onResponse(result, this)) ?? result
 
@@ -63,7 +63,7 @@ export default class Service {
       this.query = queryGenerator(this.queryParams, endpoint)
       this.setState('reloading')
       try {
-        const result = await this.callback(this.query)
+        let result = await this.callback(this.query)
         if (this.onResponse)
           result = (await this.onResponse(result, this)) ?? result
 
