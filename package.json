@@ -1,6 +1,6 @@
 {
   "name": "morabaa-services",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "description": "morabaa-services",
   "main": "dist/index.js",
   "module": "dist/index.es.js",

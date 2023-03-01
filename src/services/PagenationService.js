@@ -86,7 +86,7 @@ export default class PagenationService {
       this.state = 'loading'
       this.setState('loading')
       try {
-        const result = await this.callback(this.query)
+        let result = await this.callback(this.query)
         this.#onResponse(result, this)
       } catch (error) {
         this.#onError(error, this)
@@ -99,7 +99,7 @@ export default class PagenationService {
       this.query = generateQuery(this.queryParams, endpoint)
       this.setState('reloading')
       try {
-        const result = await this.callback(this.query)
+        let result = await this.callback(this.query)
         this.clearStorage()
         this.#onResponse(result, this)
       } catch (error) {
@@ -112,7 +112,7 @@ export default class PagenationService {
       let query = this.query + `&offset=${this.offset}`
       this.setState('loadingMore')
       try {
-        const result = await this.callback(query)
+        let result = await this.callback(query)
         this.#onResponse(result, this)
       } catch (error) {
         this.#onError(error, this)
