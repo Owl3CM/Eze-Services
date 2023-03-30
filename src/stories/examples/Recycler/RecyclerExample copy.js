@@ -1,6 +1,6 @@
-import './service.css'
+import './recycler.css'
 import React from 'react'
-import { PaginatedContainer, PagenationService, Grid } from '../Lib'
+import { PagenationService, RecyclerList } from '../Lib'
 import MockApiService from '../../../mock/MockApiService'
 
 const ItemCard = ({ item }) => {
@@ -15,33 +15,30 @@ const ItemCard = ({ item }) => {
   )
 }
 
-const ServicesExample = () => {
+const RecyclerExample = () => {
   const service = React.useMemo(() => {
-    const test = new MockApiService({ baseURL: 'baseURL_test' })
+    const mockApi = new MockApiService({ baseURL: 'baseURL_test' })
     const _service = new PagenationService({
-      callback: test.get,
-      endpoint: 'endpoint_test',
+      callback: mockApi.get,
+      endpoint: 'mock',
       useCash: true,
       storage: sessionStorage
-      // storageKey: 'test-pagenation'
+      // storageKey: 'test-recycler'
     })
-
     _service.load()
     return _service
   }, [])
 
   return (
-    <PaginatedContainer service={service} itemBuilder={ItemCard} useRefresh>
+    <RecyclerList service={service} itemBuilder={ItemCard}>
       <input
         type='text'
-        className='input'
         onChange={({ target }) => {
           service.updateQueryParams({ id: 'name', value: target.value })
         }}
       />
-      <Grid service={service} ItemBuilder={ItemCard} />
-    </PaginatedContainer>
+    </RecyclerList>
   )
 }
 
-export default ServicesExample
+export default RecyclerExample

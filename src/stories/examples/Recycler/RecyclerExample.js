@@ -1,6 +1,5 @@
 import './recycler.css'
 import React from 'react'
-import { PagenationService, RecyclerList } from '../Lib'
 import MockApiService from '../../../mock/MockApiService'
 
 const ItemCard = ({ item }) => {
@@ -18,26 +17,26 @@ const ItemCard = ({ item }) => {
 const RecyclerExample = () => {
   const service = React.useMemo(() => {
     const mockApi = new MockApiService({ baseURL: 'baseURL_test' })
-    const _service = new PagenationService({
-      callback: mockApi.get,
-      endpoint: 'mock',
-      useCash: true,
-      storage: sessionStorage
-      // storageKey: 'test-recycler'
-    })
-    _service.search()
-    return _service
+    // const _service = new PagenationService({
+    //   callback: mockApi.get,
+    //   endpoint: 'mock',
+    //   useCash: true,
+    //   storage: sessionStorage
+    //   // storageKey: 'test-recycler'
+    // })
+    // _service.load()
+    // return _service
   }, [])
 
   return (
-    <RecyclerList service={service} itemBuilder={ItemCard}>
+    <div service={service} itemBuilder={ItemCard}>
       <input
         type='text'
         onChange={({ target }) => {
           service.updateQueryParams({ id: 'name', value: target.value })
         }}
       />
-    </RecyclerList>
+    </div>
   )
 }
 
