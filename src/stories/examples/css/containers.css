@@ -42,14 +42,14 @@ body{
     transition: all 0.3s ease-in-out;
     overflow: auto;
     display: flex;
-    gap: var(--md);
+    gap: var(--m);
 }
 
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    padding: var(--md);
-    gap: var(--md);
+    padding: var(--m);
+    gap: var(--m);
 }
 
 @media screen and (max-width: 768px) {
@@ -58,8 +58,8 @@ body{
 
 .card{
     color: var(--crow); 
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-m);
     background-color: var(--prim);
-    border-radius: var(--xl);
-    padding: var(--md);
+    border-radius: var(--x);
+    padding: var(--m);
 }

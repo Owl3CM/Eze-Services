@@ -1,12 +1,12 @@
 .input[type="number"],.input[type="text"],.input[type="password"] {
   font-family: var(--font-bold);
-  padding: var(--sm) var(--md);
+  padding: var(--s) var(--m);
   outline: none;
   border: none;
   color: var(--shark);
   font-weight: bold;
-  border-radius: var(--md);
-  box-shadow:var(--shadow-lg);
+  border-radius: var(--m);
+  box-shadow:var(--shadow-l);
   background-color: var(--prim);
 }
 
@@ -23,14 +23,14 @@
 .button{
   background-color: var(--dragon);
   color: var(--white);
-  border-radius: var(--md);
-  padding: var(--sm) var(--md);
+  border-radius: var(--m);
+  padding: var(--s) var(--m);
   font-weight: bold;
   font-family: var(--font-bold);
   border: none;
   cursor: pointer;
   letter-spacing: 1px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-l);
 }
 
 .toggle-theme-button {
@@ -42,6 +42,6 @@
   margin: -3px;
   background-color: var(--throne);
   border-radius: 0 0 10px 0 ;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-l);
   cursor: pointer;
 }

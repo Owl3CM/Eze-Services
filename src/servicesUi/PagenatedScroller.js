@@ -47,7 +47,7 @@ export default React.memo(PagenatedScroller)
 const TestService = ({ service }) => {
   return (
     <>
-      <div className='row gap-2xl'>
+      <div className='row gap-2x'>
         <input
           onChange={({ target }) => {
             TimedCallback.create({
@@ -79,7 +79,7 @@ const TestService = ({ service }) => {
         ))}
       </div>
 
-      <div className='row-center gap-lg p-lg'>
+      <div className='row-center gap-l p-l'>
         <p className='text-red'>!! Change Here Then Submit </p>
         <input
           type='text'

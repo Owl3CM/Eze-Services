@@ -2,10 +2,7 @@ import React from 'react'
 import Grid from './Grid'
 
 const Button = ({ onClick, title, className = 'bg-red text-white' }) => (
-  <p
-    className={`px-md py-sm rounded-lg pointer ${className}`}
-    onClick={onClick}
-  >
+  <p className={`px-m py-s rounded-l pointer ${className}`} onClick={onClick}>
     {title}
   </p>
 )
@@ -17,7 +14,7 @@ const MultiBuilderGrid = ({ service, builders }) => {
 
   return (
     <>
-      <div className='row-center self-start gap-md bg-prim px-md rounded-lg py-sm mx-md'>
+      <div className='row-center self-start gap-m bg-prim px-m rounded-l py-s mx-m'>
         <p className='text-shark'>Card Template : </p>
 
         {Object.keys(builders).map((card, i) => (
