@@ -35,7 +35,7 @@ export default class Service implements IService {
   storage: any = {};
   storageKey = "";
   onError: (error: any) => void;
-  onResponse: (response: any) => void;
+  onResponse: (response: any) => any;
 
   constructor({ callback, onError: outerOnError, onResponse: outerOnResponse, interceptor, storage = localStorage, useCash, storageKey }: ServiceConstructor) {
     Object.assign(this, { callback, interceptor, storage, useCash, storageKey });
@@ -110,10 +110,13 @@ export default class Service implements IService {
     };
 
     this.onResponse = async (data: any) => {
+      if (!!outerOnResponse) {
+        data = outerOnResponse(data, this) ?? data;
+      }
+
       const clear = this.offset === 0;
       this.offset += data.length;
       this.setData((prev: any[]) => (clear ? data : [...prev, ...data]));
-
       setTimeout(() => {
         this.canFetch = !!(this.limit && data.length >= this.limit);
       }, 100);

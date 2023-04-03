@@ -19,7 +19,10 @@ const ServicesExample = () => {
   const service = React.useMemo(() => {
     const test = new MockApiService({ baseURL: "baseURL_test" });
     const _service = new PagenationService({
-      callback: test.get,
+      callback: async (query) => {
+        let data = (await test.get(query)).data;
+        return data;
+      },
       endpoint: "endpoint_test",
       useCash: true,
       storage: sessionStorage,
@@ -40,7 +43,6 @@ const ServicesExample = () => {
           service.updateQueryParams({ id: "name", value: target.value });
         }}
       />
-      <p>LOL</p>
       <Grid service={service} itemBuilder={ItemCard} stateKey="data" />
     </PaginatedContainer>
   );

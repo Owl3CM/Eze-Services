@@ -3,9 +3,8 @@ import { IPagenationService, ServiceConstructor } from "./Types";
 
 export default class PagenationService extends Service implements IPagenationService {
   loadMore = async () => {};
-
-  constructor({ onError, callback, onResponse, interceptor, storage = localStorage, useCash, storageKey }: ServiceConstructor) {
-    super({ onError, callback, onResponse, interceptor, storage, useCash, storageKey });
+  constructor(props: ServiceConstructor) {
+    super(props);
     this.loadMore = async () => {
       this.canFetch = false;
       let query = this.query + `&offset=${this.offset}`;

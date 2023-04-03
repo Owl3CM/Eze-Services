@@ -24,7 +24,7 @@ export interface IService {
   useCash: boolean;
 
   onError?: (error: any, service: IService) => void;
-  onResponse?: (response: any, service: IService) => void;
+  onResponse?: (response: any, service: IService) => any;
   interceptor?: (service: IService) => void;
 
   load: () => Promise<void>;
@@ -48,7 +48,7 @@ export interface IPagenationService extends IService {
 export interface ServiceConstructor {
   onError?: (error: any, service: IService) => void;
   callback: (url: string) => Promise<any>;
-  onResponse?: (response: any, service: IService) => void;
+  onResponse?: (response: any, service: IService) => any;
   interceptor?: (service: IService) => void;
   storage?: any;
   storageKey?: string;

@@ -21,10 +21,11 @@ const defaultRefresherProps = {
   },
 };
 export default class PaginatedContainer extends React.Component {
-  constructor({ service, onRefresh, useRefresh, refresher }) {
-    super({ service, onRefresh, useRefresh, refresher });
+  constructor(props) {
+    const { service, onRefresh, useRefresh, refresher, refresherProps } = props;
+    super(props);
     this.refresher = refresher ?? defaultRefresh;
-    this.refresherProps = this.props.refresherProps ? { ...defaultRefresherProps, ...this.props.refresherProps } : defaultRefresherProps;
+    this.refresherProps = refresherProps ? { ...defaultRefresherProps, ...refresherProps } : defaultRefresherProps;
     this.id = window.location.pathname.replace(/\//g, "");
     this.refresh = useRefresh ? onRefresh || service.reload : onRefresh;
   }
