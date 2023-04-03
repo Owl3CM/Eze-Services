@@ -22,9 +22,9 @@ const defaultRefresherProps = {
 };
 export default class PaginatedContainer extends React.Component {
   constructor({ service, onRefresh, useRefresh, refresher }) {
+    super({ service, onRefresh, useRefresh, refresher });
     this.refresher = refresher ?? defaultRefresh;
     this.refresherProps = this.props.refresherProps ? { ...defaultRefresherProps, ...this.props.refresherProps } : defaultRefresherProps;
-    super(this.props);
     this.id = window.location.pathname.replace(/\//g, "");
     this.refresh = useRefresh ? onRefresh || service.reload : onRefresh;
   }
@@ -33,9 +33,6 @@ export default class PaginatedContainer extends React.Component {
     const top = postions[this.id];
     top && this.container.scrollTo({ top, left: 0, behavior: "auto" });
     if (this.refresh) {
-      Object.entries(this.props.refresherProps).forEach(([key, value]) => {
-        this.refresherProps[key] = value;
-      });
       pullToRefreshEvent(this.container, this.props.service, this.refresh, this.refresherProps);
     }
   }

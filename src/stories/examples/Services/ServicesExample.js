@@ -31,7 +31,7 @@ const ServicesExample = () => {
   }, []);
 
   return (
-    <PaginatedContainer service={service}>
+    <PaginatedContainer service={service} useRefresh>
       <input
         type="text"
         className="input"

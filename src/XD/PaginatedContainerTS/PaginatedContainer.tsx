@@ -59,7 +59,7 @@ const defaultRefresherProps = {
   },
 };
 
-export default class PaginatedContainer extends React.Component implements IPaginatedContainer {
+export default class PaginatedContainer extends React.Component {
   id: string;
   refresh: () => void;
   refresher: React.ReactNode;
@@ -71,7 +71,6 @@ export default class PaginatedContainer extends React.Component implements IPagi
     const refresherProps = props.refresherProps ? { ...defaultRefresherProps, ...props.refresherProps } : defaultRefresherProps;
     super(props);
     this.refresherProps = refresherProps;
-
     this.refresher = props.refresher ?? defaultRefresh;
     this.id = window.location.pathname.replace(/\//g, "");
     this.refresh = props.useRefresh ? props.onRefresh || props.service.reload : props.onRefresh;
@@ -87,7 +86,7 @@ export default class PaginatedContainer extends React.Component implements IPagi
     }
   }
   render() {
-    const { service, children, className = "local-wrapper scroller" } = this.props;
+    const { service, children, className = "local-wrapper scroller", refresher } = this.props as IPaginatedContainerProps;
     return (
       <div
         id={this.id}
@@ -101,14 +100,14 @@ export default class PaginatedContainer extends React.Component implements IPagi
         }}
       >
         {children}
-        {!!this.refresh && <div id="refresher">{this.props.refresher}</div>}
+        {!!this.refresh && <div id="refresher">{refresher}</div>}
         {/* <ServiceStateBuilder service={service} /> */}
       </div>
     );
   }
 }
 
-const pullToRefreshEvent = ({ container, service, refresh, refresherProps }: IPaginatedContainer) => {
+const pullToRefreshEvent = ({ container, service, refresh, refresherProps }: any) => {
   if (!container) return;
   let reloader: any = container.querySelector("#refresher")!;
   reloader.remove = () => {
