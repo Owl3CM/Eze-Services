@@ -1,47 +1,48 @@
-import './service.css'
-import React from 'react'
-import { PaginatedContainer, PagenationService, Grid } from '../Lib'
-import MockApiService from '../../../mock/MockApiService'
+import "./service.css";
+import React from "react";
+import { PaginatedContainer, PagenationService, Grid } from "../Lib";
+import MockApiService from "../../../mock/MockApiService";
 
 const ItemCard = ({ item }) => {
   return (
-    <div className='card'>
+    <div className="card">
       <p>{item.name}</p>
       <p>{item.description}</p>
       <p>{item.wholeSalePrice}</p>
       <p>{item.morabaaId}</p>
       <p>{item.test}</p>
     </div>
-  )
-}
+  );
+};
 
 const ServicesExample = () => {
   const service = React.useMemo(() => {
-    const test = new MockApiService({ baseURL: 'baseURL_test' })
+    const test = new MockApiService({ baseURL: "baseURL_test" });
     const _service = new PagenationService({
       callback: test.get,
-      endpoint: 'endpoint_test',
+      endpoint: "endpoint_test",
       useCash: true,
-      storage: sessionStorage
+      storage: sessionStorage,
       // storageKey: 'test-pagenation'
-    })
-
-    _service.load()
-    return _service
-  }, [])
+    });
+    console.log({ _service });
+    _service.load();
+    return _service;
+  }, []);
 
   return (
-    <PaginatedContainer service={service} itemBuilder={ItemCard} useRefresh>
+    <PaginatedContainer service={service}>
       <input
-        type='text'
-        className='input'
+        type="text"
+        className="input"
         onChange={({ target }) => {
-          service.updateQueryParams({ id: 'name', value: target.value })
+          service.updateQueryParams({ id: "name", value: target.value });
         }}
       />
-      <Grid service={service} ItemBuilder={ItemCard} />
+      <p>LOL</p>
+      <Grid service={service} itemBuilder={ItemCard} />
     </PaginatedContainer>
-  )
-}
+  );
+};
 
-export default ServicesExample
+export default ServicesExample;

@@ -1,5 +1,43 @@
 import React from "react";
-const postions = {};
+const postions: {
+  [key: string]: number;
+} = {};
+
+interface IPaginatedContainer {
+  // constructor(props: IPaginatedContainerProps);
+  id: string;
+  refresh: () => void;
+  refresher: React.ReactNode;
+  refresherProps: { id: string; reloadingClass: string; disappearingClass: string; pullingClass: string; onPull: (e: onPullProps) => void };
+  container: HTMLElement;
+  props: IPaginatedContainerProps;
+  componentDidMount(): void;
+  render(): JSX.Element;
+  service: any;
+}
+
+interface IPaginatedContainerProps {
+  service: any;
+  onRefresh: () => void;
+  useRefresh: boolean;
+  className: string;
+  children: React.ReactNode;
+  id: string;
+  refresher: React.ReactNode;
+  refresherProps: {
+    id: string;
+    reloadingClass: string;
+    disappearingClass: string;
+    pullingClass: string;
+    onPull: (props: onPullProps) => void;
+  };
+}
+
+interface onPullProps {
+  diff: number;
+  diffPersent: number;
+  refresher: HTMLElement;
+}
 
 const defaultRefresh = (
   <svg className="refresher-svg" viewBox="0 0 512 512">
@@ -15,28 +53,37 @@ const defaultRefresherProps = {
   reloadingClass: "reloading",
   disappearingClass: "disappearing",
   pullingClass: "pulling",
-  onPull: ({ diff, diffPersent, refresher }) => {
+  onPull: ({ diff, diffPersent, refresher }: onPullProps) => {
     let rotateAngle = 720 - diffPersent * 360;
     refresher.style.transform = `rotate(${rotateAngle}deg)`;
   },
 };
-export default class PaginatedContainer extends React.Component {
-  constructor({ service, onRefresh, useRefresh, refresher }) {
-    this.refresher = refresher ?? defaultRefresh;
-    this.refresherProps = this.props.refresherProps ? { ...defaultRefresherProps, ...this.props.refresherProps } : defaultRefresherProps;
-    super(this.props);
+
+export default class PaginatedContainer extends React.Component implements IPaginatedContainer {
+  id: string;
+  refresh: () => void;
+  refresher: React.ReactNode;
+  refresherProps: { id: string; reloadingClass: string; disappearingClass: string; pullingClass: string; onPull: (e: onPullProps) => void };
+  container = document.body;
+  service: any;
+
+  constructor(props: IPaginatedContainerProps) {
+    const refresherProps = props.refresherProps ? { ...defaultRefresherProps, ...props.refresherProps } : defaultRefresherProps;
+    super(props);
+    this.refresherProps = refresherProps;
+
+    this.refresher = props.refresher ?? defaultRefresh;
     this.id = window.location.pathname.replace(/\//g, "");
-    this.refresh = useRefresh ? onRefresh || service.reload : onRefresh;
+    this.refresh = props.useRefresh ? props.onRefresh || props.service.reload : props.onRefresh;
   }
+
   componentDidMount() {
-    this.container = document.getElementById(this.id);
+    // this.container = document.getElementById(this.id);
+    Object.assign("container", document.getElementById(this.id));
     const top = postions[this.id];
     top && this.container.scrollTo({ top, left: 0, behavior: "auto" });
-    if (this.refresh) {
-      Object.entries(this.props.refresherProps).forEach(([key, value]) => {
-        this.refresherProps[key] = value;
-      });
-      pullToRefreshEvent(this.container, this.props.service, this.refresh, this.refresherProps);
+    if (!!this.refresh) {
+      pullToRefreshEvent(this);
     }
   }
   render() {
@@ -45,7 +92,7 @@ export default class PaginatedContainer extends React.Component {
       <div
         id={this.id}
         className={className}
-        onScroll={({ target }) => {
+        onScroll={({ target }: any) => {
           if (service.canFetch && target.scrollHeight - target.scrollTop < target.clientHeight + 400) {
             service.canFetch = false;
             service.loadMore();
@@ -54,16 +101,16 @@ export default class PaginatedContainer extends React.Component {
         }}
       >
         {children}
-        {this.refresh && <div id="refresher">{this.props.refresher}</div>}
+        {!!this.refresh && <div id="refresher">{this.props.refresher}</div>}
         {/* <ServiceStateBuilder service={service} /> */}
       </div>
     );
   }
 }
 
-const pullToRefreshEvent = (container, service, refresh, refresherProps) => {
+const pullToRefreshEvent = ({ container, service, refresh, refresherProps }: IPaginatedContainer) => {
   if (!container) return;
-  let reloader = container.querySelector("#refresher");
+  let reloader: any = container.querySelector("#refresher")!;
   reloader.remove = () => {
     let defaultClass = `${refresherProps.reloadingClass} ${refresherProps.disappearingClass}`;
     reloader.style = "";
@@ -75,7 +122,7 @@ const pullToRefreshEvent = (container, service, refresh, refresherProps) => {
   reloader.remove();
 
   let diff = 0;
-  const onSwipeDown = (e) => {
+  const onSwipeDown = (e: any) => {
     diff = e.touches[0].clientY - service.startY;
     if (diff > 20) {
       if (diff > 200) diff = 200;
@@ -88,8 +135,8 @@ const pullToRefreshEvent = (container, service, refresh, refresherProps) => {
   };
 
   const touchEnd = () => {
-    container.removeEventListener("touchend", touchEnd, { passive: true });
-    container.removeEventListener("touchmove", onSwipeDown, { passive: true });
+    container.removeEventListener("touchend", touchEnd);
+    container.removeEventListener("touchmove", onSwipeDown);
 
     if (diff < 100) {
       reloader?.remove();
