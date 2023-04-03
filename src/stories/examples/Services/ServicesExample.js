@@ -26,6 +26,7 @@ const ServicesExample = () => {
       // storageKey: 'test-pagenation'
     });
     console.log({ _service });
+
     _service.load();
     return _service;
   }, []);
@@ -40,7 +41,7 @@ const ServicesExample = () => {
         }}
       />
       <p>LOL</p>
-      <Grid service={service} itemBuilder={ItemCard} />
+      <Grid service={service} itemBuilder={ItemCard} stateKey="data" />
     </PaginatedContainer>
   );
 };
