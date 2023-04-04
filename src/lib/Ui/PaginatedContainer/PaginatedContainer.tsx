@@ -31,6 +31,7 @@ interface Props {
     pullingClass: string;
     onPull: (props: onPullProps) => void;
   };
+  addStateBuilder?: boolean;
 }
 
 export default (props: Props) => <PaginatedContainer refresher={Refresher} {...props} />;

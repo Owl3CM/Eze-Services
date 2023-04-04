@@ -21,14 +21,14 @@ export class RecyclerListJs extends React.Component {
       containerClass = "local-wrapper relative",
       viewedItems,
       indecator,
-      stateKey = "items",
+      stateKey = "data",
       children,
     } = props;
     super(props);
     this.dir = document.documentElement.getAttribute("dir") || "ltr";
     // this.useRecycler = localStorage.getItem("useRecycler") !== "Disable Recycler";
     this.Card = itemBuilder;
-    this.containerClass = containerClass + " -hide-scroller";
+    this.containerClass = containerClass + " hide-scroller";
     this.children = children;
     if (indecator) {
       Object.entries(indecator).forEach(([key, value]) => {

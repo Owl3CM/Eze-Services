@@ -9,7 +9,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-const Grid = ({ service, itemBuilder: Builder, className = "local-grid", stateKey = "items", children, ...props }: Props) => {
+const Grid = ({ service, itemBuilder: Builder, className = "local-grid", stateKey = "data", children, ...props }: Props) => {
   const itemsKey = React.useMemo(() => Utils.convertToCamelCase(`set-${stateKey}`), []);
   [service[stateKey], service[itemsKey]] = React.useState(service[stateKey] ?? []);
   console.log(service);

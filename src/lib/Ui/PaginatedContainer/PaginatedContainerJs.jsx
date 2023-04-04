@@ -33,7 +33,7 @@ export class PaginatedContainer extends React.Component {
     }
   }
   render() {
-    const { service, children, className = "local-wrapper scroller" } = this.props;
+    const { service, children, className = "local-wrapper scroller", addStateBuilder = true } = this.props;
     return (
       <div
         id={this.id}
@@ -47,7 +47,7 @@ export class PaginatedContainer extends React.Component {
         }}>
         {children}
         {this.refresh && <div id="refresher">{this.props.refresher}</div>}
-        <ServiceStateBuilder service={service} />
+        {addStateBuilder && <ServiceStateBuilder service={service} />}
       </div>
     );
   }
