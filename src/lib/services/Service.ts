@@ -37,13 +37,22 @@ export default class Service implements IService {
   onError: (error: any) => void;
   onResponse: (response: any) => any;
 
-  constructor({ callback, onError: outerOnError, onResponse: outerOnResponse, interceptor, storage = localStorage, useCash, storageKey }: ServiceConstructor) {
+  constructor({
+    callback,
+    onError: outerOnError,
+    onResponse: outerOnResponse,
+    interceptor,
+    storage = localStorage,
+    useCash,
+    storageKey,
+    endpoint,
+  }: ServiceConstructor) {
     Object.assign(this, { callback, interceptor, storage, useCash, storageKey });
 
     this.load = async () => {
       this.canFetch = false;
       this.offset = 0;
-      this.query = generateQuery(this.queryParams);
+      this.query = generateQuery(this.queryParams, endpoint);
       // if (this.useCash) {
       //     let cashItems = this.getStored(this.query);
       //     if (cashItems) {
@@ -72,7 +81,7 @@ export default class Service implements IService {
     this.reload = async () => {
       this.canFetch = false;
       this.offset = 0;
-      this.query = generateQuery(this.queryParams);
+      this.query = generateQuery(this.queryParams, endpoint);
       this.interceptor?.(this);
       this.setState("reloading");
       try {

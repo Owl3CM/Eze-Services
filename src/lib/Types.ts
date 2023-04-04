@@ -55,4 +55,5 @@ export interface ServiceConstructor {
   storage?: any;
   storageKey?: string;
   useCash?: boolean;
+  endpoint?: string;
 }

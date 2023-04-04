@@ -23,7 +23,6 @@ export class PaginatedContainer extends React.Component {
   componentDidMount() {
     this.container = document.getElementById(this.id);
     const top = postions[this.id];
-    console.log({ postions }, { id: this.id });
     top && this.container.scrollTo({ top, left: 0, behavior: "auto" });
     if (this.refresh) {
       Object.entries(this.props.refresherProps).forEach(([key, value]) => {
