@@ -1,6 +1,6 @@
 import React from "react";
 
-export default class RecyclerListJs extends React.Component {
+export class RecyclerList extends React.Component {
   threshold = 200;
   initItemsToCalculate = 10;
   dir = "ltr";
@@ -25,8 +25,9 @@ export default class RecyclerListJs extends React.Component {
     },
     children: null,
   };
-  constructor({ service, itemBuilder, nodeBuilder, gridClass, containerClass, viewedItems, indecator, children }) {
-    super(RecyclerListJs.defaultProps);
+  constructor(props) {
+    const { service, itemBuilder, nodeBuilder, gridClass, containerClass, viewedItems, indecator, children } = props;
+    super(props);
     this.dir = document.documentElement.getAttribute("dir") || "ltr";
     // this.useRecycler = localStorage.getItem("useRecycler") !== "Disable Recycler";
     this.service = service;

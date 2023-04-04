@@ -1,7 +1,7 @@
 import "./service.css";
 import React from "react";
 import { PaginatedContainer, PagenationService, Grid } from "../Lib";
-import MockApiService from "../../../mock/MockApiService";
+import MockApiService from "../../../XD/mock/MockApiService";
 
 const ItemCard = ({ item }) => {
   return (

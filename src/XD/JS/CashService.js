@@ -1,4 +1,4 @@
-import ApiService from "../ApiService";
+import ApiService from "../services/ApiService";
 
 export default class CashService {
   constructor({ baseURL, headers, onResponse, storageKey, storage = localStorage }) {

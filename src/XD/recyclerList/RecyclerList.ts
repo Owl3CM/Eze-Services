@@ -1,4 +1,5 @@
 import React from "react";
+import { RecyclerList } from "./RecyclerListJs";
 
 export interface IRecyclerProps {
   service: any;
@@ -7,5 +8,5 @@ export interface IRecyclerProps {
   children: React.ReactNode;
   stateKey?: string;
 }
-export declare const RecyclerList: React.FC<IRecyclerProps>;
-export default RecyclerList;
+
+export default (props: IRecyclerProps) => <RecyclerList {...props} />;
