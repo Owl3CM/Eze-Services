@@ -34,7 +34,11 @@ interface Props {
   addStateBuilder?: boolean;
 }
 
-export default (props: Props) => <div refresher={Refresher} {...props} />;
+export default (props: Props) => (
+  <div refresher={Refresher} {...props}>
+    {props.children}
+  </div>
+);
 
 // const postions: any = {};
 
