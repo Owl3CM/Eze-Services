@@ -33,8 +33,6 @@ export interface IService {
   reload: () => Promise<void>;
   setQueryParmas: (queries: QueryParam[]) => void;
   updateQueryParams: (query: QueryParam) => void;
-  //callback: (url: string) => Promise<any>;
-  //loadMore: () => Promise<void>;
 
   storage?: any;
   storageKey?: string;
