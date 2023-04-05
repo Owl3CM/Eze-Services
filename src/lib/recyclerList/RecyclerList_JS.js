@@ -1,7 +1,7 @@
 import React from "react";
 import { Utils } from "../utils";
 
-export default class RecyclerListJs extends React.Component {
+export default class RecyclerList extends React.Component {
   threshold = 200;
   initItemsToCalculate = 10;
   dir = "ltr";

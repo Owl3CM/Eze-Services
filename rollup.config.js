@@ -12,7 +12,9 @@ const config = {
   plugins: [
     peerDepsExternal(),
     resolve(),
-    commonjs(),
+    commonjs({
+      include: "node_modules/**",
+    }),
     typescript(),
     postcss({
       plugins: [],
