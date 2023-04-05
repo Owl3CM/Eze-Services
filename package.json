@@ -10,11 +10,10 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-storybook": "build-storybook",
-    "storybook": "start-storybook -p 6006",
     "build": "rm -rf dist && rollup -c --exports auto",
-    "prod": "git add . && yarn build && yarn publish",
-    "start": "yarn build && start-storybook -p 6006"
+    "prod-old": "git add . && yarn build && yarn publish",
+    "start": "yarn build && start-storybook -p 6006",
+    "prod": "node ./scripts/publish.js"
   },
   "author": "Owl7CM",
   "license": "MIT",
