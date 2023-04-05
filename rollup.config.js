@@ -1,4 +1,3 @@
-// import babel from "@rollup/plugin-babel";
 import typescript from "rollup-plugin-typescript2";
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
 import resolve from "@rollup/plugin-node-resolve";
@@ -21,12 +20,6 @@ const config = {
       minimize: true,
     }),
     terser(),
-    // babel({
-    //   babelHelpers: "bundled",
-    //   presets: ["@babel/preset-react"],
-    //   extensions: [".js", ".jsx", ".ts", ".tsx"],
-    //   exclude: "node_modules/**",
-    // }),
   ],
   output: {
     file: packageJson.main,
