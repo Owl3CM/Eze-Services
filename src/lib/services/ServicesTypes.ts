@@ -1,4 +1,4 @@
-export type ServiceState = "idle" | "loading" | "reloading" | "none" | "error" | "noContent" | "loadingMore" | { state: ServiceState; props: any };
+export type ServiceState = "idle" | "loading" | "reloading" | "error" | "noContent" | "loadingMore" | { state: ServiceState; props: any };
 
 export interface QueryParam {
   id: string;

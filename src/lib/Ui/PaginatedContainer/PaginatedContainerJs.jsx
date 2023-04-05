@@ -102,7 +102,7 @@ const pullToRefreshEvent = (container, service, refresh, refresherProps) => {
   }, 300);
 
   container.addEventListener("touchstart", (e) => {
-    if (container.scrollTop > 5 || service.pulling || service.state !== "none") return;
+    if (container.scrollTop > 5 || service.pulling || service.state !== "idle") return;
     service.pulling = true;
     reloader.style.opacity = "0";
     reloader.style.marginTop = "-80px";

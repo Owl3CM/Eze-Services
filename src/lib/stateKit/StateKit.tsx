@@ -1,6 +1,15 @@
 import React from "react";
 interface IStateKit {
-  [key: string]: any;
+  error: React.ReactNode | React.FC;
+  success: React.ReactNode | React.FC;
+  info: React.ReactNode | React.FC;
+  loading: React.ReactNode | React.FC;
+  processing: React.ReactNode | React.FC;
+  noContent: React.ReactNode | React.FC;
+  loadingMore: React.ReactNode | React.FC;
+  reloading: React.ReactNode | React.FC;
+  searching: React.ReactNode | React.FC;
+  [key: string]: React.ReactNode | React.FC;
 }
 
 interface Props {
@@ -12,7 +21,7 @@ interface Props {
 const Dynimc = ({ service, title, type }: Props) => {
   return () => {
     return (
-      <div>
+      <div className="bg-prim text-penguin">
         <p>{title}</p>
         <p>{type}</p>
       </div>
@@ -40,6 +49,12 @@ const StateKit: IStateKit = {
   loadingMore,
   reloading,
   searching,
+};
+
+export const setDefaultStateKit = (kit: IStateKit) => {
+  Object.keys(kit).forEach((key) => {
+    StateKit[key] = kit[key];
+  });
 };
 
 export default StateKit;

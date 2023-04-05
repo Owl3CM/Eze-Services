@@ -60,7 +60,7 @@ export default class Service implements IService {
       //             this.appointments = cashItems;
       //         } else this.setAppointments(cashItems);
       //         this.offset = cashItems.length;
-      //         this.setState("none");
+      //         this.setState("idle");
       //         setTimeout(() => {
       //             this.canFetch = true;
       //         }, 10);
@@ -128,7 +128,7 @@ export default class Service implements IService {
       setTimeout(() => {
         this.canFetch = !!(this.limit && data.length >= this.limit);
       }, 100);
-      this.setState(Object.keys(this.data).length > 0 || data.length > 0 ? "none" : "noContent");
+      this.setState(Object.keys(this.data).length > 0 || data.length > 0 ? "idle" : "noContent");
     };
   }
 

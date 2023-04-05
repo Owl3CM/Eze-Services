@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
-import { RecyclerListJs } from "./RecyclerListJs";
+// import { RecyclerListJs } from "./RecyclerListJs";
+const RecyclerListJs = require("./RecyclerListJs").default;
 
 // const { service, itemBuilder, nodeBuilder, gridClass, containerClass, viewedItems, indecator, children } = props;
 export interface IRecyclerProps {

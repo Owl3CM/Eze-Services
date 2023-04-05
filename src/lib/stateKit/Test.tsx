@@ -12,14 +12,6 @@ setInterval(() => {
   const index = status.indexOf(service.state);
   const nextIndex = index + 1 >= status.length ? 0 : index + 1;
   service.setState(status[nextIndex]);
-  service.setState("otherSomthing");
-  service.setState({
-    state: "otherSomthing",
-    props: {
-      test: "test",
-    },
-    parent: document.getElementById("am-test-parent")!,
-  });
 }, 1500);
 
 const Test = () => {

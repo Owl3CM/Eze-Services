@@ -12,7 +12,6 @@ interface Props {
 const Grid = ({ service, itemBuilder: Builder, className = "local-grid", stateKey = "data", children, ...props }: Props) => {
   const itemsKey = React.useMemo(() => Utils.convertToCamelCase(`set-${stateKey}`), []);
   [service[stateKey], service[itemsKey]] = React.useState(service[stateKey] ?? []);
-  console.log(service);
   service[itemsKey.slice(-1)] = React.useMemo(() => (item: any) => service[itemsKey]((items: any) => items.map((i: any) => (i.id === item.id ? item : i))), []);
 
   return (
