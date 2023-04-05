@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import RecyclerListJs from "../test";
+import RecyclerList from "./RecyclerList";
 export interface IRecyclerProps {
   service?: any;
   itemBuilder?: any;
@@ -12,4 +12,4 @@ export interface IRecyclerProps {
   children?: ReactNode;
 }
 
-export default React.memo((props: IRecyclerProps) => <RecyclerListJs {...props} />);
+export default React.memo((props: IRecyclerProps) => <RecyclerList {...props} />);
