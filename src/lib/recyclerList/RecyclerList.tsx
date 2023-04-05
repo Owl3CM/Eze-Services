@@ -1,10 +1,7 @@
 import React, { ReactNode } from "react";
-// import { RecyclerListJs } from "./RecyclerListJs";
-const RecyclerListJs = require("./RecyclerListJs").default;
-
-// const { service, itemBuilder, nodeBuilder, gridClass, containerClass, viewedItems, indecator, children } = props;
+import RecyclerListJs from "../test";
 export interface IRecyclerProps {
-  service: any;
+  service?: any;
   itemBuilder?: any;
   nodeBuilder?: ReactNode;
   gridClass?: string;
@@ -12,7 +9,7 @@ export interface IRecyclerProps {
   viewedItems?: number;
   indecator?: ReactNode;
   stateKey?: string;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export default React.memo((props: IRecyclerProps) => <RecyclerListJs {...props} />);

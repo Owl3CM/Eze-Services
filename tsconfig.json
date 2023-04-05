@@ -22,9 +22,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    // "jsx": "react-jsx",
-    "jsx": "react", // Set the JSX mode to "react"
-    "jsxFactory": "React.createElement" // Set the JSX factory to "React.createElement"
+    "jsx": "react-jsx"
   },
   "include": ["src"]
 }
