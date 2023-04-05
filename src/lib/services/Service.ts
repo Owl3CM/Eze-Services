@@ -25,7 +25,6 @@ export default class Service implements IService {
   reload = async () => {};
   interceptor?: ((service: IService) => void) | undefined;
 
-  #_init = false;
   useCash = false;
   getStored? = (store_key: string) => {};
   removeStorage = (store_key: string) => {};

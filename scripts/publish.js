@@ -6,23 +6,19 @@ const exec = promisify(require("child_process").exec);
 async function run() {
   const versions = pak.version.split(".");
   const version = `${versions[0]}.${versions[1]}.${+versions[2] + 1}`;
-  const buildDist = "yarn build"; //rollup -c --exports auto";
+  const buildDist = "yarn build";
   const addComent = "git add .";
   const publish = `yarn publish --new-version ${version} --access public`;
   const gitStage = `git commit -m "v ${version}"`;
   const gitPush = "git push";
-  // const copyCss = "cp -rp src/css dist";
   try {
     await exec("clear");
     await exec(addComent);
     await exec(buildDist);
-    addImportForCssInDist();
     await exec(gitStage);
     await exec(publish);
     await exec(gitPush);
     console.log("published!");
-    // await exec(copyCss);
-    // toggleProd('./src/index.js', false)
   } catch (error) {
     console.error(`Error executing commands: ${error}`);
   }
@@ -39,11 +35,6 @@ function toggleProd(path, prod) {
       });
     } else {
       fileDataArray.map((line) => {
-        // console.log(
-        //   line.startsWith('//') && line.includes('clean-on-prod'),
-        //   line,
-        //   line.slice(2)
-        // )
         updatedData += `${line.startsWith("//") && line.includes("clean-on-prod") ? line.slice(2) : line}\n`;
       });
       console.log(updatedData);
