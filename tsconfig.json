@@ -7,10 +7,10 @@
     "sourceMap": true,
     "declaration": true,
     "esModuleInterop": true,
-    "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
+    // "noImplicitReturns": true,
     // "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
     "target": "es5",
@@ -22,9 +22,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react"
   },
   "include": ["src"]
+  // "exclude": ["src/vite"]
 }
 // {
 //   "compilerOptions": {
