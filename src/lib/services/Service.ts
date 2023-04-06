@@ -35,6 +35,7 @@ export default class Service implements IService {
   storageKey = "";
   onError: (error: any) => void;
   onResponse: (response: any) => any;
+  statekit: any;
 
   constructor({
     callback,

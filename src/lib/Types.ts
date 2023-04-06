@@ -24,6 +24,7 @@ export interface IService {
   canFetch: boolean;
   queryParams: QueryParams;
   useCash: boolean;
+  statekit: any;
 
   onError?: (error: any, service: IService) => void;
   onResponse?: (response: any, service: IService) => any;

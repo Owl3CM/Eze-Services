@@ -51,7 +51,7 @@ const StateKit: IStateKit = {
   searching,
 };
 
-export const setDefaultStateKit = (kit: IStateKit) => {
+export const setDefaultStateKit = (kit: IStateKit & any) => {
   Object.keys(kit).forEach((key) => {
     StateKit[key] = kit[key];
   });
