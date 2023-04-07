@@ -21,7 +21,7 @@
 }
 
 .local-card{
-  color: var(--crow); 
+  color: var(--owl); 
   box-shadow: var(--shadow-m);
   background-color: var(--prim);
   border-radius: var(--x);

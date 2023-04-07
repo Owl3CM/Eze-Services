@@ -3,7 +3,7 @@
   --goat: #b9cad4;       --black:#000000;
   --dolphin: #b1acac;    --error:#f73131;
   --whale: #105588;      --success:#61bb46;
-  --crow: #150d23;       --warning:#f3d60b;
+  --owl: #150d23;       --warning:#f3d60b;
   
   --dragon: #ec4245;     --flamingo:  #f29bb9;      --fox:   #d69e58;
   --red:    #dd3643;     --purple:    #a855f7;      --wolf:  #b2a47b;
@@ -27,13 +27,13 @@
 
 .light {  
     --prim:#FFFFFF;   --throne: #f6f6f6; --lord:    #FBFBFB;  --prince: #f6f6f6;  --king:#f6f6f6;
-    --crow: #1f1d2b;  --shark:  #c4c4c7; --dolphin: #c3c3c6;  --goat:   #c4c4c7;  --whale: #bebec1;
+    --owl: #1f1d2b;  --shark:  #c4c4c7; --dolphin: #c3c3c6;  --goat:   #c4c4c7;  --whale: #bebec1;
     --main:#fbfbfb;     --highlight:#FFFFFF22;
   }
   
   .dark {
     --prim: #2d303e;   --throne: #404453;   --lord:   #292a39;      --prince: #393c4a;     --king:  #3b3e4c;
-    --crow: #ffffff;   --shark:  #c4c4c7;   --dolphin: #6c6e78;     --goat:   #9e9fa6;     --whale: #767982;
+    --owl: #ffffff;   --shark:  #c4c4c7;   --dolphin: #6c6e78;     --goat:   #9e9fa6;     --whale: #767982;
     --main:#1f1d2b;      --highlight:#2d303e22;
 }
 
@@ -41,7 +41,7 @@
 .bg-black     {background-color: var(--black);}      .text-black     {color: var(--black);}      .fill-black     {fill: var(--black);}      
 .bg-frog      {background-color: var(--frog);}       .text-frog      {color: var(--frog);}       .fill-frog      {fill: var(--frog);}       
 .bg-penguin   {background-color: var(--penguin);}    .text-penguin   {color: var(--penguin);}    .fill-penguin   {fill: var(--penguin);}    
-.bg-crow      {background-color: var(--crow);}       .text-crow      {color: var(--crow);}       .fill-crow      {fill: var(--crow);stroke: var(--crow)}       
+.bg-owl      {background-color: var(--owl);}       .text-owl      {color: var(--owl);}       .fill-owl      {fill: var(--owl);stroke: var(--owl)}       
 .bg-fox       {background-color: var(--fox);}        .text-fox       {color: var(--fox);}        .fill-fox       {fill: var(--fox);}        
 .bg-wolf      {background-color: var(--wolf);}       .text-wolf      {color: var(--wolf);}       .fill-wolf      {fill: var(--wolf);}       
 .bg-lion      {background-color: var(--lion);}       .text-lion      {color: var(--lion);}       .fill-lion      {fill: var(--lion);}       
@@ -69,7 +69,7 @@
 .bg-lord    {background-color: var(--lord);}     .text-lord    {color: var(--lord);}     .fill-lord    {fill: var(--lord);}     
 .bg-prince  {background-color: var(--prince);}   .text-prince  {color: var(--prince);}   .fill-prince  {fill: var(--prince);}   
 .bg-king    {background-color: var(--king);}     .text-king    {color: var(--king);}     .fill-king    {fill: var(--king);}     
-.bg-crow    {background-color: var(--crow);}     .text-crow    {color: var(--crow);}     .fill-crow    {fill: var(--crow);}     
+.bg-owl    {background-color: var(--owl);}     .text-owl    {color: var(--owl);}     .fill-owl    {fill: var(--owl);}     
 .bg-shark   {background-color: var(--shark);}    .text-shark   {color: var(--shark);}    .fill-shark   {fill: var(--shark);}    
 .bg-dolphin {background-color: var(--dolphin);}  .text-dolphin {color: var(--dolphin);}  .fill-dolphin {fill: var(--dolphin);}  
 .bg-goat    {background-color: var(--goat);}     .text-goat    {color: var(--goat);}     .fill-goat    {fill: var(--goat);}     

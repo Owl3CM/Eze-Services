@@ -15,7 +15,7 @@ async function run() {
     await exec("clear");
     await exec(addComent);
     await exec(buildDist);
-    await exec(gitStage);
+    // await exec(gitStage);
     await exec(publish);
     await exec(gitPush);
     console.log("published!");

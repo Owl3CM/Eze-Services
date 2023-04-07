@@ -16,10 +16,10 @@ const Grid = ({ service, itemBuilder: Builder, className = "local-grid", stateKe
 
   return (
     <div id="grid-container" className={className} {...props}>
+      {children}
       {!Array.isArray(service[stateKey])
         ? service[stateKey].map((item: any, i: number) => <Builder key={i} item={item} />)
         : Object.entries(service[stateKey]).map(([key, item]) => <Builder key={key} item={item} />)}
-      {children}
     </div>
   );
 };

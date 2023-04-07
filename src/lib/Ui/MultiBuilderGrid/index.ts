@@ -1,1 +1,1 @@
-export {default} from './MultiBuilderGrid';
+export { default as MultiBuilderGrid } from "./MultiBuilderGrid";

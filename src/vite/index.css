@@ -9,3 +9,8 @@
     --font-light:"'GE Dinkum Medium'";
     --font-bold:"'BoutrosMBCDinkum Medium'";
 }
+
+a{
+    text-decoration: none;
+    color: var(--owl);
+}

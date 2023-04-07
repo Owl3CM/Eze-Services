@@ -17,7 +17,7 @@ p,span,div,option,link,a { user-select: none;}
 
 body{
     font-weight: bold;
-    color: var(--crow);
+    color: var(--owl);
     padding: 0 !important;
     font-family: var(--font-bold);
     background-color: var(--main);
