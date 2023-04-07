@@ -45,17 +45,12 @@ const TestView = () => {
         );
       },
     };
-    // _service.load();
+    _service.load();
     _service.setState("soNice");
     return _service;
   }, []);
 
-  return (
-    <div>
-      <h1>TestServices</h1>
-    </div>
-  );
-  return <RecyclerList itemBuilder={ItemBuilder} service={service} />;
+  // return <RecyclerList itemBuilder={ItemBuilder} service={service} />;
   return (
     <PaginatedContainer
       service={service}
