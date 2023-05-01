@@ -6684,6 +6684,16 @@ mkdirp@~0.5.1:
   dependencies:
     minimist "^1.2.6"
 
+morabaa-provider@^0.0.18:
+  version "0.0.18"
+  resolved "https://registry.yarnpkg.com/morabaa-provider/-/morabaa-provider-0.0.18.tgz#760e15394f580e77bac2769bad0c6ff3a1ae59e3"
+  integrity sha512-XuROTVIZL0GqF2UyhENzqmQDisUIqvhn87fW0cuFvfFCUKogrFxPDGQFiEdG2PXzS/5XQ/e0HsugGb4upq60eA==
+
+morabaa-utils@^0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/morabaa-utils/-/morabaa-utils-0.0.11.tgz#c299471a42738a388417674635a38b52a9a7f064"
+  integrity sha512-vVJdVqRM9ElaIlnZL17Grvx+aiMWKYc0nwf30ll9bpNeuGApIwDwapQyfOltVXPjbvl0qudTAxwZ4Ut2OZM3xA==
+
 ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"

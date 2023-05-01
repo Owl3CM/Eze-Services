@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, MultiBuilderGrid } from "../lib";
+import { MultiBuilderGrid } from "../lib";
 
 const service = {
   data: [
@@ -11,15 +11,14 @@ const service = {
   ],
 };
 
-const multiGrid = true;
-
-const Two = ({ item }: any) => (
-  <div className="text-green">
+const One = ({ item }: any) => (
+  <div className="bg-cyan">
     <p>{item.name}</p>
   </div>
 );
-const One = ({ item }: any) => (
-  <div className="text-cyan">
+
+const Two = ({ item }: any) => (
+  <div className="bg-green">
     <p>{item.name}</p>
   </div>
 );
@@ -28,7 +27,25 @@ const TestGrid = () => {
   return (
     <div>
       <h1>TestGrid</h1>
-      {multiGrid ? <MultiBuilderGrid service={service} builders={{ One, Two }} stateKey="data" /> : <Grid service={service} itemBuilder={One} />}
+
+      <div className="row gap-x p-l">
+        <p
+          className="button"
+          onClick={() => {
+            service.setCardTemplate("One");
+          }}>
+          one
+        </p>
+        <p
+          className="button"
+          onClick={() => {
+            service.setCardTemplate("Two");
+          }}>
+          two
+        </p>
+      </div>
+
+      <MultiBuilderGrid service={service} builders={{ One, Two }} />
     </div>
   );
 };
