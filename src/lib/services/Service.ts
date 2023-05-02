@@ -101,9 +101,20 @@ export default class Service implements IService {
 
       const clear = this.offset === 0;
       this.offset += data.length;
+      if (this.useCash) {
+        this.setData((prev: any[]) => {
+          if (clear) {
+            this.store(this.query, data);
+            return data;
+          }
+          const newData = [...prev, ...data];
+          const stored = this.getStored(this.query);
+          this.store(this.query, [...stored, ...newData]);
+          return newData;
+        });
+      }
       this.setData((prev: any[]) => {
         if (clear) {
-          if (this.useCash) this.store(this.query, data);
           return data;
         }
         return [...prev, ...data];
