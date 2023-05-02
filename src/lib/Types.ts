@@ -37,8 +37,8 @@ export interface IService {
 
   storage?: any;
   storageKey?: string;
-  getStored?: (key: string) => any[];
-  store?: (key: string, value: any) => void;
+  getStored: (key: string) => any[];
+  store: (key: string, value: any) => void;
 }
 
 export interface IPagenationService extends IService {

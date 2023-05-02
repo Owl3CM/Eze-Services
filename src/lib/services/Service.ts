@@ -2,9 +2,7 @@ import { IService, QueryParam, QueryParams, ServiceConstructor, ServiceState } f
 
 export default class Service implements IService {
   data = [];
-  setData = (items: any, clear?: boolean) => {
-    this.data = clear ? items : { ...this.data, ...items };
-  };
+  setData = (items: any) => {};
 
   state: ServiceState = "idle";
   setState = (state: ServiceState) => {
@@ -28,7 +26,7 @@ export default class Service implements IService {
   useCash = false;
   getStored = (store_key: string) => [];
   removeStorage = (store_key: string) => {};
-  store? = (store_key: string, data: any) => {};
+  store = (store_key: string, data: any) => {};
   clearStorage = () => {};
   getCleanString: any = () => {};
   storage: any = {};
@@ -54,9 +52,9 @@ export default class Service implements IService {
       this.query = generateQuery(this.queryParams, endpoint);
       if (this.useCash) {
         let cashItems = this.getStored(this.query);
+
         if (cashItems) {
           this.data = cashItems;
-          this.setData(cashItems);
           this.offset = cashItems.length;
           this.setState("idle");
           setTimeout(() => {
@@ -65,7 +63,6 @@ export default class Service implements IService {
           return;
         }
       }
-      this.state = "loading";
       this.setState("loading");
       try {
         const result = await this.callback(this.query);
@@ -90,24 +87,6 @@ export default class Service implements IService {
       }
     };
 
-    this.useCash = !!(useCash && !!storageKey && !!storage);
-    if (this.useCash) {
-      if (this.storage && this.storageKey) {
-        this.getStored = (store_key: string) => JSON.parse(this.storage.getItem(this.getCleanString(store_key)) || "");
-        this.removeStorage = (store_key: string) => this.storage.removeItem(this.getCleanString(store_key));
-        this.store = (store_key: string, data: any) =>
-          Object.values(data).length > 0 ? this.storage.setItem(this.getCleanString(store_key), JSON.stringify(data)) : this.removeStorage(store_key);
-        this.clearStorage = () => {
-          for (let i = 0; i < this.storage?.length; i++) {
-            let key = this.storage.key(i);
-            if (key.startsWith(this.storageKey)) this.storage.removeItem(key);
-          }
-          this.setData({});
-        };
-        this.getCleanString = (text = "") => this.storageKey + text.replace(/[?&=/!]/g, "-");
-      }
-    }
-
     this.onError = (error: any) => {
       console.log(error);
       outerOnError?.(error, this);
@@ -122,12 +101,35 @@ export default class Service implements IService {
 
       const clear = this.offset === 0;
       this.offset += data.length;
-      this.setData((prev: any[]) => (clear ? data : [...prev, ...data]));
+      this.setData((prev: any[]) => {
+        if (clear) {
+          if (this.useCash) this.store(this.query, data);
+          return data;
+        }
+        return [...prev, ...data];
+      });
+
       setTimeout(() => {
         this.canFetch = !!(this.limit && data.length >= this.limit);
       }, 100);
       this.setState(Object.keys(this.data).length > 0 || data.length > 0 ? "idle" : "noContent");
     };
+
+    this.useCash = !!(useCash && !!storageKey && !!storage);
+    if (this.useCash) {
+      this.getStored = (store_key: string) => JSON.parse(this.storage.getItem(this.getCleanString(store_key)));
+      this.removeStorage = (store_key: string) => this.storage.removeItem(this.getCleanString(store_key));
+      this.store = (store_key: string, data: any) =>
+        Object.values(data).length > 0 ? this.storage.setItem(this.getCleanString(store_key), JSON.stringify(data)) : this.removeStorage(store_key);
+      this.clearStorage = () => {
+        for (let i = 0; i < this.storage?.length; i++) {
+          let key = this.storage.key(i);
+          if (key.startsWith(this.storageKey)) this.storage.removeItem(key);
+        }
+        this.setData({});
+      };
+      this.getCleanString = (text = "") => this.storageKey + text.replace(/[?&=/!]/g, "-");
+    }
   }
 
   setQueryParmas = (queries: QueryParam[]) => {
