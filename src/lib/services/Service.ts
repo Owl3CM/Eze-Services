@@ -26,7 +26,7 @@ export default class Service implements IService {
   interceptor?: ((service: IService) => void) | undefined;
 
   useCash = false;
-  getStored? = (store_key: string) => {};
+  getStored = (store_key: string) => [];
   removeStorage = (store_key: string) => {};
   store? = (store_key: string, data: any) => {};
   clearStorage = () => {};
@@ -48,26 +48,23 @@ export default class Service implements IService {
     endpoint,
   }: ServiceConstructor) {
     Object.assign(this, { callback, interceptor, storage, useCash, storageKey });
-
     this.load = async () => {
       this.canFetch = false;
       this.offset = 0;
       this.query = generateQuery(this.queryParams, endpoint);
-      // if (this.useCash) {
-      //     let cashItems = this.getStored(this.query);
-      //     if (cashItems) {
-      //         if (!this.#_init) {
-      //             this.#_init = true;
-      //             this.appointments = cashItems;
-      //         } else this.setAppointments(cashItems);
-      //         this.offset = cashItems.length;
-      //         this.setState("idle");
-      //         setTimeout(() => {
-      //             this.canFetch = true;
-      //         }, 10);
-      //         return;
-      //     }
-      // }
+      if (this.useCash) {
+        let cashItems = this.getStored(this.query);
+        if (cashItems) {
+          this.data = cashItems;
+          this.setData(cashItems);
+          this.offset = cashItems.length;
+          this.setState("idle");
+          setTimeout(() => {
+            this.canFetch = true;
+          }, 10);
+          return;
+        }
+      }
       this.state = "loading";
       this.setState("loading");
       try {

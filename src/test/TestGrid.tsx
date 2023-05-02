@@ -9,6 +9,10 @@ const service = {
     { id: 4, name: "test4" },
     { id: 5, name: "test5" },
   ],
+  setCardTemplate(template: string) {
+    this.template = template;
+  },
+  template: "One",
 };
 
 const One = ({ item }: any) => (
