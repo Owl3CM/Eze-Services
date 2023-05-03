@@ -1,10 +1,10 @@
 import { PopupMe } from "morabaa-provider";
-import { ApiService, IPagenationService, PagenationService } from "../../lib";
+import { Api, ApiService, IPagenationService, PagenationService } from "../../lib";
 import MockApiService from "../../lib/mock/MockApiService";
 import UpdateAny from "../components/UpdateAny";
 import { Actions } from "../Demo";
 
-const apiService = new ApiService({
+const apiService = Api.create({
   baseURL: "https://jsonplaceholder.typicode.com",
 });
 
