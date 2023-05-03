@@ -12,6 +12,7 @@ export interface DemoServiceProps {
 const Demo = () => {
   const demoService = React.useMemo(() => {
     const _service = new DemoService();
+    _service.load();
     return _service;
   }, []);
 

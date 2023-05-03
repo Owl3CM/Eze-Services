@@ -57,6 +57,9 @@ export default class DemoService extends PagenationService implements IDemoServi
         console.log(response);
         return response;
       },
+      useCash: true,
+      storageKey: "demo",
+      storage: localStorage,
     });
   }
 }
