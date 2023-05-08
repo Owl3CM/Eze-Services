@@ -96,7 +96,7 @@ export default class Service implements IService {
 
     this.onResponse = async (data: any) => {
       if (!!outerOnResponse) {
-        data = outerOnResponse(data, this) ?? data;
+        data = (await outerOnResponse(data, this)) ?? data;
       }
 
       const clear = this.offset === 0;
