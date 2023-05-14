@@ -13,48 +13,96 @@ interface IApiService {
   patch: (endpoint: string, body: any) => Promise<any>;
 }
 
+interface IAPIS {
+  [key: string]: IApiService;
+}
+
+const APIs: IAPIS = {};
+
 const getErrorRespoinse = (res: any, props: any) => ({ ...props, ...res, statusMessage: StatusCodeByMessage[res.status] || "Unknown Error" });
 const ApiService = {
   create: ({ baseURL, headers, onResponse, onError, interceptor }: Props) => {
-    const _apiService: IApiService = {
-      get: async (endpoint: string) => await create("get", _apiService).then(() => _apiService.get(endpoint)),
-      delete: async (endpoint: string) => await create("delete", _apiService).then(() => _apiService.delete(endpoint)),
-      post: async (endpoint: string, body: any) => await create("post", _apiService).then(() => _apiService.post(endpoint, body)),
-      put: async (endpoint: string, body: any) => await create("put", _apiService).then(() => _apiService.put(endpoint, body)),
-      patch: async (endpoint: string, body: any) => await create("patch", _apiService).then(() => _apiService.patch(endpoint, body)),
-    };
+    const _Key = JSON.stringify({ baseURL, headers, onResponse, onError, interceptor });
+    let _apiService = APIs[_Key];
 
-    const create = async (method: string, _apiService: any) => {
-      _apiService[method] = (endpoint: string, body: any) => {
-        const abortId = `${method}-${endpoint.includes("?") ? endpoint.split("?")[0] : endpoint}`;
-        if (_apiService[abortId]) {
-          console.warn("A B O R T E D \nhttps: " + baseURL.slice(6) + endpoint.split("?")[0] + "\n?" + endpoint.split("?")[1]);
-          _apiService[abortId].abort();
-        }
-        _apiService[abortId] = new AbortController();
-        let _url = !endpoint || endpoint.startsWith("/") ? `${baseURL}${endpoint}` : `${baseURL}/${endpoint}`;
-        let props = { "Content-Type": "application/json", signal: _apiService[abortId].signal, method, headers, body: JSON.stringify(body) || null };
-        return new Promise(async (resolve, reject) => {
-          try {
-            if (interceptor) props = await interceptor(props);
-            const res = await fetch(_url, props);
-            _apiService[abortId] = null;
-            if (res.ok) {
-              let jsonRes = await res?.json();
-              onResponse?.(jsonRes);
-              resolve(jsonRes);
-            } else reject(getErrorRespoinse(res, props));
-          } catch (err: any) {
-            if (err.name === "AbortError") return;
-            if (onError) onError(err);
-            else throw err;
-          }
-        });
+    if (!_apiService) {
+      _apiService = {
+        get: async (endpoint: string) => await create("get", _apiService).then(() => _apiService.get(endpoint)),
+        delete: async (endpoint: string) => await create("delete", _apiService).then(() => _apiService.delete(endpoint)),
+        post: async (endpoint: string, body: any) => await create("post", _apiService).then(() => _apiService.post(endpoint, body)),
+        put: async (endpoint: string, body: any) => await create("put", _apiService).then(() => _apiService.put(endpoint, body)),
+        patch: async (endpoint: string, body: any) => await create("patch", _apiService).then(() => _apiService.patch(endpoint, body)),
       };
-    };
+
+      const create = async (method: string, _apiService: any) => {
+        _apiService[method] = (endpoint: string, body: any) => {
+          const abortId = `${method}-${endpoint.includes("?") ? endpoint.split("?")[0] : endpoint}`;
+          if (_apiService[abortId]) {
+            console.warn("A B O R T E D \nhttps: " + baseURL.slice(6) + endpoint.split("?")[0] + "\n?" + endpoint.split("?")[1]);
+            _apiService[abortId].abort();
+          }
+          _apiService[abortId] = new AbortController();
+          let _url = !endpoint || endpoint.startsWith("/") ? `${baseURL}${endpoint}` : `${baseURL}/${endpoint}`;
+          let props = { "Content-Type": "application/json", signal: _apiService[abortId].signal, method, headers, body: JSON.stringify(body) || null };
+          return new Promise(async (resolve, reject) => {
+            try {
+              if (interceptor) props = await interceptor(props);
+              const res = await fetch(_url, props);
+              _apiService[abortId] = null;
+              if (res.ok) {
+                let jsonRes = await res?.json();
+                onResponse?.(jsonRes);
+                resolve(jsonRes);
+              } else reject(getErrorRespoinse(res, props));
+            } catch (err: any) {
+              if (err.name === "AbortError") return;
+              if (onError) onError(err);
+              else throw err;
+            }
+          });
+        };
+      };
+      APIs[_Key] = _apiService;
+    }
     return _apiService;
   },
+  init: (roots: InitProps[]) => {
+    roots.forEach((root) => {
+      ApiService.create(root);
+    });
+  },
 };
+
+interface InitProps {
+  key: string;
+  baseURL: string;
+  headers?: any;
+  onResponse?: Function;
+  onError?: Function;
+  interceptor?: Function;
+}
+
+// const Apis = {
+//   hub: "https://hubcore.morabaaapps.com/api/v1",
+//   items: "https://items.morabaaapps.com/api/v1",
+//   sales: "https://salereports.morabaaapps.com/api/v1",
+//   reps: "https://repsapi.morabaaapps.com/api/v1",
+// };
+
+// export const getApi = (id) => {
+//   if (typeof Apis[id] === "string") {
+//       console.log("First Time Create Api: ", id);
+//       Apis[id] = new ApiService({
+//           baseURL: Apis[id],
+//           headers: {
+//               "Content-Type": "application/json",
+//               "App-Package": "com.morabaa." + (id === "sales" ? "accounts" : "reps"),
+//               Authorization: localStorage.getItem("token"),
+//           },
+//       });
+//   }
+//   return Apis[id];
+// };
 
 const StatusCodeByMessage: { [key: number]: string } = {
   0: "There Is No Response From Server Body Is Empty Connection May Be Very Slow",
