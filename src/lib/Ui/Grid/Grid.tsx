@@ -14,6 +14,10 @@ const Grid = ({ service, itemBuilder: Builder, className = "local-grid", stateKe
   [service[stateKey], service[itemsKey]] = React.useState(service[stateKey] ?? []);
   service[itemsKey.slice(-1)] = React.useMemo(() => (item: any) => service[itemsKey]((items: any) => items.map((i: any) => (i.id === item.id ? item : i))), []);
 
+  React.useEffect(() => {
+    service[`${stateKey}Changed`]?.(service);
+  }, [service[stateKey]]);
+
   return (
     <div id="grid-container" className={className} {...props}>
       {children}
