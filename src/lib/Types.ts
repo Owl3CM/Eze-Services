@@ -1,6 +1,6 @@
-type State = "idle" | "loading" | "processing" | "reloading" | "searching" | "error" | "noContent" | "loadingMore" | string;
+export type State = "idle" | "loading" | "processing" | "reloading" | "searching" | "error" | "noContent" | "loadingMore";
 
-export type ServiceState = State | { state: State; props: any; parent?: HTMLElement | undefined };
+export type ServiceState<S> = S | State | { state: S | State; props: any; parent?: HTMLElement | undefined };
 
 export interface QueryParam {
   id: string;
@@ -14,9 +14,6 @@ export interface QueryParams {
 export interface IService {
   data: any;
   setData: (data: any[] | Function) => void;
-
-  state: ServiceState;
-  setState: (state: ServiceState) => void;
 
   offset: number;
   limit: number;

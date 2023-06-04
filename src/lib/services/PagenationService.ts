@@ -1,7 +1,7 @@
 import Service from "./Service";
-import { IPagenationService, ServiceConstructor } from "../Types";
+import { IPagenationService, ServiceConstructor, State } from "../Types";
 
-export default class PagenationService extends Service implements IPagenationService {
+export default class PagenationService<S> extends Service<S> implements IPagenationService {
   loadMore = async () => {};
   constructor(props: ServiceConstructor) {
     super(props);

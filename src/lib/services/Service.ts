@@ -1,13 +1,9 @@
-import { IService, QueryParam, QueryParams, ServiceConstructor, ServiceState } from "../Types";
+import { IService, QueryParam, QueryParams, ServiceConstructor, ServiceState, State } from "../Types";
+import { StateBuilder } from "../stateKit";
 
-export default class Service implements IService {
+export default class Service<S> extends StateBuilder<S> implements IService {
   data = [];
   setData = (items: any) => {};
-
-  state: ServiceState = "idle";
-  setState = (state: ServiceState) => {
-    this.state = state;
-  };
 
   offset = 0;
   limit = 25;
@@ -45,6 +41,7 @@ export default class Service implements IService {
     storageKey,
     endpoint,
   }: ServiceConstructor) {
+    super();
     Object.assign(this, { callback, interceptor, storage, useCash, storageKey });
     this.load = async () => {
       this.canFetch = false;

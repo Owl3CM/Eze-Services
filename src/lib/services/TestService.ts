@@ -2,7 +2,10 @@ import { PopupMe, PrintMe } from "morabaa-provider";
 import PagenationService from "./PagenationService";
 import { ItemBuilder } from "../../test/TestView";
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-export default class TestService extends PagenationService {
+
+export type TESTO = "NICE" | "SO_NICE" | "ERROR" | "LOADING" | "CUSTOM_STATE" | "DEMO";
+// export type TESTO = State | { state: State; props: any; parent?: HTMLElement | undefined };
+export default class TestService extends PagenationService<TESTO> {
   updateItem: (item: any) => void;
   clearData: () => void;
   showUpdateItem: (item: any) => void;
@@ -12,8 +15,9 @@ export default class TestService extends PagenationService {
     this.updateItem = async (item: any) => {
       console.log("updateItem", item);
 
+      this.setState("processing");
       this.setState({
-        state: "loading",
+        state: "processing",
         props: { title: "test now" },
       });
       await sleep(5000);

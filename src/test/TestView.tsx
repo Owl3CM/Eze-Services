@@ -1,6 +1,6 @@
 import { RecyclerList, ApiService, Grid, PagenationService, PaginatedContainer, setDefaultStateKit, ServiceStateBuilder } from "../lib";
 import React from "react";
-import TestService from "../lib/services/TestService";
+import TestService, { TESTO } from "../lib/services/TestService";
 
 // setDefaultStateKit({
 //   loading: ({ title = "" }) => (
@@ -38,6 +38,7 @@ const TestView = () => {
     });
 
     // _service.load();
+    _service.setState("CUSTOM_STATE");
     return _service;
   }, []);
 
@@ -47,13 +48,7 @@ const TestView = () => {
       <div className="bg-king">
         <Grid service={service} itemBuilder={({ item }: any) => <ItemBuilder service={service} item={item} />} />
 
-        <ServiceStateBuilder
-          service={service}
-          // soNice={() => {
-          //   return <h1>this was taken</h1>;
-          // }}
-          // error={() => <p>test</p>}
-        />
+        <ServiceStateBuilder<TESTO> service={service} />
       </div>
     </PaginatedContainer>
   );
