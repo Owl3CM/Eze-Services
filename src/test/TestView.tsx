@@ -1,6 +1,8 @@
 import { RecyclerList, ApiService, Grid, PagenationService, PaginatedContainer, setDefaultStateKit, ServiceStateBuilder } from "../lib";
 import React from "react";
-import TestService, { TESTO } from "../lib/services/TestService";
+import TestService, { ITestService } from "../lib/services/TestService";
+import { ReactStateBuilder } from "../lib/Ui/ReactStateBuilder";
+import { JsonBuilder } from "morabaa-utils";
 
 // setDefaultStateKit({
 //   loading: ({ title = "" }) => (
@@ -24,6 +26,8 @@ import TestService, { TESTO } from "../lib/services/TestService";
 // });
 
 const TestView = () => {
+  const [data, setData] = React.useState<any[]>([]);
+
   const apiService = React.useMemo(() => {
     return new ApiService({
       baseURL: "https://salereports.morabaaapps.com/api/v1",
@@ -38,17 +42,51 @@ const TestView = () => {
     });
 
     // _service.load();
-    _service.setState("CUSTOM_STATE");
+    _service.setState("ALI");
+    setTimeout(() => {
+      console.log(service);
+    }, 1000);
     return _service;
   }, []);
 
   return (
     <PaginatedContainer service={service} className="wrapper p-l">
-      <Actions service={service} />
-      <div className="bg-king">
-        <Grid service={service} itemBuilder={({ item }: any) => <ItemBuilder service={service} item={item} />} />
+      {/* <ReactStateBuilder service={service} Component={StateBuilderTest} stateKey="header" /> */}
+      <p
+        onClick={() => {
+          // mahomose: any;
+          // setMahomose: React.Dispatch<React.SetStateAction<any>> = () => {};
+          // onMahomoseChange = (mahomose: any) => {
+          //   console.log("onMahomoseChanged", mahomose);
+          // };
+          // service.setMahomose({
+          //   name: "mahomose",
+          //   age: 29,
+          // });
+        }}>
+        setMahomose
+      </p>
+      <div className="bg-red col gap-l">
+        {/* <ReactStateBuilder service={service} Component={StateBuilderTest} stateName="header" />
+        <ReactStateBuilder service={service} Component={StateBuilderTest} stateName="accounts" /> */}
 
-        <ServiceStateBuilder<TESTO> service={service} />
+        <ReactStateBuilder
+          service={service}
+          stateName="footer"
+          Component={() => {
+            return <StateBuilderTest service={service} label="hi" />;
+          }}
+        />
+
+        <StateBuilderTest service={service} label="hi" />
+      </div>
+
+      {/* <ReactStateBuilder service={service} Component={StateBuilderTest} stateKey="data" /> */}
+
+      {/* <Actions service={service} /> */}
+      <div className="bg-king">
+        {/* <Grid service={service} itemBuilder={({ item }: any) => <ItemBuilder service={service} item={item} />} /> */}
+        <ServiceStateBuilder<kitKeys> service={service} />
       </div>
     </PaginatedContainer>
   );
@@ -75,6 +113,15 @@ const Actions = ({ service }: any) => {
   return (
     <div className="col gap-l p-l round-l bg-king">
       <div className="row gap-2x ">
+        <p
+          onClick={() => {
+            service.setHeader([
+              { id: "name", value: name, title: "name" },
+              { id: "isDeleted", value: false, title: "name" },
+            ]);
+          }}>
+          testHeader
+        </p>
         <p
           className="button"
           onClick={() => {
@@ -117,3 +164,19 @@ const Actions = ({ service }: any) => {
     </div>
   );
 };
+interface StateBuilderTestProps {
+  service: ITestService;
+  label?: string;
+}
+
+const StateBuilderTest = ({ service, label }: StateBuilderTestProps) => {
+  return <p>{label}</p>;
+};
+
+export const kit = {
+  MAHMOSE: () => <div>amMahomse</div>,
+  Headyer: () => <div>amHeadyer</div>,
+  ALI: () => <div>amHeadyer</div>,
+};
+export type kitKeys = keyof typeof kit;
+setDefaultStateKit(kit);

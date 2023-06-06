@@ -47,7 +47,7 @@ export const Actions = ({ service }: DemoServiceProps) => {
         className="button bg-green"
         onClick={() => {
           service.setState({
-            state: "demo",
+            state: "error",
             props: {
               title: "demo title",
             },

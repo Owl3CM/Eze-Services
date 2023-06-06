@@ -5,24 +5,19 @@ interface Props {
   service: any;
   Component?: React.ComponentType<any>;
   className?: string;
-  stateKey?: string;
+  stateName?: string;
   children?: React.ReactNode;
 }
 
-const ReactStateBuilder = ({ service, Component, stateKey = "data", children }: Props) => {
-  const dataKey = React.useMemo(() => Utils.convertToCamelCase(`set-${stateKey}`), []);
-  [service[stateKey], service[dataKey]] = React.useState(service[stateKey] ?? []);
+const ReactStateBuilder = ({ service, Component, stateName = "data", children }: Props) => {
+  const dataKey = React.useMemo(() => Utils.convertToCamelCase(`set-${stateName}`), []);
+  [service[stateName], service[dataKey]] = React.useState(service[stateName] ?? []);
 
   React.useEffect(() => {
-    service[`${stateKey}Changed`]?.(service);
-  }, [service[stateKey]]);
+    service[Utils.convertToCamelCase(`on-${stateName}Changed`)]?.(service);
+  }, [service[stateName]]);
 
-  return Component && service[stateKey] ? (
-    <>
-      <Component />
-      {children}
-    </>
-  ) : null;
+  return Component && service[stateName] ? <Component service={service} /> : null;
 };
 
 export default ReactStateBuilder;

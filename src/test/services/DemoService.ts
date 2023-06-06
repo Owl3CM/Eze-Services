@@ -8,14 +8,6 @@ const apiService = Api.create({
   baseURL: "https://jsonplaceholder.typicode.com",
 });
 
-export interface IDemoService extends IPagenationService {
-  amTest: () => void;
-  demoHeader: any;
-  setDemoHeader: (value: any) => void;
-  updateHeader: (value?: any) => void;
-  popupSomthing: (target: any) => void;
-}
-
 export default class DemoService extends PagenationService implements IDemoService {
   demoHeader: any = null;
   setDemoHeader = (value: any) => {};
@@ -63,3 +55,5 @@ export default class DemoService extends PagenationService implements IDemoServi
     });
   }
 }
+
+export type IDemoService = DemoService;

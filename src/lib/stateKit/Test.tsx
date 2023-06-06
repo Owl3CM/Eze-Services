@@ -1,15 +1,13 @@
 import React from "react";
 import ServiceStateBuilder from "./ServiceStateBuilder";
-import { ServiceState } from "../Types";
-const service = {
-  state: "idle",
-  setState: (state: ServiceState) => {},
-};
+import { ServiceState, State } from "../Types";
+import StateBuilder from "./StateBuilder";
+const service = new StateBuilder<State>();
 
-const status = ["idle", "loading", "processing", "reloading", "searching", "error", "noContent", "loadingMore"];
+const status: State[] = ["idle", "loading", "processing", "reloading", "searching", "error", "noContent", "loadingMore"];
 
 setInterval(() => {
-  const index = status.indexOf(service.state);
+  const index = status.indexOf(service.state as any);
   const nextIndex = index + 1 >= status.length ? 0 : index + 1;
   service.setState(status[nextIndex]);
 }, 1500);

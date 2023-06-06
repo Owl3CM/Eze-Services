@@ -10,6 +10,10 @@ export default class StateBuilder<S = State> {
   state: ServiceState<S | State> = "idle";
   setState: React.Dispatch<React.SetStateAction<ServiceState<S | State>>> = () => {};
   stateKit?: any;
+  constructor() {
+    this.state = "idle";
+    this.setState = () => {};
+  }
 }
 
 export type IStateBuilder<S> = StateBuilder<S | State>;

@@ -1,7 +1,7 @@
 import React from "react";
-import { ApiService, Grid, PagenationService, PaginatedContainer,ServiceStateBuilder } from "../lib";
+import { ApiService, Grid, PagenationService, PaginatedContainer, ServiceStateBuilder, State } from "../lib";
 
-const states = ["loading", "idle", "error", "success", "reloading", "loadingMore", "noContent", "processing", "searching"];
+const states: State[] = ["loading", "idle", "error", "reloading", "loadingMore", "noContent", "processing", "searching"];
 
 const TestServices = () => {
   const apiService = React.useMemo(

@@ -1,20 +1,32 @@
 import { PopupMe, PrintMe } from "morabaa-provider";
 import PagenationService from "./PagenationService";
-import { ItemBuilder } from "../../test/TestView";
+import { ItemBuilder, kit, kitKeys } from "../../test/TestView";
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export type TESTO = "NICE" | "SO_NICE" | "ERROR" | "LOADING" | "CUSTOM_STATE" | "DEMO";
-// export type TESTO = State | { state: State; props: any; parent?: HTMLElement | undefined };
-export default class TestService extends PagenationService<TESTO> {
+export default class TestService extends PagenationService<kitKeys> {
   updateItem: (item: any) => void;
   clearData: () => void;
   showUpdateItem: (item: any) => void;
+  // stateKit = kit;
+
+  header: any;
+  setHeader: React.Dispatch<React.SetStateAction<any>> = () => {};
+  onHeaderChanged = (header: any) => {
+    console.log("onHeaderChanged", header);
+  };
+
+  // mahomose: any;
+  // setMahomose: React.Dispatch<React.SetStateAction<any>> = () => {};
+  // onMahomose = (mahomose: any) => {
+  //   console.log("onMahomoseChanged", mahomose);
+  // };
+
   constructor(props: any) {
     super(props);
 
     this.updateItem = async (item: any) => {
       console.log("updateItem", item);
-
+      this.setState("Headyer");
       this.setState("processing");
       this.setState({
         state: "processing",
@@ -42,3 +54,5 @@ export default class TestService extends PagenationService<TESTO> {
     };
   }
 }
+
+export type ITestService = TestService;

@@ -22,7 +22,7 @@ interface IStateBuilderProps<S> {
   [key: string]: any;
 }
 
-function ServiceStateBuilder<S = State>({ service, defaultState = service.state, singleState = false, getBuilder, ...args }: IStateBuilderProps<S>) {
+function ServiceStateBuilder<S = null>({ service, defaultState = service.state, singleState = false, getBuilder, ...args }: IStateBuilderProps<S>) {
   [service.state, service.setState] = React.useState(defaultState);
   const _getBuilder = React.useMemo(() => {
     return (
