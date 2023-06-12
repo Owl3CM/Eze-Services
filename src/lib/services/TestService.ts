@@ -3,17 +3,27 @@ import PagenationService from "./PagenationService";
 import { ItemBuilder, kit, kitKeys } from "../../test/TestView";
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+interface IHeader {
+  title?: string;
+  description?: string;
+}
+
+interface Items {
+  title?: string;
+  price?: number;
+}
+
 export default class TestService extends PagenationService<kitKeys> {
+  items: Items = {};
+  setItems: React.Dispatch<React.SetStateAction<Items>> = () => {};
+  onItemsChanged = (items: Items) => {
+    console.log("onItemsChanged", items);
+  };
+
   updateItem: (item: any) => void;
   clearData: () => void;
   showUpdateItem: (item: any) => void;
   // stateKit = kit;
-
-  header: any;
-  setHeader: React.Dispatch<React.SetStateAction<any>> = () => {};
-  onHeaderChanged = (header: any) => {
-    console.log("onHeaderChanged", header);
-  };
 
   // mahomose: any;
   // setMahomose: React.Dispatch<React.SetStateAction<any>> = () => {};

@@ -10,8 +10,8 @@ interface Props {
 }
 
 const ReactStateBuilder = ({ service, Component, stateName = "data", children }: Props) => {
-  const dataKey = React.useMemo(() => Utils.convertToCamelCase(`set-${stateName}`), []);
-  [service[stateName], service[dataKey]] = React.useState(service[stateName] ?? []);
+  const setStateName = React.useMemo(() => Utils.convertToCamelCase(`set-${stateName}`), []);
+  [service[stateName], service[setStateName]] = React.useState(service[stateName] ?? null);
 
   React.useEffect(() => {
     service[Utils.convertToCamelCase(`on-${stateName}Changed`)]?.(service);

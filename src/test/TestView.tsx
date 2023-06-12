@@ -1,6 +1,6 @@
 import { RecyclerList, ApiService, Grid, PagenationService, PaginatedContainer, setDefaultStateKit, ServiceStateBuilder } from "../lib";
 import React from "react";
-import TestService, { ITestService } from "../lib/services/TestService";
+import TestService, { IItems, ITestService } from "../lib/services/TestService";
 import { ReactStateBuilder } from "../lib/Ui/ReactStateBuilder";
 import { JsonBuilder } from "morabaa-utils";
 
@@ -25,6 +25,15 @@ import { JsonBuilder } from "morabaa-utils";
 //   ),
 // });
 
+const ItemsBuilder = ({ service }: { service: ITestService }) => {
+  return (
+    <div>
+      <h1>items</h1>
+      {service.items && <JsonBuilder json={service.items} />}
+    </div>
+  );
+};
+
 const TestView = () => {
   const [data, setData] = React.useState<any[]>([]);
 
@@ -40,14 +49,25 @@ const TestView = () => {
       callback: apiService.get,
       endpoint: "accounts",
     });
-
-    // _service.load();
-    _service.setState("ALI");
-    setTimeout(() => {
-      console.log(service);
-    }, 1000);
     return _service;
   }, []);
+
+  return (
+    <div>
+      <h1
+        className="button"
+        onClick={() => {
+          service.setItems({
+            title: "hi",
+            price: 1999,
+          });
+        }}>
+        TEST
+      </h1>
+      <ItemsBuilder service={service} />
+      <ReactStateBuilder service={service} stateName="items" Component={ItemsBuilder} />
+    </div>
+  );
 
   return (
     <PaginatedContainer service={service} className="wrapper p-l">
@@ -72,7 +92,7 @@ const TestView = () => {
 
         <ReactStateBuilder
           service={service}
-          stateName="footer"
+          stateName="header"
           Component={() => {
             return <StateBuilderTest service={service} label="hi" />;
           }}
@@ -168,10 +188,6 @@ interface StateBuilderTestProps {
   service: ITestService;
   label?: string;
 }
-
-const StateBuilderTest = ({ service, label }: StateBuilderTestProps) => {
-  return <p>{label}</p>;
-};
 
 export const kit = {
   MAHMOSE: () => <div>amMahomse</div>,
