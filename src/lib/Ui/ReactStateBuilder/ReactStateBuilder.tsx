@@ -17,7 +17,7 @@ const ReactStateBuilder = ({ service, Component, stateName = "data", children }:
     service[Utils.convertToCamelCase(`on-${stateName}Changed`)]?.(service);
   }, [service[stateName]]);
 
-  return Component && service[stateName] ? <Component service={service} /> : null;
+  return Component ? <Component service={service} /> : null;
 };
 
 export default ReactStateBuilder;
