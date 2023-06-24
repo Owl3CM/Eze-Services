@@ -2,7 +2,7 @@ import React from "react";
 import DemoService, { IDemoService } from "./services/DemoService";
 import DemoGrid from "./components/DemoGrid";
 import DemoHeader from "./components/DemoHeader";
-import { Grid, PaginatedContainer, ServiceStateBuilder, setDefaultStateKit } from "../lib";
+import { Grid, PagenatedContainer, ServiceStateBuilder, setDefaultStateKit } from "../lib";
 import { TimedCallback } from "morabaa-utils";
 
 export interface DemoServiceProps {
@@ -23,17 +23,17 @@ const Demo = () => {
       <Actions service={demoService} />
       <DemoHeader service={demoService} />
       {/* <DemoGrid service={demoService} /> */}
-      <PaginatedContainer service={demoService}>
+      <PagenatedContainer service={demoService} addStateBuilder>
         <Grid service={demoService} itemBuilder={DemoBuilder} />
-      </PaginatedContainer>
-      <ServiceStateBuilder
+      </PagenatedContainer>
+      {/* <ServiceStateBuilder
         service={demoService}
         demo={({ title }: any) => (
           <div className="bg-prim p-4x round-full ">
             <h1>TEST {title}</h1>
           </div>
         )}
-      />
+      /> */}
     </div>
   );
 };

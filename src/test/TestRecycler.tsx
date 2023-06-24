@@ -1,5 +1,5 @@
 import React from "react";
-import { ApiService, Grid, PagenationService, PaginatedContainer } from "../lib";
+import { ApiService, Grid, PagenationService, PagenatedContainer } from "../lib";
 import { RecyclerList } from "../lib/recyclerList";
 
 const TestRecycler = () => {

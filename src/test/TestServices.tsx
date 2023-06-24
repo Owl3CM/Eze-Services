@@ -1,5 +1,5 @@
 import React from "react";
-import { ApiService, Grid, PagenationService, PaginatedContainer, ServiceStateBuilder, State } from "../lib";
+import { ApiService, Grid, PagenationService, PagenatedContainer, ServiceStateBuilder, State } from "../lib";
 
 const states: State[] = ["loading", "idle", "error", "reloading", "loadingMore", "noContent", "processing", "searching"];
 
@@ -24,7 +24,7 @@ const TestServices = () => {
   }, []);
 
   return (
-    <PaginatedContainer service={pagenationService} addStateBuilder>
+    <PagenatedContainer service={pagenationService} addStateBuilder>
       <h1>TestServices</h1>
       <div className="row-center gap-2x">
         {states.map((state) => {
@@ -46,7 +46,7 @@ const TestServices = () => {
         }}
       />
       <Grid service={pagenationService} itemBuilder={TestCard} />
-    </PaginatedContainer>
+    </PagenatedContainer>
   );
 };
 

@@ -1,6 +1,6 @@
-import { RecyclerList, ApiService, Grid, PagenationService, PaginatedContainer, setDefaultStateKit, ServiceStateBuilder } from "../lib";
+import { RecyclerList, ApiService, Grid, PagenationService, PagenatedContainer, setDefaultStateKit, ServiceStateBuilder } from "../lib";
 import React from "react";
-import TestService, { IItems, ITestService } from "../lib/services/TestService";
+import TestService, { ITestService } from "../lib/services/TestService";
 import { ReactStateBuilder } from "../lib/Ui/ReactStateBuilder";
 import { JsonBuilder } from "morabaa-utils";
 
@@ -70,7 +70,7 @@ const TestView = () => {
   );
 
   return (
-    <PaginatedContainer service={service} className="wrapper p-l">
+    <PagenatedContainer service={service} className="wrapper p-l">
       {/* <ReactStateBuilder service={service} Component={StateBuilderTest} stateKey="header" /> */}
       <p
         onClick={() => {
@@ -108,7 +108,7 @@ const TestView = () => {
         {/* <Grid service={service} itemBuilder={({ item }: any) => <ItemBuilder service={service} item={item} />} /> */}
         <ServiceStateBuilder<kitKeys> service={service} />
       </div>
-    </PaginatedContainer>
+    </PagenatedContainer>
   );
 };
 

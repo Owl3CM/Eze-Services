@@ -44,7 +44,7 @@ const defaultRefresherProps: RefresherProps = {
   },
 };
 
-export default (props: Props) => <PaginatedContainer refresher={Refresher} {...props} />;
+export default (props: Props) => <PagenatedContainer refresher={Refresher} {...props} />;
 const Refresher = (
   <svg className="refresher-svg" viewBox="0 0 512 512">
     <path fill="#A5EB78" d="M256,0C114.615,0,0,114.615,0,256s114.615,256,256,256s256-114.615,256-256S397.385,0,256,0z" />
@@ -55,7 +55,7 @@ const Refresher = (
   </svg>
 );
 
-interface IPaginatedContainer {
+interface IPagenatedContainer {
   id: string;
   container: HTMLElement;
   onRefresh: Function;
@@ -69,7 +69,7 @@ interface IPaginatedContainer {
   service: any;
   addStateBuilder?: boolean;
 }
-class PaginatedContainer extends React.Component implements IPaginatedContainer {
+class PagenatedContainer extends React.Component implements IPagenatedContainer {
   id: string;
   container = document.createElement("div");
   onRefresh: Function;
@@ -79,6 +79,8 @@ class PaginatedContainer extends React.Component implements IPaginatedContainer 
 
   constructor(props: Props) {
     super(props);
+    console.log("props", props);
+
     this.id = `scroller-${window.location.pathname.replace(/\//g, "")}`;
     this.onRefresh = props.useRefresh ? props.onRefresh || props.service.reload : props.onRefresh;
     this.service = props.service;
@@ -114,7 +116,7 @@ class PaginatedContainer extends React.Component implements IPaginatedContainer 
   }
 }
 
-const pullToRefreshEvent = ({ container, service, onRefresh: refresh, refresherProps }: IPaginatedContainer) => {
+const pullToRefreshEvent = ({ container, service, onRefresh: refresh, refresherProps }: IPagenatedContainer) => {
   if (!container) return;
   let reloader = container.querySelector("#refresher") as any & HTMLElement;
   reloader.remove = () => {
