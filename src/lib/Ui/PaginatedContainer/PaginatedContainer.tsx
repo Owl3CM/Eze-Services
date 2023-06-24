@@ -1,4 +1,5 @@
 import React from "react";
+import { ServiceStateBuilder } from "../../stateKit";
 
 interface onPullProps {
   diff: number;
@@ -66,6 +67,7 @@ interface IPaginatedContainer {
     onPull: (props: onPullProps) => void;
   };
   service: any;
+  addStateBuilder?: boolean;
 }
 class PaginatedContainer extends React.Component implements IPaginatedContainer {
   id: string;
@@ -73,12 +75,14 @@ class PaginatedContainer extends React.Component implements IPaginatedContainer 
   onRefresh: Function;
   refresherProps = defaultRefresherProps;
   service: any;
+  addStateBuilder?: boolean = false;
 
   constructor(props: Props) {
     super(props);
     this.id = `scroller-${window.location.pathname.replace(/\//g, "")}`;
     this.onRefresh = props.useRefresh ? props.onRefresh || props.service.reload : props.onRefresh;
     this.service = props.service;
+    this.addStateBuilder = props.addStateBuilder;
   }
   componentDidMount() {
     this.container = document.getElementById(this.id) as HTMLDivElement;
@@ -104,6 +108,7 @@ class PaginatedContainer extends React.Component implements IPaginatedContainer 
         }}>
         {children}
         {this.onRefresh && <div id="refresher">{refresher}</div>}
+        {this.addStateBuilder && <ServiceStateBuilder service={this.service} />}
       </div>
     );
   }

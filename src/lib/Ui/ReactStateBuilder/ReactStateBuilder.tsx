@@ -3,7 +3,7 @@ import { Utils } from "../../utils";
 
 interface Props {
   service: any;
-  Component?: React.ComponentType<any>;
+  Component: React.ComponentType<any>;
   className?: string;
   stateName?: string;
   children?: React.ReactNode;
@@ -17,7 +17,7 @@ const ReactStateBuilder = ({ service, Component, stateName = "data", children }:
     service[Utils.convertToCamelCase(`on-${stateName}Changed`)]?.(service);
   }, [service[stateName]]);
 
-  return Component ? <Component service={service} /> : null;
+  return <Component service={service} />;
 };
 
 export default ReactStateBuilder;
