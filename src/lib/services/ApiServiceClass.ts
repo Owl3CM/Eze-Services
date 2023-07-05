@@ -38,7 +38,10 @@ export default class ApiService implements IApiService {
             const res = await fetch(_url, props);
             api[abortId] = null;
             if (res.ok) {
-              let jsonRes = await res?.json();
+              let jsonRes;
+              try {
+                jsonRes = await res?.json();
+              } catch {}
               onResponse?.(jsonRes);
               resolve(jsonRes);
             } else reject(getErrorRespoinse(res, props));

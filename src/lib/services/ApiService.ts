@@ -50,7 +50,10 @@ const ApiService = {
               const res = await fetch(_url, props);
               _apiService[abortId] = null;
               if (res.ok) {
-                let jsonRes = await res?.json();
+                let jsonRes;
+                try {
+                  jsonRes = await res?.json();
+                } catch {}
                 onResponse?.(jsonRes);
                 resolve(jsonRes);
               } else reject(getErrorRespoinse(res, props));
