@@ -7,10 +7,12 @@ import { ServiceState, State } from "../Types";
 // };
 
 export default class StateBuilder<S = State> {
-  state: ServiceState<S | State> = "idle";
-  setState: React.Dispatch<React.SetStateAction<ServiceState<S | State>>> = () => {};
+  state: ServiceState<S> = "idle";
+  setState = (state: typeof this.state) => {
+    this.state = state;
+  };
   stateKit?: any;
   constructor() {}
 }
 
-export type IStateBuilder<S> = StateBuilder<S | State>;
+export type IStateBuilder<S = State> = StateBuilder<S>;

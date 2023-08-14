@@ -8,7 +8,7 @@ export default class PagenationService<S = null> extends Service<S> implements I
     this.loadMore = async () => {
       this.canFetch = false;
       let query = this.query + `&offset=${this.offset}`;
-      this.setState("loadingMore");
+      // this.setState("loadingMore");
       try {
         const result = await this.callback(query);
         this.onResponse(result);

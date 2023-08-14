@@ -1,7 +1,7 @@
 import { IService, QueryParam, QueryParams, ServiceConstructor, ServiceState, State } from "../Types";
 import { StateBuilder } from "../stateKit";
 
-export default class Service<S> extends StateBuilder<S> implements IService {
+export default class Service<S = any> extends StateBuilder<S> implements IService {
   data = [];
   setData = (items: any) => {};
 
