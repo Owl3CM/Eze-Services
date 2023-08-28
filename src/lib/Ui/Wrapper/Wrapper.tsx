@@ -10,7 +10,7 @@ class Wrapper extends React.Component {
   constructor(props: IWrapperProps) {
     super(props);
     this.id = `wrapper-${window.location.pathname.replace(/\//g, "")}`;
-    this.reloaderProps = { ...props.reloaderProps, ..._reloaderProps };
+    this.reloaderProps = { ..._reloaderProps, ...props.reloaderProps };
   }
   componentDidMount() {
     this.container = document.getElementById(this.id) as HTMLDivElement;
