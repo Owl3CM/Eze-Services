@@ -37,11 +37,11 @@ class Wrapper extends React.Component {
   }
   render() {
     const { service, children, reloader, addStateBuilder, reload, loadMore, ...props } = this.props as IWrapperProps;
-    const { Component, containerClassName } = this.reloaderProps;
+    const { Component, className } = this.reloaderProps;
     return (
       <div id={this.id} {...props}>
         {reload && (
-          <div className={containerClassName} style={{ display: "none" }} id="reloader-container">
+          <div className={className} style={{ display: "none" }} id="reloader-container">
             {Component}
           </div>
         )}
@@ -66,11 +66,15 @@ const listenToPull = ({ reload, container, service, reloaderProps }: ListenToPul
     let defaultClass = `${reloaderProps.reloadingClass} ${reloaderProps.disappearingClass}`;
     reloader.style = "";
 
-    reloader.className = defaultClass;
+    reloader.setClassName(defaultClass);
     await new Promise((resolve) => setTimeout(resolve, 500));
     isPulling = false;
-    reloader.className === defaultClass && (reloader.className = reloaderProps.disappearingClass);
+    reloader.className === defaultClass && reloader.setClassName(reloaderProps.disappearingClass);
     reloader.style.display = "none";
+  };
+
+  reloader.setClassName = (className: string) => {
+    reloader.className = `${reloaderProps.className} ${className}`;
   };
 
   const onSwipeDown = (e: any) => {
@@ -95,7 +99,7 @@ const listenToPull = ({ reload, container, service, reloaderProps }: ListenToPul
       }, 0);
       return;
     }
-    reloader.className = reloaderProps.reloadingClass;
+    reloader.setClassName(reloaderProps.reloadingClass);
     setTimeout(async () => {
       await reload();
       await reloader?.remove();
@@ -108,7 +112,7 @@ const listenToPull = ({ reload, container, service, reloaderProps }: ListenToPul
     reloader.style.display = "";
     reloader.style.opacity = "0";
     reloader.style.marginTop = -100 - containerGap + "px";
-    reloader.className = reloaderProps.pullingClass;
+    reloader.setClassName(reloaderProps.pullingClass);
     diff = 0;
 
     container.addEventListener("touchmove", onSwipeDown);
@@ -144,7 +148,7 @@ const _reloaderProps = {
     let rotateAngle = 720 - diffPercentage * 360;
     reloader.style.transform = `rotate(${rotateAngle}deg)`;
   },
-  containerClassName: "",
+  className: "",
   Component: (
     <svg className="reloader-svg" viewBox="0 0 512 512">
       <path d="M256,431.967c-97.03,0-175.967-78.939-175.967-175.967c0-28.668,7.013-56.655,20.156-81.677l-25.144-16.639l107.282-54.228l-7.974,119.943l-26.111-17.279c-7.203,15.517-11.041,32.51-11.041,49.879c0,65.507,53.294,118.801,118.801,118.801s118.801-53.294,118.801-118.801s-53.295-118.8-118.802-118.8V80.033c97.028,0,175.967,78.938,175.967,175.967S353.028,431.967,256,431.967z" />
