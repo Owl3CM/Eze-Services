@@ -36,7 +36,7 @@ class Wrapper extends React.Component {
     PostionById[this.id] = this.container.scrollTop;
   }
   render() {
-    const { service, children, reloader, addStateBuilder, reload, loadMore, ...props } = this.props as IWrapperProps;
+    const { service, children, reloader, addStateBuilder, reload, loadMore, reloaderProps, ...props } = this.props as IWrapperProps;
     const { Component, className } = this.reloaderProps;
     return (
       <div id={this.id} {...props}>
@@ -60,7 +60,7 @@ const listenToPull = ({ reload, container, service, reloaderProps }: ListenToPul
     startY = 0,
     diff = 0,
     reloader = container.querySelector("#reloader-container") as any & HTMLElement;
-  reloader.style.setProperty("--m-top", `-${100 + containerGap}px`);
+  document.documentElement.style.setProperty("--reloader-m-top", `-${100 + containerGap}px`);
 
   reloader.remove = async () => {
     let defaultClass = `${reloaderProps.reloadingClass} ${reloaderProps.disappearingClass}`;
@@ -76,6 +76,7 @@ const listenToPull = ({ reload, container, service, reloaderProps }: ListenToPul
   reloader.setClassName = (className: string) => {
     reloader.className = `${reloaderProps.className} ${className}`;
   };
+  console.log({ containerGap });
 
   const onSwipeDown = (e: any) => {
     diff = e.touches[0].clientY - startY;
@@ -103,7 +104,7 @@ const listenToPull = ({ reload, container, service, reloaderProps }: ListenToPul
     setTimeout(async () => {
       await reload();
       await reloader?.remove();
-    }, 200);
+    }, 500);
   };
 
   container.addEventListener("touchstart", (e: any) => {

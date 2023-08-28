@@ -31,11 +31,11 @@
 .hide-scroller::-webkit-scrollbar{display: none;}
 
 #reloader-container{
-  --m-top: -100px;
+  /* --m-top: -100px; */
   width: 100px;
   margin: auto;
   height: 100px;
-  margin-top: -100px;
+  margin-top:var(--reloader-m-top);
   position: fixed;
   left: 0;
   right: 0;
@@ -63,7 +63,7 @@
 }
 .disappearing{
   transition: all 0.3s ease-in-out;
-  margin-top: var(--m-top) !important;
+  margin-top: var(--reloader-m-top) !important;
   opacity: 0;
 }
 @keyframes reload {
