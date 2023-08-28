@@ -30,23 +30,26 @@
 
 .hide-scroller::-webkit-scrollbar{display: none;}
 
-#refresher{
+#reloader-container{
+  --m-top: -100px;
   width: 100px;
-  margin-inline: auto;
+  margin: auto;
   height: 100px;
   margin-top: -100px;
   position: fixed;
   left: 0;
   right: 0;
   z-index: 399;
+  pointer-events: none;
 }
 
-.refresher-svg {
-  /* filter: drop-shadow( 0px 0px 15px #a5eb7877); */
-  box-shadow:  0px 0px 20px #a5eb7877;
-  border-radius: 50%;
-  margin: 25px;
-  fill: #000!important;
+.reloader-svg {
+  box-shadow:  0px 0px 20px #a3e4cb77;
+  border-radius: 100px;
+  margin: 24px;
+  fill: #83d6e1;
+  background-color: #1f1d2b;
+  padding: 3px;
 }
 
 .pulling{
@@ -60,7 +63,7 @@
 }
 .disappearing{
   transition: all 0.3s ease-in-out;
-  margin-top: -100px !important;
+  margin-top: var(--m-top) !important;
   opacity: 0;
 }
 @keyframes reload {

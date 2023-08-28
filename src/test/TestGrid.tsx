@@ -1,5 +1,5 @@
 import React from "react";
-import { MultiBuilderGrid } from "../lib";
+import { MultiBuilderGrid, Wrapper } from "../lib";
 
 const service = {
   data: [
@@ -29,7 +29,7 @@ const Two = ({ item }: any) => (
 
 const TestGrid = () => {
   return (
-    <div>
+    <Wrapper service={service}>
       <h1>TestGrid</h1>
 
       <div className="row gap-x p-l">
@@ -50,7 +50,7 @@ const TestGrid = () => {
       </div>
 
       <MultiBuilderGrid service={service} builders={{ One, Two }} />
-    </div>
+    </Wrapper>
   );
 };
 
