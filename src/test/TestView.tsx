@@ -15,6 +15,11 @@ const service = {
   },
 };
 
+type TEST = {
+  items: any[];
+  setItem: (item: any) => void;
+};
+
 const TestView = () => {
   return (
     <div>
@@ -28,8 +33,8 @@ const TestView = () => {
       <StateListener
         name="items"
         service={service}
-        Component={({ state, setState }) => {
-          return state.map((item: any) => <p key={item.id}>{item.name}</p>);
+        Component={({ items }) => {
+          return items.map((item: any) => <p key={item.id}>{item.name}</p>);
         }}
       />
       {/* <CardsContainer stateName="items" service={service} itemBuilder={({ item }: any) => <JsonBuilder json={item} />} /> */}
