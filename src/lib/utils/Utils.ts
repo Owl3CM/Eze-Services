@@ -70,4 +70,5 @@ export default class Utils {
     const currency: any = { 1: "د.ع", 2: "USD", 3: "EUR" };
     return currency[currencyId] || "-";
   };
+  static capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 }

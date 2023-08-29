@@ -76,7 +76,6 @@ const listenToPull = ({ reload, container, service, reloaderProps }: ListenToPul
   reloader.setClassName = (className: string) => {
     reloader.className = `${reloaderProps.className} ${className}`;
   };
-  console.log({ containerGap });
 
   const onSwipeDown = (e: any) => {
     diff = e.touches[0].clientY - startY;
@@ -108,7 +107,7 @@ const listenToPull = ({ reload, container, service, reloaderProps }: ListenToPul
   };
 
   container.addEventListener("touchstart", (e: any) => {
-    if (container.scrollTop > 5 || isPulling || (service.state && service.state !== "idle")) return;
+    if (container.scrollTop > 5 || isPulling || (service.state && service.state === "reloading")) return;
     isPulling = true;
     reloader.style.display = "";
     reloader.style.opacity = "0";

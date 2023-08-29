@@ -1,5 +1,5 @@
 import React from "react";
-import Grid from "../Grid/Grid";
+import CardsContainer from "../CardsContainer/CardsContainer";
 
 type ButtonProps = {
   onClick: any;
@@ -17,11 +17,11 @@ type MultiBuilderGridProps = {
   service: any;
   showToggle?: boolean;
   builders: { [key: string]: any };
-  stateKey?: string;
+  stateName?: string;
   className?: string;
 };
 
-const MultiBuilderGrid = ({ service, builders, showToggle = true, stateKey, className }: MultiBuilderGridProps) => {
+const MultiBuilderGrid = ({ service, builders, showToggle = true, stateName, className }: MultiBuilderGridProps) => {
   [service.cardTemplate, service.setCardTemplate] = React.useState(localStorage.getItem(`${service.id}-builder`) || Object.keys(builders)[0]);
   return (
     <React.Fragment>
@@ -40,7 +40,12 @@ const MultiBuilderGrid = ({ service, builders, showToggle = true, stateKey, clas
             />
           ))}
       </div>
-      <Grid service={service} itemBuilder={builders[service.cardTemplate] ?? Object.values(builders)[0]} className={className} stateKey={stateKey} />
+      <CardsContainer
+        service={service}
+        itemBuilder={builders[service.cardTemplate] ?? Object.values(builders)[0]}
+        className={className}
+        stateName={stateName}
+      />
     </React.Fragment>
   );
 };

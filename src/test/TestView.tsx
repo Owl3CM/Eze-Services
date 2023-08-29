@@ -1,39 +1,40 @@
-import { setDefaultStateKit, ServiceStateBuilder, Api, ReactStateBuilder } from "../lib";
+import { setDefaultStateKit, ServiceStateBuilder, Api, StateListener, CardsContainer } from "../lib";
 import React from "react";
 import { JsonBuilder } from "morabaa-utils";
 
-// setDefaultStateKit({
-//   loading: ({ title = "" }) => (
-//     <div className="bg-prim text-red p-2x fixed inset-0 bg-green opacity-60">
-//       <h1>loading </h1>
-//       <span className="text-white">{title}</span>
-//     </div>
-//   ),
-//   error: ({ title = "" }) => (
-//     <div className="bg-prim text-red p-2x">
-//       <h1>Error </h1>
-//       <span className="text-white">{title}</span>
-//     </div>
-//   ),
-//   customState: ({ title = "" }) => (
-//     <div className="bg-prim text-red p-2x">
-//       <h1>customState </h1>
-//       <span className="text-white">{title}</span>
-//     </div>
-//   ),
-// });
-
-const ItemsBuilder = ({ service }: any) => {
-  return (
-    <div>
-      <h1>items</h1>
-      {service.items && <JsonBuilder json={service.items} />}
-    </div>
-  );
+const service = {
+  items: [
+    { id: 1, name: "ali" },
+    { id: 2, name: "ali" },
+  ],
+  setItem: (item: any) => {
+    service.items = item;
+  },
+  onItemsChanged: (service: any) => {
+    console.log("change", service.items);
+  },
 };
 
 const TestView = () => {
-  return <div></div>;
+  return (
+    <div>
+      <p
+        onClick={() => {
+          service.setItem({ id: 1, name: "LOL" });
+          console.log(service.items);
+        }}>
+        change
+      </p>
+      <StateListener
+        name="items"
+        service={service}
+        Component={({ state, setState }) => {
+          return state.map((item: any) => <p key={item.id}>{item.name}</p>);
+        }}
+      />
+      {/* <CardsContainer stateName="items" service={service} itemBuilder={({ item }: any) => <JsonBuilder json={item} />} /> */}
+    </div>
+  );
 };
 export default TestView;
 

@@ -63,8 +63,6 @@ export default TestGrid;
 const reloaderProps = {
   // reloadingClass: "squiggle",
   onPull: ({ diff, diffPercentage, reloader }) => {
-    console.log(diff, diffPercentage, reloader);
-
     const dashOffset = 650 + diffPercentage * 650;
     (reloader.firstChild.lastChild as any).style.strokeDashoffset = `${dashOffset}`;
   },

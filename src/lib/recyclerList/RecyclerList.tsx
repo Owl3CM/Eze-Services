@@ -16,7 +16,7 @@ interface RecyclerProps {
   containerClass?: string;
   viewedItems?: number;
   indecator?: IndecatorProps;
-  stateKey?: string;
+  stateName?: string;
   children?: React.ReactNode;
 }
 interface IRecyclerList {
@@ -79,7 +79,7 @@ class RecyclerList extends React.Component implements IRecyclerList {
       containerClass = "local-wrapper relative",
       viewedItems,
       indecator,
-      stateKey = "data",
+      stateName = "data",
       children,
     } = props;
     super(props);
@@ -91,7 +91,7 @@ class RecyclerList extends React.Component implements IRecyclerList {
     if (indecator) {
       this.indecatorProps = { ...this.indecatorProps, ...indecator };
     }
-    const itemsKey = Utils.convertToCamelCase(`set-${stateKey}`);
+    const itemsKey = Utils.convertToCamelCase(`set-${stateName}`);
     service[itemsKey] = (callBack: Function | any[], clear: any) => {
       const _clear = clear || this.itemsData.length <= 0;
       if (typeof callBack === "function") {
@@ -106,7 +106,7 @@ class RecyclerList extends React.Component implements IRecyclerList {
       }
     };
     this.service = service;
-    this.itemsData = service[stateKey];
+    this.itemsData = service[stateName];
     this.viewedItems = viewedItems || 25;
     this.buildItem = nodeBuilder ? (item: any) => nodeBuilder(item) : (item: any) => convertToNode(itemBuilder, item);
 
