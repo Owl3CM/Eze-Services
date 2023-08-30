@@ -172,6 +172,7 @@
 .pointer{cursor: pointer;}
 .cursor-default{cursor: default;}
 .cursor-cursor{cursor: w-resize;}
+.pointer-none{pointer-events: none;}
 
 .select-none {user-select: none;} .select-text {user-select: text;} .select-all {user-select: all;} .select-auto {user-select: auto;}
 

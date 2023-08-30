@@ -3,10 +3,12 @@ import { Route, Routes } from "react-router-dom";
 import TestView from "./TestView";
 import { Link } from "react-router-dom";
 import TestGrid from "./TestGrid";
+import StateSample from "./StateSample";
 
 const _TestRoutes = [
   { path: "/", Component: TestView, title: "home" },
   { path: "/grid", Component: TestGrid, title: "grid" },
+  { path: "/state", Component: StateSample, title: "state" },
 ];
 const TestRoutes = () => {
   return (
