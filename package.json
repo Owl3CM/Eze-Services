@@ -1,6 +1,6 @@
 {
   "name": "morabaa-services",
-  "version": "1.0.78",
+  "version": "1.0.79",
   "description": "morabaa-services",
   "main": "dist/index.js",
   "source": "src/index.tsx",
@@ -17,7 +17,8 @@
   },
   "peerDependencies": {
     "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
+    "react-dom": ">=18.0.0",
+    "react-router-dom": "^6.10.0"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
