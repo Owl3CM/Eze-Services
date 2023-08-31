@@ -74,7 +74,7 @@ export class QueryBuilder<T = any> {
   private _paramsChanged = () => {
     if (!this._isQueryChanged()) return;
     sessionStorage.setItem(this.storageKey, this.query);
-    this.onQueryChange(this.getAll());
+    // this.onQueryChange(this.getAll());
     this.navigate(`?${this.query}`, { replace: true, preventScrollReset: true });
   };
 
