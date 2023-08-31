@@ -32,11 +32,11 @@
 
 #reloader-container{
   /* --m-top: -100px; */
+  /* position: fixed; */
   width: 100px;
-  margin: auto;
+  margin-inline: auto;
   height: 100px;
   margin-top:var(--reloader-m-top);
-  position: fixed;
   left: 0;
   right: 0;
   z-index: 399;

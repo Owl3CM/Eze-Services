@@ -9,11 +9,13 @@ class Wrapper extends React.Component {
 
   constructor(props: IWrapperProps) {
     super(props);
-    this.id = `wrapper-${window.location.pathname.replace(/\//g, "")}`;
+    this.id = `wrapper-${window.location.pathname.replace(/\//g, "")}-${props.id}`;
     this.reloaderProps = { ..._reloaderProps, ...props.reloaderProps };
+    const { position, className } = this.reloaderProps;
+    this.reloaderProps.className = `${className ? `${className} ` : ""}${position}`;
   }
   componentDidMount() {
-    this.container = document.getElementById(this.id) as HTMLDivElement;
+    // this.container = document.getElementById(this.id) as HTMLDivElement;
     const { loadMore, reload, service } = this.props as IWrapperProps;
 
     loadMore && this.listnToScroll(loadMore);
@@ -21,9 +23,7 @@ class Wrapper extends React.Component {
     this.returnToLastScrollPostion();
   }
   private returnToLastScrollPostion() {
-    setTimeout(() => {
-      PostionById[this.id] && this.container.scrollTo({ top: PostionById[this.id], left: 0, behavior: "auto" });
-    }, 0);
+    PostionById[this.id] && this.container.scrollTo({ top: PostionById[this.id], left: 0, behavior: "auto" });
   }
 
   private listnToScroll(loadMore: () => void) {
@@ -39,7 +39,12 @@ class Wrapper extends React.Component {
     const { service, children, reloader, addStateBuilder, reload, loadMore, reloaderProps, ...props } = this.props as IWrapperProps;
     const { Component, className } = this.reloaderProps;
     return (
-      <div id={this.id} {...props}>
+      <div
+        ref={(_ref) => {
+          if (!_ref) return;
+          this.container = _ref;
+        }}
+        {...props}>
         {reload && (
           <div className={className} style={{ display: "none" }} id="reloader-container">
             {Component}
@@ -152,4 +157,5 @@ const _reloaderProps = {
     </svg>
   ),
   className: "",
+  position: "relative" as "absolute" | "fixed" | "relative",
 };

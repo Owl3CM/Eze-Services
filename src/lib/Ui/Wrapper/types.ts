@@ -10,6 +10,7 @@ export type IService = {
 };
 
 export interface IWrapperProps {
+  id?: string;
   service?: IService | any;
   className?: string;
   children?: React.ReactNode;
@@ -18,6 +19,7 @@ export interface IWrapperProps {
   reloaderProps?: ReloaderProps;
   loadMore?: (() => void) | null;
   reload?: (() => void) | null;
+  style?: React.CSSProperties;
 }
 
 export interface onPullProps {
