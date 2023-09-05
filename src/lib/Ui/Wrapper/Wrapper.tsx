@@ -41,8 +41,7 @@ class Wrapper extends React.Component {
     return (
       <div
         ref={(_ref) => {
-          if (!_ref) return;
-          this.container = _ref;
+          if (_ref) this.container = _ref;
         }}
         {...props}>
         {reload && (
