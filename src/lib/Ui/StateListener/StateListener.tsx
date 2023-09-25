@@ -1,10 +1,6 @@
 import React from "react";
 import { Utils } from "../../utils";
 
-type IComponentProps = {
-  // state: any;
-  // setState: any;
-};
 interface Props {
   service: any;
   Component: (props: any) => any;
@@ -27,31 +23,6 @@ const StateListener = ({ service, Component, name = "data" }: Props) => {
   }, [service[name]]);
 
   return <Component {...{ [name]: service[name], [setItems]: service[setItems] }} />;
-};
-
-// how to make this work?
-// when i use it like this
-
-const service = {
-  items: [],
-  setItems: () => {},
-};
-
-type TESTTYPE = {
-  items: [];
-  setItems: () => {};
-};
-
-const TestUser = () => {
-  return (
-    <StateListener
-      name="items"
-      service={service}
-      Component={({ items, setItems }: TESTTYPE) => {
-        return items.map((item: any) => <p key={item.id}>{item.name}</p>);
-      }}
-    />
-  );
 };
 
 export default StateListener;

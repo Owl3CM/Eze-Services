@@ -1,6 +1,6 @@
 import { ReloaderProps } from "./Wrapper";
 
-export type IService = {
+export type IServiceAsProp = {
   state?: string;
   setState?: (state: string) => void;
   laod?: () => void;
@@ -11,7 +11,7 @@ export type IService = {
 
 export interface IWrapperProps {
   id?: string;
-  service?: IService | any;
+  service?: IServiceAsProp | any;
   className?: string;
   children?: React.ReactNode;
   reloader?: React.ReactNode;
@@ -30,7 +30,7 @@ export interface onPullProps {
 
 export interface ListenToPullProps {
   container: HTMLElement;
-  service: IService;
+  service: IServiceAsProp;
   reloaderProps: ReloaderProps;
   reload: () => void;
 }

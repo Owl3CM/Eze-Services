@@ -1,6 +1,6 @@
-import { IClientService } from "./ClientService";
+import { IPagenatedService } from "./PagenatedService";
 
-export const defaultLoad = (service: IClientService) => async () => {
+export const defaultLoad = (service: IPagenatedService) => async () => {
   service.canLoadMore = false;
   service.setState("loading");
   try {
@@ -12,7 +12,7 @@ export const defaultLoad = (service: IClientService) => async () => {
   }
 };
 
-export const defaultReload = (service: IClientService) => async () => {
+export const defaultReload = (service: IPagenatedService) => async () => {
   service.canLoadMore = false;
   service.setState("reloading");
   try {
@@ -24,7 +24,7 @@ export const defaultReload = (service: IClientService) => async () => {
   }
 };
 
-export const defaultLoadMore = (service: IClientService) => async () => {
+export const defaultLoadMore = (service: IPagenatedService) => async () => {
   service.canLoadMore = false;
   service.setState("loadingMore");
   try {
@@ -37,11 +37,11 @@ export const defaultLoadMore = (service: IClientService) => async () => {
 };
 interface defaultOnResponse {
   data: any[];
-  service: IClientService;
+  service: IPagenatedService;
   clear?: boolean;
 }
 export const defaultOnResponse =
-  (service: IClientService) =>
+  (service: IPagenatedService) =>
   async ({ data, service, clear }: defaultOnResponse) => {
     service.setData((prev: any[]) => (clear ? data : [...prev, ...data]));
     service.setState(Object.keys(service.data).length > 0 || data.length > 0 ? "idle" : "noContent");
@@ -49,11 +49,11 @@ export const defaultOnResponse =
 
 interface defaultOnErrorProps {
   error: any;
-  service: IClientService;
+  service: IPagenatedService;
 }
 
 export const defaultOnError =
-  (service: IClientService) =>
+  (service: IPagenatedService) =>
   ({ error, service }: defaultOnErrorProps) => {
     console.log(error);
     if (error.stack) error = { message: error.message, stack: error.stack };

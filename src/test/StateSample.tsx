@@ -4,13 +4,13 @@ import StateKit from "../lib/stateKit/StateKit";
 
 type Props = {};
 
-interface IService {
+interface IServiceTest {
   state: State;
   setState: (state: State) => void;
 }
 
 const StateSample = (props: Props) => {
-  const service = React.useMemo<IService>(() => {
+  const service = React.useMemo<IServiceTest>(() => {
     return {
       state: "loading",
       setState: (state) => {

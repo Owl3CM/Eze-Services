@@ -1,11 +1,11 @@
-import { ClientServiceConstructor } from "./Types";
+import { PagenatedServiceConstructor } from "./Types";
 import { defaultLoad, defaultLoadMore, defaultOnError, defaultOnResponse, defaultReload } from "./ServiceDefaults";
 import { State as IState, ServiceState } from "../Types";
 import { StateBuilder } from "../stateKit";
 
-export type IClientService = ClientService<IClientService, any, ServiceState>;
+export type IPagenatedService = PagenatedService<IPagenatedService, any, ServiceState>;
 
-export class ClientService<Service, QueryParams = Object, State = IState> extends StateBuilder<State> {
+export class PagenatedService<Service, QueryParams = Object, State = IState> extends StateBuilder<State> {
   constructor({
     client,
     onError,
@@ -16,7 +16,7 @@ export class ClientService<Service, QueryParams = Object, State = IState> extend
     beforeLoad,
     beforeReload = beforeLoad,
     beforeLoadMore,
-  }: ClientServiceConstructor<Service, QueryParams>) {
+  }: PagenatedServiceConstructor<Service, QueryParams>) {
     super();
     Object.assign(this, {
       client,
