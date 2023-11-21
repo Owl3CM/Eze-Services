@@ -19,7 +19,7 @@ const StateListener = ({ service, Component, name = "data" }: Props) => {
   [service[name], service[setItems]] = React.useState(service[name]);
 
   React.useEffect(() => {
-    service[onChange]?.(service);
+    service[onChange]?.(service[name]);
   }, [service[name]]);
 
   return <Component {...{ [name]: service[name], [setItems]: service[setItems] }} />;
