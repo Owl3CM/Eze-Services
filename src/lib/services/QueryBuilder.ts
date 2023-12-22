@@ -41,15 +41,33 @@ export class QueryBuilder<T = any> {
   };
   getAll = () => {
     const obj: any = {};
+    this.getQueryParams(obj);
+    this.getPathParsms(obj);
+    this.getStateParams(obj);
+    return obj;
+  };
+
+  getQueryParams = (obj: any = {}) => {
     Object.entries(this.queryParams).forEach(([key, value]: any) => {
       obj[key] = value?.value;
     });
+    return obj;
+  };
 
+  clearQueryParams = () => {
+    this.setQueryParams({});
+  };
+
+  getPathParsms = (obj: any = {}) => {
     if (this.pathParams) {
       Object.entries(this.pathParams).forEach(([key, value]) => {
         obj[key] = value;
       });
     }
+    return obj;
+  };
+
+  getStateParams = (obj: any = {}) => {
     if (this.loaction?.state) {
       Object.entries(this.loaction.state).forEach(([key, value]) => {
         obj[key] = value;
@@ -58,9 +76,11 @@ export class QueryBuilder<T = any> {
     return obj;
   };
 
-  setQueryParams = (queries: IQueryParam<keyof T>[]) => {
-    this.queryParams = {} as any;
-    queries.forEach((query) => this.set(query));
+  setQueryParams = (queries: IQueryParam<keyof T>[] | any = {}) => {
+    if (Array.isArray(queries)) {
+      this.queryParams = {} as any;
+      queries.forEach((query) => this.set(query));
+    } else this.queryParams = queries;
     this._paramsChanged();
   };
 
