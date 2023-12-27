@@ -55,7 +55,7 @@ export class QueryBuilder<T = any> {
   };
 
   clearQueryParams = () => {
-    this.setQueryParams({});
+    this.setQueryParams({} as any);
   };
 
   getPathParsms = (obj: any = {}) => {
@@ -76,7 +76,13 @@ export class QueryBuilder<T = any> {
     return obj;
   };
 
-  setQueryParams = (queries: IQueryParam<keyof T>[] | any = {}) => {
+  setQueryParams = (
+    queries:
+      | IQueryParam<keyof T>[]
+      | { [key in keyof T]: IQueryParam<key> }
+      | ((queries: { [key in keyof T]: IQueryParam<key> }) => { [key in keyof T]: IQueryParam<key> } | IQueryParam<keyof T>[]) = {} as any
+  ) => {
+    if (typeof queries === "function") queries = queries(this.queryParams);
     if (Array.isArray(queries)) {
       this.queryParams = {} as any;
       queries.forEach((query) => this.set(query));
