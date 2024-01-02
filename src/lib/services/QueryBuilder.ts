@@ -2,13 +2,20 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 interface IQueryBuilderProps {
   onQueryChange?: (query: any) => void;
+  defaultQuery?: any;
   service?: {
     setQueryParams: (query: any) => void;
+    queryParams?: any;
   };
 }
 export class QueryBuilder<T = any> {
-  constructor({ onQueryChange, service }: IQueryBuilderProps) {
-    this.onQueryChange = onQueryChange ?? service?.setQueryParams ?? (() => {});
+  constructor({ service, onQueryChange = service?.setQueryParams, defaultQuery = service?.queryParams }: IQueryBuilderProps) {
+    this.onQueryChange = onQueryChange ?? (() => {});
+    if (defaultQuery)
+      Object.entries(defaultQuery).forEach(([key, value]: any) => {
+        this.set({ id: key, value } as any);
+      });
+
     this.pathParams = useParams();
     this.navigate = useNavigate();
     this.loaction = useLocation();
