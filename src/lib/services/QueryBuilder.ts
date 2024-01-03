@@ -36,7 +36,7 @@ export class QueryBuilder<T = any> {
     this.query = this.toString();
 
     // new
-    const setupDefaultQuery = defaultQuery && !(service as any).DEFAULT_QUERY_TAKEN;
+    const setupDefaultQuery = defaultQuery && Object.keys(defaultQuery).length && !(service as any).DEFAULT_QUERY_TAKEN;
     if (saved === "?" && setupDefaultQuery) {
       (service as any).DEFAULT_QUERY_TAKEN = true;
       Object.entries(defaultQuery).forEach(([key, value]: any) => this.set({ id: key, value } as any));
