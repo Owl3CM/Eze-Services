@@ -36,13 +36,11 @@ export class QueryBuilder<T = any> {
     this.query = this.toString();
 
     // new
-    if (saved === "?") {
-      const setupDefaultQuery = defaultQuery && !(service as any).DEFAULT_QUERY_TAKEN;
-      if (setupDefaultQuery) {
-        (service as any).DEFAULT_QUERY_TAKEN = true;
-        Object.entries(defaultQuery).forEach(([key, value]: any) => this.set({ id: key, value } as any));
-        this._paramsChanged();
-      }
+    const setupDefaultQuery = defaultQuery && !(service as any).DEFAULT_QUERY_TAKEN;
+    if (saved === "?" && setupDefaultQuery) {
+      (service as any).DEFAULT_QUERY_TAKEN = true;
+      Object.entries(defaultQuery).forEach(([key, value]: any) => this.set({ id: key, value } as any));
+      this._paramsChanged();
     } else {
       this.lastQuery = this.query;
       this.onQueryChange(this.getAll());
