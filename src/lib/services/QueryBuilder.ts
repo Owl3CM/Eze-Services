@@ -8,28 +8,45 @@ interface IQueryBuilderProps {
     queryParams?: any;
   };
 }
+const SAVED: any = {};
 export class QueryBuilder<T = any> {
   constructor({ service, onQueryChange = service?.setQueryParams, defaultQuery = service?.queryParams }: IQueryBuilderProps) {
     this.onQueryChange = onQueryChange ?? (() => {});
-    if (defaultQuery)
-      Object.entries(defaultQuery).forEach(([key, value]: any) => {
-        this.set({ id: key, value } as any);
-      });
-
     this.pathParams = useParams();
     this.navigate = useNavigate();
     this.loaction = useLocation();
-    this.init();
+    this.init(service, defaultQuery);
   }
   loaction: any;
 
-  init = () => {
+  init = (service: any, defaultQuery: any) => {
     this.storageKey = `url-query-${window.location.pathname}`;
-    const search = window.location.search || `?${sessionStorage.getItem(this.storageKey) ?? ""}`;
+    // const search = window.location.search || `?${sessionStorage.getItem(this.storageKey) ?? ""}`;
+    const saved = `?${SAVED[this.storageKey] ?? ""}`;
+
+    if (saved !== "?" && saved !== "?null" && saved !== window.location.search) {
+      setTimeout(() => {
+        this.navigate(saved, { replace: true, preventScrollReset: true });
+      }, 1);
+      return;
+    }
+
+    const search = window.location.search;
     new URLSearchParams(search).forEach((value, id) => this.set({ id, value } as any));
     this.query = this.toString();
-    this.lastQuery = this.query;
-    this.onQueryChange(this.getAll());
+
+    // new
+    if (saved === "?") {
+      const setupDefaultQuery = defaultQuery && !(service as any).DEFAULT_QUERY_TAKEN;
+      if (setupDefaultQuery) {
+        (service as any).DEFAULT_QUERY_TAKEN = true;
+        Object.entries(defaultQuery).forEach(([key, value]: any) => this.set({ id: key, value } as any));
+        this._paramsChanged();
+      }
+    } else {
+      this.lastQuery = this.query;
+      this.onQueryChange(this.getAll());
+    }
   };
   private set = (queryParma: IQueryParam<keyof T>) => {
     if (hasValue(queryParma.value))
@@ -109,9 +126,13 @@ export class QueryBuilder<T = any> {
 
   private _paramsChanged = () => {
     if (!this._isQueryChanged()) return;
-    sessionStorage.setItem(this.storageKey, this.query);
+
+    SAVED[this.storageKey] = this.query || "null";
+    // sessionStorage.setItem(this.storageKey, this.query);
     // this.onQueryChange(this.getAll());
-    this.navigate(`?${this.query}`, { replace: true, preventScrollReset: true });
+    setTimeout(() => {
+      this.navigate(`?${this.query}`, { replace: true, preventScrollReset: true });
+    }, 1);
   };
 
   private _isQueryChanged = () => {
