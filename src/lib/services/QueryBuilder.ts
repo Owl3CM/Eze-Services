@@ -24,12 +24,12 @@ export class QueryBuilder<T = any> {
     // const search = window.location.search || `?${sessionStorage.getItem(this.storageKey) ?? ""}`;
     const saved = `?${SAVED[this.storageKey] ?? ""}`;
 
-    if (saved !== "?" && saved !== "?null" && saved !== window.location.search) {
-      setTimeout(() => {
-        this.navigate(saved, { replace: true, preventScrollReset: true });
-      }, 1);
-      return;
-    }
+    // if (saved !== "?" && saved !== "?null" && saved !== window.location.search) {
+    //   setTimeout(() => {
+    //     this.navigate(saved, { replace: true, preventScrollReset: true });
+    //   }, 1);
+    //   return;
+    // }
 
     const search = window.location.search;
     new URLSearchParams(search).forEach((value, id) => this.set({ id, value } as any));
