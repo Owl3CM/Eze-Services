@@ -85,28 +85,6 @@ interface InitProps {
   interceptor?: Function;
 }
 
-// const Apis = {
-//   hub: "https://hubcore.morabaaapps.com/api/v1",
-//   items: "https://items.morabaaapps.com/api/v1",
-//   sales: "https://salereports.morabaaapps.com/api/v1",
-//   reps: "https://repsapi.morabaaapps.com/api/v1",
-// };
-
-// export const getApi = (id) => {
-//   if (typeof Apis[id] === "string") {
-//       console.log("First Time Create Api: ", id);
-//       Apis[id] = new ApiService({
-//           baseURL: Apis[id],
-//           headers: {
-//               "Content-Type": "application/json",
-//               "App-Package": "com.morabaa." + (id === "sales" ? "accounts" : "reps"),
-//               Authorization: localStorage.getItem("token"),
-//           },
-//       });
-//   }
-//   return Apis[id];
-// };
-
 const StatusCodeByMessage: { [key: number]: string } = {
   0: "There Is No Response From Server Body Is Empty Connection May Be Very Slow",
 

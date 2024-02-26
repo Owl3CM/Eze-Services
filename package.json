@@ -1,19 +1,16 @@
 {
-  "name": "morabaa-services",
-  "version": "1.0.92",
-  "description": "morabaa-services",
+  "name": "eze-services",
+  "version": "0.0.0",
+  "description": "eze-services",
   "main": "dist/index.js",
-  "source": "src/index.tsx",
+  "source": "src/index.ts",
   "private": false,
   "engines": {
     "node": ">=14"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm -rf dist && rollup -c --exports auto",
-    "prod-old": "git add . && yarn build && yarn publish",
-    "prod": "node ./scripts/publish.js",
-    "start": "vite"
+    "prod": "node ./scripts/publish.js"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
@@ -29,10 +26,8 @@
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.6",
     "@types/react-router-dom": "^5.3.3",
-    "@vitejs/plugin-react": "^3.1.0",
     "babel-loader": "^8.2.5",
-    "morabaa-provider": "^0.0.18",
-    "morabaa-utils": "^0.0.11",
+    "eze-utils": "^0.0.1",
     "postcss": "^8.4.16",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -45,8 +40,7 @@
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript2": "^0.34.1",
-    "typescript": "^4.8.4",
-    "vite": "^4.2.1"
+    "typescript": "^4.8.4"
   },
   "files": [
     "dist"

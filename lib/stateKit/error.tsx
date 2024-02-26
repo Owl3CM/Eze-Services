@@ -1,4 +1,4 @@
-import { JsonBuilder } from "morabaa-utils";
+import { JsonBuilder } from "eze-utils";
 import React from "react";
 
 interface Props {
