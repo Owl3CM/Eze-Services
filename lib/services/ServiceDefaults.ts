@@ -29,7 +29,7 @@ export const defaultLoadMore = (service: IPagenatedService) => async () => {
   service.setState("loadingMore");
   try {
     service.beforeLoadMore?.(service);
-    const data = await service.client.loadMore(service.queryParams ?? {});
+    const data = await service.client.loadMore();
     service.afterLoadMore(data, service);
   } catch (error) {
     service.onError({ error, service });
