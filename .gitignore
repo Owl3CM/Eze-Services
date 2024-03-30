@@ -5,6 +5,7 @@
 /dist
 # testing
 /coverage
+/_JUNKS
 
 # production
 /build

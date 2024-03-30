@@ -1,5 +1,7 @@
 lib
 scripts
+node_modules
+_JUNKS
 .vercel
 .editorconfig
 .prettierrc

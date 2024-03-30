@@ -12,9 +12,9 @@ const SAVED: any = {};
 export class QueryBuilder<T = any> {
   constructor({ service, onQueryChange = service?.setQueryParams, defaultQuery = service?.queryParams }: IQueryBuilderProps) {
     this.onQueryChange = onQueryChange ?? (() => {});
-    this.pathParams = useParams();
-    this.navigate = useNavigate();
-    this.loaction = useLocation();
+    this.pathParams = (useParams as any)();
+    this.navigate = (useNavigate as any)();
+    this.loaction = (useLocation as any)();
     this.init(service, defaultQuery);
   }
   loaction: any;

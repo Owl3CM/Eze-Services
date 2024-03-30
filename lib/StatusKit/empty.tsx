@@ -3,7 +3,7 @@ import React from "react";
 interface Props {
   children?: React.ReactNode;
 }
-const noContent = ({ children }: Props) => {
+const empty = ({ children }: Props) => {
   return (
     <div className="fixed inset-0 col s-loading-container">
       <div className="col-center m-auto">
@@ -14,6 +14,6 @@ const noContent = ({ children }: Props) => {
   );
 };
 
-export default noContent;
+export default empty;
 
 const LoadingComponent = () => <span>No Content!</span>;

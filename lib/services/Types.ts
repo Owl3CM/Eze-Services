@@ -1,42 +1,55 @@
-// type State = "idle" | "loading" | "reload" | "processing" | "reloading" | "searching" | "error" | "noContent" | "loadingMore" | string;
-// export type ServiceState = State | { state: State; props: any; parent?: HTMLElement | undefined };
+// type Status = "idle" | "loading" | "reload" | "processing" | "reloading" | "searching" | "error" | "noContent" | "loadingMore" | string;
+// export type ServiceState = Status | { state: Status; props: any; parent?: HTMLElement | undefined };
 
 export interface IPagenatedServiceParams {
   [id: string]: string | number | boolean;
 }
 
-export interface PagenatedServiceConstructor<Service, QueryParams> {
+export type PagenatedServiceConstructor<Service, QueryParams, Response> = {
   onError?: (error: any, service: Service) => void;
-  client: {
-    load: (queryParams?: QueryParams, clearCash?: boolean) => Promise<any> | any;
-    reload: (queryParams?: QueryParams, clearCash?: boolean) => Promise<any> | any;
-    loadMore?: (queryParams?: QueryParams, clearCash?: boolean) => Promise<any> | any;
-  };
-  interceptor?: (service: Service) => void;
 
-  afterLoad?: (data: any, service: Service) => Promise<any>;
-  afterReload?: (data: any, service: Service) => Promise<any>;
-  afterLoadMore?: (data: any, service: Service) => Promise<any>;
+  paginator: {
+    load: (queryParams?: QueryParams, clearCash?: boolean) => Promise<Response[]>;
+    reload: (queryParams?: QueryParams, clearCash?: boolean) => Promise<Response[]>;
+    loadMore?: (queryParams?: QueryParams, clearCash?: boolean) => Promise<Response[]>;
+    limit: number;
+    hasMore: boolean;
+  };
+  // afterLoad?: (data: any, service: Service) => Promise<Response>;
+  // afterReload?: (data: any, service: Service) => Promise<Response>;
+  // afterLoadMore?: (data: any, service: Service) => Promise<Response>;
 
   beforeLoad?: (service: Service, clearCash: boolean) => void;
   beforeReload?: (service: Service, clearCash: boolean) => void;
-  beforeLoadMore?: (service: Service) => void;
+  beforeLoadMore?: (service: Service, clearCash: boolean) => void;
 
-  onResponse?: (response: any, service: Service, clear: boolean) => any;
-}
-export interface ServiceConstructor<Service, QueryParams> {
+  onResponse?: (response: any, service: Service, clear: boolean) => Response[];
+};
+
+export type ServiceConstructor<Service, QueryParams, Response> = {
   onError?: (error: any, service: Service) => void;
-  client: {
-    load: (queryParams?: QueryParams, clearCash?: boolean) => Promise<any> | any;
-    reload: (queryParams?: QueryParams, clearCash?: boolean) => Promise<any> | any;
-  };
-  interceptor?: (service: Service) => void;
-
-  afterLoad?: (data: any, service: Service) => Promise<any>;
-  afterReload?: (data: any, service: Service) => Promise<any>;
-
-  beforeLoad?: (service: Service, clearCash: boolean) => void;
-  beforeReload?: (service: Service, clearCash: boolean) => void;
-
-  onResponse?: (response: any, service: Service, clear: boolean) => any;
-}
+} & (
+  | {
+      loader?: undefined;
+    }
+  | {
+      loader: {
+        load: (queryParams?: QueryParams, clearCash?: boolean) => Promise<Response>;
+      };
+      beforeLoad?: (service: Service, clearCash: boolean) => void;
+      onResponse?: (response: any, service: Service, clear: boolean) => Response;
+      limit: number;
+      hasMore: boolean;
+    }
+  | {
+      loader: {
+        load: (queryParams?: QueryParams, clearCash?: boolean) => Promise<Response>;
+        reload: (queryParams?: QueryParams, clearCash?: boolean) => Promise<Response>;
+        limit: number;
+        hasMore: boolean;
+      };
+      beforeLoad?: (service: Service, clearCash: boolean) => void;
+      beforeReload?: (service: Service, clearCash: boolean) => void;
+      onResponse?: (response: any, service: Service, clear: boolean) => Response;
+    }
+);
