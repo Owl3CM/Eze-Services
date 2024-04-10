@@ -7,6 +7,7 @@ export const clearHiveStorage = (storeKey?: string) => storable.clear(storeKey);
 export interface IHive<HiveType> {
   honey: HiveType;
   setHoney: (newValue: HiveType | ((prev: HiveType) => HiveType)) => void;
+  silentSetHoney: (newValue: HiveType) => void;
   subscribe: (callback: (newValue: HiveType) => void) => () => void;
   _subscribers: () => number;
 }
@@ -35,6 +36,13 @@ function localCreateHive<HiveType>(initialValue: HiveType, isObservable?: boolea
           _localHive.honey = typeof newValue === "function" ? newValue(_localHive.honey) : newValue;
           pollinate();
         },
+    silentSetHoney: isObservable
+      ? () => {
+          throw new Error("Cannot set honey on an observable hive");
+        }
+      : (newValue: any) => {
+          _localHive.honey = newValue;
+        },
     subscribe: (callback) => {
       subscribers.add(callback);
       return () => {
@@ -58,16 +66,6 @@ export const createHive = <HiveType>(initialValue: HiveType, storeKey?: string):
   }
   return observer;
 };
-
-export function useHoney<HiveType>(hive: IHive<HiveType>) {
-  const [value, storeHoneyValue] = useState(hive.honey);
-  useEffect(() => hive.subscribe(storeHoneyValue), [hive]);
-  return value;
-}
-
-export function useHive<HiveType>(hive: IHive<HiveType>) {
-  return [useHoney(hive), hive.setHoney];
-}
 
 export const createHiveObserver = <HiveType>(observe: hiveGetter<HiveType>): IHiveObserver<HiveType> => {
   const [observer, subscribers] = localCreateHive(null as any, true) as LocalCreateHive<HiveType>;
@@ -96,6 +94,7 @@ export const createHiveObserver = <HiveType>(observe: hiveGetter<HiveType>): IHi
 export interface IHiveArray<HiveType> {
   honey: HiveType[];
   setHoney: (newValue: HiveType[] | ((prev: HiveType[]) => HiveType[])) => void;
+  silentSetHoney: (newValue: HiveType[]) => void;
   subscribe: (callback: (newValue: HiveType[]) => void) => () => void;
   _subscribers: () => number;
   push: (newValue: HiveType) => void;
@@ -135,3 +134,132 @@ export function createHiveArray<HiveType>(initialValue: HiveType[], storeKey?: s
   return hiveArray;
 }
 // return [useSyncExternalStore(hive.subscribe, () => hive.honey as any), hive.setHoney];
+
+export function useHoney<HiveType>(hive: IHive<HiveType>) {
+  const [value, storeHoneyValue] = useState(hive.honey);
+  useEffect(() => hive.subscribe(storeHoneyValue), [hive]);
+  return value;
+}
+
+export function useHive<HiveType>(hive: IHive<HiveType>) {
+  return [useHoney(hive), hive.setHoney];
+}
+
+interface IHiveObject<HiveType> extends IHive<HiveType> {
+  honey: HiveType;
+  setHoney: (newValue: HiveType | ((prev: HiveType) => HiveType)) => void;
+  silentSetHoney: (newValue: HiveType) => void;
+  subscribe: (callback: (newValue: HiveType) => void) => () => void;
+  _subscribers: () => number;
+
+  createNestedHive: <NestedHiveType>(initialValue: NestedHiveType, key: string, storeKey?: string) => IHive<NestedHiveType>;
+  setValue: (key: string, value: any) => void;
+  getValue: (key: string) => any;
+  getValues: () => any;
+  setValues: (values: any) => void;
+  getKeys: () => string[];
+  removeKey: (key: string) => void;
+  removeKeys: (keys: string[]) => void;
+  clear: () => void;
+  reset: () => void;
+}
+export function createHiveObject<HiveType>(initialValue: HiveType, storeKey?: string): IHive<HiveType> {
+  const hiveObject = createHive(initialValue, storeKey) as IHiveObject<HiveType>;
+  const HIVES = new Map<string, IHive<any>>();
+
+  hiveObject.createNestedHive = <NestedHiveType>(initialValue: NestedHiveType, key: string, storeKey?: string) => {
+    const nestedHive = createHive(initialValue, storeKey) as IHive<NestedHiveType>;
+    nestedHive.subscribe((newValue: any) => {
+      hiveObject.silentSetHoney({ ...hiveObject.honey, [key]: newValue });
+    });
+    hiveObject.subscribe((newValue: any) => {
+      if (typeof newValue !== "object") return;
+      if (newValue[key] !== nestedHive.honey) {
+        nestedHive.setHoney(newValue[key]);
+      }
+    });
+    HIVES.set(key, nestedHive);
+    return nestedHive;
+  };
+
+  hiveObject.setValue = (key: string, value: any) => {
+    const nestedHive = HIVES.get(key);
+    if (nestedHive) nestedHive.setHoney(value);
+  };
+
+  hiveObject.getValue = (key: string) => hiveObject.honey[key];
+
+  hiveObject.getValues = () => {
+    const values: any = {};
+    HIVES.forEach((nestedHive, key) => {
+      values[key] = nestedHive.honey;
+    });
+    return values;
+  };
+
+  hiveObject.setValues = (values: any) => {
+    Object.entries(values).forEach(([key, value]) => {
+      const nestedHive = HIVES.get(key);
+      if (nestedHive) nestedHive.setHoney(value);
+    });
+  };
+
+  return hiveObject;
+}
+
+// form
+
+// type SubscribeProps = {
+//   id: string;
+//   setValue: (value: string) => void;
+//   setError: (error: string) => void;
+//   onSuccess?: () => void;
+// };
+// interface IFormProps<T> {
+//   initialValues: T;
+//   valiateSchema?: any;
+//   validate?: (id: keyof T, value: any) => string;
+//   setErrors?: (errors: any) => void;
+//   setError: (id: keyof T, error: string) => void;
+//   setValue: (id: keyof T, value: any) => void;
+//   subscribeToForm: (props: SubscribeProps) => void;
+
+//   onSubmit?: (values: T) => void;
+// }
+
+// export function createFormHive<HiveType>(initialValue: HiveType, validateSchema: any, storeKey?: string): IHive<HiveType> {
+//   const formHive = createHive(initialValue, storeKey) as any as IFormProps<HiveType> & IHive<HiveType>;
+//    formHive.validate = (id, value) => {
+//     try {
+//       validateSchema.validateSyncAt(id, { [id]: value });
+//       formHive.removeError(id);
+//     } catch ({ message }: any) {
+//       if (!(message as any).includes("The schema does not contain the path")) {
+//         formHive.addError(id, message as string);
+//         return message;
+//       }
+//     }
+//   };
+
+//   Object.entries(initialValue as any).map(([key, value]: any) => {
+//     const keyHive = createHive(value);
+//     formHive.subscribeToForm({
+//       id: key,
+//       setValue: (value: any) => {
+//         formHive.silentSetHoney({ ...formHive.honey, [key]: value });
+//         keyHive.setHoney(value);
+//       },
+//       setError: (error: string) => {
+//         keyHive.setHoney(error);
+//       },
+//     });
+//   });
+
+//   formHive.subscribeToForm = ({ id, setValue, setError, onSuccess }) => {
+//     formHive[`set${id}`] = setValue;
+//     formHive[`set${id}Error`] = setError;
+//     formHive[`on${id}Success`] = onSuccess ?? setError;
+//   }
+
+//   return formHive;
+// }

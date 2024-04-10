@@ -5,14 +5,14 @@ type Object = { [key: string]: any };
 
 type BeeProps = {
   hive: any;
-  Component: (props: { honey: any; setHoney: any }) => any;
+  Component: (props: { honey: any; setHoney: any; silentSetHoney: any }) => any;
 };
 type BeesProps = {
   hiveCluster: Object;
   Component: (props: { cell: Object; set: (newValues: Object, replace?: boolean) => void }) => any;
 };
 
-export const Bee = ({ hive, Component }: BeeProps) => <Component honey={useHoney(hive)} setHoney={hive.setHoney} />;
+export const Bee = ({ hive, Component }: BeeProps) => <Component honey={useHoney(hive)} setHoney={hive.setHoney} silentSetHoney={hive.silentSetHoney} />;
 
 export const Bees = ({ hiveCluster, Component }: BeesProps) => {
   const cell = {} as any;
