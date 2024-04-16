@@ -49,7 +49,7 @@ export default class Storable {
     }
   };
 }
-type StorageType = "localStorage" | "sessionStorage" | "memoryStorage" | Storage;
+export type StorageType = "localStorage" | "sessionStorage" | "memoryStorage" | Storage;
 type StorableConstructor = {
   storage?: StorageType;
   storeKey?: string;

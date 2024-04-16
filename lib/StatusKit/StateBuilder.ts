@@ -1,4 +1,4 @@
-import { IHive, createHive } from "../Beehive/Hive";
+import { IHive, createHive } from "../Beehive";
 import { ServiceStatus, Status } from "../Types";
 
 // export type IStateBuilder<S> = {
