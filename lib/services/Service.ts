@@ -1,12 +1,17 @@
 import { ServiceConstructor } from "./Types";
-import { defaultLoad, defaultLoadMore, defaultOnError, defaultOnResponse, defaultReload } from "./ServiceDefaultsFunctions";
+import { defaultLoad, defaultOnError, defaultOnRes, defaultReload } from "./DefaultsServiceFunctions";
 import { ServiceStatus } from "../Types";
-import { IHive, IHiveArray, createHive, createHiveArray } from "../Beehive";
-export type IService = Service<IService, any, any, ServiceStatus>;
+import { IHive, createHive } from "../Beehive";
+export type IService<QueryParams = Object, Response = any, FormattedResponse = Response, Status = ServiceStatus> = Service<
+  QueryParams,
+  Response,
+  FormattedResponse,
+  Status
+>;
 
-export class Service<Service, QueryParams = Object, Response = any, Status = ServiceStatus> {
-  constructor(props: ServiceConstructor<Service, QueryParams, Response>) {
-    const { loader, onError, onResponse, afterLoad, afterReload, afterLoadMore, beforeLoad, beforeReload = beforeLoad, beforeLoadMore } = props as any;
+export class Service<QueryParams = Object, Response = any, FormattedResponse = Response, Status = ServiceStatus> {
+  constructor(props: ServiceConstructor<QueryParams, Response, FormattedResponse>) {
+    const { formatResponse, loader, onError, onResponse, afterLoad, afterReload, beforeLoad, beforeReload = beforeLoad, initialValue } = props as any;
 
     Object.assign(this, {
       onError: onError ?? defaultOnError(this as any),
@@ -14,9 +19,8 @@ export class Service<Service, QueryParams = Object, Response = any, Status = Ser
 
     if (loader) {
       this.loader = loader;
-
       Object.assign(this, {
-        onResponse: onResponse ?? defaultOnResponse<Response>(this as any),
+        onResponse: onResponse ?? defaultOnRes<Response, FormattedResponse>(this, formatResponse, initialValue),
       });
       if (loader.load)
         Object.assign(this, {
@@ -32,27 +36,13 @@ export class Service<Service, QueryParams = Object, Response = any, Status = Ser
           beforeReload,
         });
 
-      if (loader.loadMore)
-        Object.assign(this, {
-          loadMore: defaultLoadMore(this as any),
-          afterLoadMore,
-          beforeLoadMore,
-        });
-
       this.queryParamsHive.subscribe(() => {
         this.load();
-      });
-
-      this.statusHive.subscribe((state: any) => {
-        if (typeof state !== "string") state = state.state;
-        const loadingState = ["loading", "reloading", "loadingMore"];
-        this.canLoadHive.setHoney(loadingState.includes(state));
       });
     }
   }
 
-  dataHive: IHiveArray<Response> = createHiveArray([] as any[]);
-  canLoadHive: IHive<boolean> = createHive(false);
+  dataHive: IHive<FormattedResponse> = createHive(null as any);
   queryParamsHive: IHive<QueryParams> = createHive({} as any);
 
   statusHive: IHive<Status> = createHive<Status>("idle" as Status);
@@ -62,7 +52,7 @@ export class Service<Service, QueryParams = Object, Response = any, Status = Ser
     this.queryParamsHive.setHoney(prev);
   };
   updateQueryParams = (params: QueryParams) => {
-    this.queryParamsHive.setHoney({ ...this.queryParamsHive.honey, ...params });
+    this.queryParamsHive.setHoney((prev) => ({ ...prev, ...params }));
   };
 
   loader: {
@@ -73,14 +63,15 @@ export class Service<Service, QueryParams = Object, Response = any, Status = Ser
   load = async () => Promise<Response>;
   reload = async () => Promise<Response>;
 
-  onError = ({ error, service }: { error: any; service: Service }) => {
-    this.statusHive.setHoney({ status: "error", props: { error, service } } as any);
+  onError = (err: any) => {
+    this.statusHive.setHoney({ status: "error", props: { error: err } } as any);
   };
-  onResponse = async ({ data, service, clear, hasMore }: { data: any[]; service: Service; clear?: boolean; hasMore: boolean }) => {};
 
-  afterLoad = (data: any, service: Service) => {};
-  afterReload = (data: any, service: Service) => {};
+  onResponse = async (data: Response) => {};
 
-  beforeLoad = (service: Service, clearCash: boolean) => {};
-  beforeReload = (service: Service, clearCash: boolean) => {};
+  afterLoad = (data: FormattedResponse) => {};
+  afterReload = (data: FormattedResponse) => {};
+
+  beforeLoad = (clearCash: boolean) => {};
+  beforeReload = (clearCash: boolean) => {};
 }

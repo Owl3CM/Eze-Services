@@ -5,8 +5,8 @@ export interface IPagenatedServiceParams {
   [id: string]: string | number | boolean;
 }
 
-export type PagenatedServiceConstructor<Service, QueryParams, Response> = {
-  onError?: (error: any, service: Service) => void;
+export type PagenatedServiceConstructor<QueryParams, Response, FormattedResponse = Response> = {
+  onError?: (error: any) => void;
 
   paginator: {
     load: (queryParams?: QueryParams, clearCash?: boolean) => Promise<Response[]>;
@@ -15,19 +15,17 @@ export type PagenatedServiceConstructor<Service, QueryParams, Response> = {
     limit: number;
     hasMore: boolean;
   };
-  // afterLoad?: (data: any, service: Service) => Promise<Response>;
-  // afterReload?: (data: any, service: Service) => Promise<Response>;
-  // afterLoadMore?: (data: any, service: Service) => Promise<Response>;
 
-  beforeLoad?: (service: Service, clearCash: boolean) => void;
-  beforeReload?: (service: Service, clearCash: boolean) => void;
-  beforeLoadMore?: (service: Service, clearCash: boolean) => void;
+  beforeLoad?: (clearCash: boolean) => void;
+  beforeReload?: (clearCash: boolean) => void;
+  beforeLoadMore?: (clearCash: boolean) => void;
 
-  onResponse?: (response: any, service: Service, clear: boolean) => Response[];
+  onResponse?: (response: Response, clear: boolean) => Response[];
+  formatResponse?: (response: Response[]) => FormattedResponse[];
 };
 
-export type ServiceConstructor<Service, QueryParams, Response> = {
-  onError?: (error: any, service: Service) => void;
+export type ServiceConstructor<QueryParams, Response, FormattedResponse = Response> = {
+  onError?: (error: any) => void;
 } & (
   | {
       loader?: undefined;
@@ -35,21 +33,25 @@ export type ServiceConstructor<Service, QueryParams, Response> = {
   | {
       loader: {
         load: (queryParams?: QueryParams, clearCash?: boolean) => Promise<Response>;
+        limit?: number;
+        hasMore?: boolean;
       };
-      beforeLoad?: (service: Service, clearCash: boolean) => void;
-      onResponse?: (response: any, service: Service, clear: boolean) => Response;
-      limit: number;
-      hasMore: boolean;
+      beforeLoad?: (clearCash: boolean) => void;
+      onResponse?: (response: Response, clear: boolean) => Response;
+      formatResponse?: (response: Response) => FormattedResponse;
+      initialValue: FormattedResponse;
     }
   | {
       loader: {
         load: (queryParams?: QueryParams, clearCash?: boolean) => Promise<Response>;
         reload: (queryParams?: QueryParams, clearCash?: boolean) => Promise<Response>;
-        limit: number;
-        hasMore: boolean;
+        limit?: number;
+        hasMore?: boolean;
       };
-      beforeLoad?: (service: Service, clearCash: boolean) => void;
-      beforeReload?: (service: Service, clearCash: boolean) => void;
-      onResponse?: (response: any, service: Service, clear: boolean) => Response;
+      beforeLoad?: (clearCash: boolean) => void;
+      beforeReload?: (clearCash: boolean) => void;
+      onResponse?: (response: Response, clear: boolean) => Response;
+      formatResponse?: (response: Response) => FormattedResponse;
+      initialValue: FormattedResponse;
     }
 );

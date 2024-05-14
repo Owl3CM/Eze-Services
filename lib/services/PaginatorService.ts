@@ -1,18 +1,25 @@
 import { PagenatedServiceConstructor } from "./Types";
-import { defaultLoad, defaultLoadMore, defaultOnError, defaultOnResponse, defaultReload } from "./ServiceDefaultsFunctions";
+import { defaultLoad, defaultLoadMore, defaultOnPaginatorRes, defaultReload } from "./DefaultsPaginatorServiceFunctions";
 import { ServiceStatus } from "../Types";
-import { IHive, IHiveArray, createHive } from "../Beehive";
-export type IPaginatorService = PaginatorService<IPaginatorService, any, any, ServiceStatus>;
+import { IHive, IHiveArray, createHive, createHiveArray } from "../Beehive";
+import { defaultOnError } from "./DefaultsServiceFunctions";
 
-export class PaginatorService<Service = IPaginatorService, QueryParams = Object, Response = Object, Status = ServiceStatus> {
-  constructor(props: PagenatedServiceConstructor<Service, QueryParams, Response>) {
-    const { paginator, onError, onResponse, beforeLoad, beforeReload = beforeLoad, beforeLoadMore } = props as any;
+export type IPaginatorService<QueryParams = Object, Response = any, FormattedResponse = Response, Status = ServiceStatus> = PaginatorService<
+  QueryParams,
+  Response,
+  FormattedResponse,
+  Status
+>;
+
+export class PaginatorService<QueryParams = Object, Response = Object, FormattedResponse = Response, Status = ServiceStatus> {
+  constructor(props: PagenatedServiceConstructor<QueryParams, Response, FormattedResponse>) {
+    const { paginator, onError, onResponse, beforeLoad, beforeReload = beforeLoad, beforeLoadMore, formatResponse } = props as any;
 
     this.paginator = paginator;
 
     Object.assign(this, {
       onError: onError ?? defaultOnError(this as any),
-      onResponse: onResponse ?? defaultOnResponse<Response>(this as any),
+      onResponse: onResponse ?? defaultOnPaginatorRes<Response, FormattedResponse>(this as any, formatResponse),
       load: defaultLoad(this as any, this.paginator),
       beforeLoad,
       reload: defaultReload(this as any, this.paginator),
@@ -32,7 +39,7 @@ export class PaginatorService<Service = IPaginatorService, QueryParams = Object,
     });
   }
 
-  dataHive: IHiveArray<Response> = null as any;
+  dataHive: IHiveArray<FormattedResponse> = createHiveArray([] as FormattedResponse[]);
   canLoadHive: IHive<boolean> = createHive(true);
   queryParamsHive: IHive<QueryParams> = createHive({} as any);
 
@@ -43,7 +50,7 @@ export class PaginatorService<Service = IPaginatorService, QueryParams = Object,
     this.queryParamsHive.setHoney(prev);
   };
   updateQueryParams = (params: QueryParams) => {
-    this.queryParamsHive.setHoney({ ...this.queryParamsHive.honey, ...params });
+    this.queryParamsHive.setHoney((prev) => ({ ...prev, ...params }));
   };
 
   paginator: {
@@ -58,13 +65,12 @@ export class PaginatorService<Service = IPaginatorService, QueryParams = Object,
   reload = async () => Promise<Response[]>;
   loadMore = async () => Promise<Response[]>;
 
-  onError = ({ error, service }: { error: any; service: Service }) => {
-    this.statusHive.setHoney({ status: "error", props: { error, service } } as any);
+  onError = (error: any) => {
+    this.statusHive.setHoney({ status: "error", props: { error } } as any);
   };
-  onResponse = async ({ data, service, clear, hasMore }: { data: any[]; service: Service; clear?: boolean; hasMore: boolean }) => {};
+  onResponse = async ({ data, clear, hasMore }: { data: Response[]; clear?: boolean; hasMore: boolean }) => {};
 
-  beforeLoad = (service: Service, clearCash: boolean) => {};
-  beforeReload = (service: Service, clearCash: boolean) => {};
-  beforeLoadMore = (service: Service) => {};
-  // interceptor?: ((service: Service) => void) | undefined;
+  beforeLoad = (clearCash: boolean) => {};
+  beforeReload = (clearCash: boolean) => {};
+  beforeLoadMore = () => {};
 }

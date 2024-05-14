@@ -12,11 +12,11 @@ const error = ({ service, error = { Error: "not passed" } }: Props) => {
     <div
       onClick={({ target }) => {
         if (service?.retry) {
-          service.retry();
+          service?.retry();
         } else if (service?.reload) {
-          service.reload();
+          service?.reload();
         } else {
-          service?.setState("idle");
+          service?.statusHive?.setHoney("idle");
         }
       }}
       className="fixed bg-blur inset-0 overflow-auto"

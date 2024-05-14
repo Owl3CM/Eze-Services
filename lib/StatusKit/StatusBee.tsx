@@ -3,12 +3,13 @@ import StatusKit from "./StatusKit";
 import { ServiceStatus } from "../Types";
 import { createPortal } from "react-dom";
 import { IStateBuilder } from "./StateBuilder";
-import { useHoney } from "../Beehive";
+import { IHive, useHoney } from "../Beehive";
 
 // const States = {};
 
 interface IStateBuilderProps<S> {
-  service: IStateBuilder<S>;
+  hive?: IHive<S>;
+  service?: IStateBuilder<S>;
   defaultState?: ServiceStatus<S>;
   // singleState?: boolean;
   getBuilder?: (state: ServiceStatus<S>) => any;
@@ -23,7 +24,16 @@ interface IStateBuilderProps<S> {
   [key: string]: any;
 }
 
-function StatusBee<S = null>({ service, statusKit: sk, singleState = false, getBuilder, ...args }: IStateBuilderProps<S>) {
+function StatusBee<S = null>({
+  hive,
+  service = {
+    statusHive: hive as IHive<ServiceStatus<S>>,
+  },
+  statusKit: sk,
+  singleState = false,
+  getBuilder,
+  ...args
+}: IStateBuilderProps<S>) {
   const serviceStatus = useHoney(service.statusHive);
   const _getBuilder = React.useMemo(() => {
     return (

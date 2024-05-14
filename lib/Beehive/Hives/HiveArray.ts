@@ -2,7 +2,7 @@ import { createHive } from "./Hive";
 import { IHiveArray, IStoreKey } from "./Types";
 
 export function createHiveArray<HiveType>(initialValue: HiveType[], storeKey?: IStoreKey): IHiveArray<HiveType> {
-  const hive = createHive(initialValue, storeKey) as IHiveArray<HiveType>;
+  const hive = createHive(initialValue, storeKey) as any as IHiveArray<HiveType>;
 
   hive.push = (newValue: HiveType) => hive.setHoney((prev) => [...prev, newValue]);
   hive.pop = () => hive.setHoney((prev) => prev.slice(0, -1));

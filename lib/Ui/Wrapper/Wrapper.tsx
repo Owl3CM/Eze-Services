@@ -3,7 +3,7 @@ import { IWrapperProps, ListenToPullProps, onPullProps } from "./types";
 import { StatusBee } from "../../StatusKit";
 import { IHive } from "../../Beehive";
 
-class Wrapper extends React.Component {
+class WrapperClassComponent extends React.Component {
   id: string;
   container: HTMLDivElement = null as any;
   reloaderProps: ReloaderProps;
@@ -37,7 +37,20 @@ class Wrapper extends React.Component {
     PostionById[this.id] = this.container.scrollTop;
   }
   render() {
-    const { service, statusKit, statusHive, children, reloader, subscribeToStatus, reload, loadMore, reloaderProps, ...props } = this.props as IWrapperProps;
+    const {
+      service,
+      statusKit,
+      statusHive,
+      children,
+      reloader,
+      subscribeToStatus,
+      reload,
+      loadMore,
+      reloaderProps,
+      canLoadHive,
+      rememberScrollPosition,
+      ...props
+    } = this.props as IWrapperProps;
     const { Component, className } = this.reloaderProps;
     return (
       <div
@@ -53,6 +66,7 @@ class Wrapper extends React.Component {
         {children}
         {subscribeToStatus && (
           <StatusBee
+            hive={statusHive}
             service={
               service || {
                 statusHive,
@@ -136,7 +150,7 @@ const listenToPull = ({ reload, container, statusHive, reloaderProps }: ListenTo
 
 const PostionById: any = {};
 
-export default ({
+const Wrapper = ({
   service = {},
   reload = service.reload,
   loadMore = service.loadMore,
@@ -149,7 +163,7 @@ export default ({
   ...props
 }: IWrapperProps) => {
   return (
-    <Wrapper
+    <WrapperClassComponent
       {...{
         service,
         reload,
@@ -165,6 +179,8 @@ export default ({
     />
   );
 };
+
+export default Wrapper;
 
 export type ReloaderProps = {
   [P in keyof typeof _reloaderProps]?: (typeof _reloaderProps)[P];
