@@ -1,3 +1,4 @@
+import { Toast } from "eze-utils";
 import { createHive } from "./Hive";
 import { _getHiveBase } from "./HiveBase";
 import { CheckSimilarity } from "./HiveUtils";
@@ -54,6 +55,7 @@ export function createFormHive<HiveType>({
         value: nestedHive.honey.value,
         error,
       };
+      if (nestedHive._subscribers() < 2) Toast.error({ title: error });
       pollinate();
     };
 
@@ -86,7 +88,12 @@ export function createFormHive<HiveType>({
         }
       : nestedHive.setHoney;
 
-    nestedHive.isValid = () => !nestedHive.honey.error;
+    nestedHive.isValid = validator
+      ? () => {
+          nestedHive.setError(validator(key as FormHiveKey, nestedHive.honey.value));
+          return !nestedHive.honey.error;
+        }
+      : () => true;
 
     nestedHive.subscribe((newValue: any) => {
       formHive.silentSetHoney({ ...formHive.honey, [key]: newValue.value });

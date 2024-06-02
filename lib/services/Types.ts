@@ -20,7 +20,7 @@ export type PagenatedServiceConstructor<QueryParams, Response, FormattedResponse
   beforeReload?: (clearCash: boolean) => void;
   beforeLoadMore?: (clearCash: boolean) => void;
 
-  onResponse?: (response: Response, clear: boolean) => Response[];
+  onResponse?: (response: Response, clear: boolean) => void;
   formatResponse?: (response: Response[]) => FormattedResponse[];
 };
 
