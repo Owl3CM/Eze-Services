@@ -1,6 +1,6 @@
 import React from "react";
-import StateKit from "./StatusKit";
-import { ServiceStatus, Status } from "../Types";
+import { StatusKit } from "./StatusKit";
+import { ServiceStatus } from "../Types";
 import { createPortal } from "react-dom";
 
 interface IStateBuilderProps<S> {
@@ -29,9 +29,9 @@ export function ServiceStateBuilder<S = null>({ service, defaultState = service.
     return (
       getBuilder ??
       ((state: any) => {
-        if (typeof state === "string") return { Builder: { ...StateKit, ...service?.statusKit, ...args }[state], props: { service } };
+        if (typeof state === "string") return { Builder: { ...StatusKit, ...service?.statusKit, ...args }[state], props: { service } };
         else if (typeof state === "object" && state.state)
-          return { Builder: { ...StateKit, ...service?.statusKit, ...args }[state.state], props: state.props, parent: state.parent };
+          return { Builder: { ...StatusKit, ...service?.statusKit, ...args }[state.state], props: state.props, parent: state.parent };
         return {};
       })
     );

@@ -121,8 +121,8 @@ export function createFormHive<HiveType>({
   formHive.subscribeToNestedHive = (key: FormHiveKey, callback: (value: any) => void) => {
     _NestedHives.get(key)?.subscribe(callback);
   };
-  formHive.validate = (key: keyof HiveType, value: any) => {
-    formHive.getNestedHive(key).validate(value);
+  formHive.validate = (key: keyof HiveType, value: any, effect?: boolean) => {
+    formHive.getNestedHive(key).validate(value, effect);
   };
 
   // Create nested hives from initial value

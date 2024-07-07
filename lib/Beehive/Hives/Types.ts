@@ -57,7 +57,7 @@ export interface IFormHive<HiveType> extends IHive<HiveType> {
   setNestedHoney: <K extends keyof HiveType>(key: K, value: HiveType[K] | ((prev: HiveType[K]) => HiveType[K]), effect?: boolean) => void;
   getNestedHoney: <K extends keyof HiveType>(key: K) => HiveType[K];
   subscribeToNestedHive: <K extends keyof HiveType>(key: K, callback: (value: HiveType[K]) => void) => void;
-  validate: (key: keyof HiveType, value: HiveType[keyof HiveType]) => void;
+  validate: (key: keyof HiveType, value: HiveType[keyof HiveType], effect?: boolean) => void;
   errors: { [key: string]: string };
   getError: (key: keyof HiveType) => string;
   setError: (key: keyof HiveType, value: string) => void;
@@ -84,7 +84,7 @@ export interface INestedFormHive<HiveType> {
 
   error?: string;
   setError: (err?: string) => void;
-  validate: (honey: HiveType) => void;
+  validate: (honey: HiveType, effect?: boolean) => void;
   isValid: () => boolean;
   reset: () => void;
 }

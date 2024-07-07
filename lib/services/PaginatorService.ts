@@ -54,9 +54,9 @@ export class PaginatorService<QueryParams = Object, Response = Object, Formatted
   };
 
   paginator: {
-    load: (queryParams?: QueryParams) => Promise<Response[]>;
+    load: (queryParams?: QueryParams, clearCash?: boolean) => Promise<Response[]>;
+    loadMore: () => Promise<Response[]>;
     reload: (queryParams?: QueryParams) => Promise<Response[]>;
-    loadMore: (queryParams?: QueryParams) => Promise<Response[]>;
     limit: number;
     hasMore: boolean;
   } = {} as any;

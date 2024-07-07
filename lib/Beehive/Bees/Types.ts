@@ -2,7 +2,7 @@ import { IHive, IHiveArray, IHiveObserver, INestedFormHive, IProxyHive } from ".
 
 export type KeyValueHive = { [key: string]: IHive<any> | IHiveArray<any> };
 export type KeyValueNestedFormHive = { [key: string]: INestedFormHive<any> };
-export type KeyValueHiveObserver = { [key: string]: IHiveObserver<any> | IHive<any> | INestedFormHive<any> };
+export type KeyValueHiveObserver = { [key: string]: IHiveObserver<any> | IHive<any> | INestedFormHive<any> | IHiveArray<any> };
 
 export type HoneySetter<HiveType> = (prev: HiveType) => void | HiveType;
 

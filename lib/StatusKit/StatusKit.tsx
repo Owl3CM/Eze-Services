@@ -5,7 +5,7 @@ import loadingMore from "./loadingMore";
 import empty from "./empty";
 import error from "./error";
 
-const StatusKit: IStatusKit = {
+export const StatusKit: IStatusKit = {
   processing,
   loading,
   error: error as any,
@@ -13,6 +13,9 @@ const StatusKit: IStatusKit = {
   empty,
   reloading: loading,
   searching: loading,
+  success: () => {
+    return <p>nice</p>;
+  },
 };
 
 export const setDefaultStatusKit = (kit: Partial<IStatusKit>) => {
@@ -21,8 +24,6 @@ export const setDefaultStatusKit = (kit: Partial<IStatusKit>) => {
   });
 };
 
-export default StatusKit;
-
 type StatusKitType = React.ReactNode | React.FC;
 interface IStatusKit {
   error: StatusKitType;
@@ -30,8 +31,8 @@ interface IStatusKit {
   processing: StatusKitType;
   empty: StatusKitType;
   loadingMore: StatusKitType;
-  // success: StatusKitType;
-  // reloading: StatusKitType;
-  // searching: StatusKitType;
+  reloading: StatusKitType;
+  searching: StatusKitType;
+  success: StatusKitType;
   [key: string]: StatusKitType;
 }

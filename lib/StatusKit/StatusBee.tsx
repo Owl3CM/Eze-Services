@@ -1,5 +1,5 @@
 import React from "react";
-import StatusKit from "./StatusKit";
+import { StatusKit } from "./StatusKit";
 import { ServiceStatus } from "../Types";
 import { createPortal } from "react-dom";
 import { IStateBuilder } from "./StateBuilder";
