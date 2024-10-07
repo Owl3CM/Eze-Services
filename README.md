@@ -226,35 +226,231 @@ const UsernameField = () => {
 };
 ```
 
-## **Example: E-Commerce App**
+---
 
-In an e-commerce app, you need to manage authentication, product data, and a shopping cart. Eze-Services simplifies this by offering hives for each part of the app:
+## **Example: E-commerce Dashboard with Eze-Services**
+- **User Profile** (using ProxyHive for nested details),
+- **To-Do List** (using ArrayHive and ArrayBee),
+- **Product Details** (using Hive for simple product data),
+- **Order Creation Form** (using FormHive and FormBee for handling independent form fields).
 
 ```typescript
-import { createHive, createHiveArray, createProxyHive, createFormHive } from 'eze-services';
+import { createHive, createHiveArray, createProxyHive, createFormHive, ArrayBee, FormBee, Bee } from 'eze-services';
 
-// Authentication hive
-const loginHive = createHive({ isAuthenticated: false, user: null });
-
-// Product catalog hive
-const productCatalogHive = createHiveArray([
-  { id: 1, name: "Product A", price: 100 },
-  { id: 2, name: "Product B", price: 200 }
-]);
-
-// Shopping cart hive with nested product details
-const cartHive = createProxyHive({ items: [], total: 0 });
-cartHive.setNestedHoney("items", [{ id: 1, name: "Product A", quantity: 2, price: 100 }]);
-
-// Checkout form hive with validation
-const checkoutFormHive = createFormHive({
-  initialValue: { name: "", email: "", address: "" },
-  validator: (key, value) => (!value ? "This field is required" : ""),
-  onSubmit: (honey) => console.log("Checkout Submitted", honey),
+// ProxyHive for User Profile
+const userProfileHive = createProxyHive({
+  personalInfo: { name: 'John Doe', email: 'john@example.com' },
+  preferences: { notifications: true, theme: 'dark' }
 });
+
+// Hive for Product Details
+const productDetailsHive = createHive({ name: 'Task Manager', version: '1.0', activeUsers: 500 });
+
+// ArrayHive for To-Do List
+const todoListHive = createHiveArray([{ id: 1, task: 'Complete the report', completed: false }]);
+
+// FormHive for Order Creation
+const orderFormHive = createFormHive({
+  initialValue: { productName: '', quantity: 1, address: '' },
+  validator: (key, value) => (!value ? 'This field is required' : ''),
+  onSubmit: (honey) => console.log('Order Submitted:', honey)
+});
+
+```
+### UserProfile Component
+```typescript
+
+const UserProfile = () => (
+  <div>
+    <h2>User Profile</h2>
+    <Bee
+      hive={userProfileHive.getNestedHive("userProfile")}
+      Component={({ honey, setHoney }) => (
+        <div>
+          <p>Name: {honey.name}</p>
+          <p>Email: {honey.email}</p>
+        </div>
+      )}
+    />
+    <Bee
+      hive={userProfileHive.getNestedHive("preferences")}
+      Component={({ honey, setHoney }) => (
+        <div>
+          <p>Notifications: {honey.notifications ? "Enabled" : "Disabled"}</p>
+          <p>Theme: {honey.theme}</p>
+          <button onClick={() => setHoney((prev) => ({ ...prev, theme: prev.preferences.theme === "dark" ? "light" : "dark" }))}>Toggle Theme</button>
+        </div>
+      )}
+    />
+  </div>
+);
 ```
 
-With **Eze-Services**, each module has its own hive, making state management cleaner, more modular, and easier to scale.
+### ProductDetails Component
+```typescript
+
+const ProductDetails = () => (
+  <Bee
+    hive={productDetailsHive}
+    Component={({ honey, setHoney }) => (
+      <div>
+        <h2>Product Details</h2>
+        <p>Product Name: {honey.name}</p>
+        <p>Version: {honey.version}</p>
+        <p>Active Users: {honey.activeUsers}</p>
+        <button onClick={() => setHoney(prev => ({ ...prev, activeUsers: prev.activeUsers + 1 }))}>
+          Increment Active Users
+        </button>
+      </div>
+    )}
+  />
+);
+```
+
+### ToDoList Component
+```typescript
+
+const TodoList = () => (
+  <div>
+    <h2>To-Do List</h2>
+    <ArrayBee
+      hive={todoListHive}
+      Component={({ honey, setHoney }) => (
+        <div key={honey.id}>
+          <p>{honey.task} {honey.completed ? '(Completed)' : ''}</p>
+          <button onClick={() => setHoney(prev => ({ ...prev, completed: !prev.completed }))}>
+            Toggle Complete
+          </button>
+        </div>
+      )}
+    />
+    <button onClick={() => todoListHive.push({ id: Date.now(), task: 'New Task', completed: false })}>
+      Add New Task
+    </button>
+  </div>
+);
+```
+### OrderForm Component (using FormBee for independent form fields)
+```typescript
+const OrderForm = () => (
+  <form
+    onSubmit={orderFormHive.submit}>
+    <h2>Create Order</h2>
+
+    <FormBee
+      hive={orderFormHive.getNestedHive("productName")}
+      Component={({ honey, error, validate }) => (
+        <div>
+          <label>Product Name:</label>
+          <input type="text" value={honey} onChange={(e) => validate(e.target.value)} />
+          {error && <span>{error}</span>}
+        </div>
+      )}
+    />
+
+    <FormBee
+      hive={orderFormHive.getNestedHive("quantity")}
+      Component={({ honey, error, validate }) => (
+        <div>
+          <label>Quantity:</label>
+          <input type="text" value={honey} onChange={(e) => validate(e.target.value)} />
+          {error && <span>{error}</span>}
+        </div>
+      )}
+    />
+
+    <FormBee
+      hive={orderFormHive.getNestedHive("address")}
+      Component={({ honey, error, validate }) => (
+        <div>
+          <label>Address:</label>
+          <input type="text" value={honey} onChange={(e) => validate(e.target.value)} />
+          {error && <span>{error}</span>}
+        </div>
+      )}
+    />
+
+    <button type="submit">Submit Order</button>
+  </form>
+);
+
+```
+```typescript
+// Main Dashboard Component
+const Dashboard = () => (
+  <div>
+    <UserProfile />
+    <ProductDetails />
+    <TodoList />
+    <OrderForm />
+  </div>
+);
+
+export default Dashboard;
+```
+---
+
+
+## **Simplified Form Handling with Beehive and `TextController`**
+
+With **Beehive**, managing state for forms is straightforward and scalable. Here's a powerful yet easy-to-use way to handle form fields using the `TextController` component.
+
+The **TextController** is a general-purpose form input handler that allows you to manage form fields with minimal setup. This makes working with complex forms in **Beehive** seamless, providing you with an easy way to handle field states, validation, and updates.
+
+### **Example: Using `TextController` for an Order Form**
+
+In this example, the `TextController` helps simplify the creation of form fields by taking a `formHive`, the `id` of the field, and a `title` for the input label. Instead of manually setting up each form field, you can simply use the `TextController` to handle everything.
+
+### TextController Component (General-purpose form input handler)
+```typescript
+interface ControllerElementProps<T> extends LabeledProps {
+  hive: IFormHive<T>;
+  id: keyof T;
+  title: string;
+}
+function TextController<T>({ formHive, id, title }: ControllerElementProps) {
+  return (
+    <FormBee
+      hive={formHive.getNestedHive(id)}
+      Component={({ honey, error, validate }) => (
+        <div>
+          <label>{title}:</label>
+          <input type="text" value={honey} onChange={(e) => validate(e.target.value)} />
+          {error && <span>{error}</span>}
+        </div>
+      )}
+    />
+  );
+}
+```
+
+### Simplified Order Form using TextController
+```typescript
+
+const SimplifiedOrderForm = () => (
+  <form onSubmit={(e) => { e.preventDefault(); orderFormHive.submit(); }}>
+    <h2>Create Order (With TextController)</h2>
+
+    {/* Reusable TextController for each field */}
+    <TextController formHive={orderFormHive} id="productName" title="Product Name" />
+    <TextController formHive={orderFormHive} id="address" title="Address" />
+    <TextController formHive={orderFormHive} id="quantity" title="Quantity" />
+    
+    <button type="submit">Submit Order</button>
+  </form>
+);
+```
+
+### **How `TextController` Simplifies Form Management**:
+
+1. **Reusability**: You can reuse the `TextController` across multiple forms, reducing redundancy and improving consistency.
+2. **Clean Code**: Instead of setting up each field manually, you simply pass the `formHive`, the field's `id`, and a label, and `TextController` handles the rest.
+3. **Scalable**: Adding new fields becomes incredibly easy — just call `TextController` with the new field details, and it’s ready to go.
+
+### **Power of Beehive in Action**:
+
+With **Beehive**, you're managing form fields in a modular and scalable way, without the boilerplate code commonly seen in other state management solutions. The **TextController** is a clear example of how **Beehive** simplifies development, giving you an easy-to-use interface while maintaining the flexibility to scale and customize as your app grows.
+
 
 ---
 
