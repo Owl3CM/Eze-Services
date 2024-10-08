@@ -1,6 +1,6 @@
 import React from "react";
 import { StatusKit } from "./StatusKit";
-import { ServiceStatus } from "../Types";
+import { ServiceStatus } from "../PackageTypes";
 import { createPortal } from "react-dom";
 import { IStateBuilder } from "./StateBuilder";
 import { IHive, useHoney } from "../Beehive";

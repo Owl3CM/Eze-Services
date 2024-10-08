@@ -9,9 +9,11 @@ export type PagenatedServiceConstructor<QueryParams, Response, FormattedResponse
   onError?: (error: any) => void;
 
   paginator: {
-    load: (queryParams?: QueryParams, clearCash?: boolean) => Promise<Response[]>;
+    // load: (queryParams?: QueryParams, clearCash?: boolean) => Promise<Response[]>;
+    // reload: (queryParams?: QueryParams) => Promise<Response[]>;
+    load: () => Promise<Response[]>;
     loadMore: () => Promise<Response[]>;
-    reload: (queryParams?: QueryParams) => Promise<Response[]>;
+    reload: () => Promise<Response[]>;
     limit: number;
     hasMore: boolean;
   };

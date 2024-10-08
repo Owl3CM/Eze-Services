@@ -1,6 +1,6 @@
 import { PagenatedServiceConstructor } from "./Types";
 import { defaultLoad, defaultLoadMore, defaultOnPaginatorRes, defaultReload } from "./DefaultsPaginatorServiceFunctions";
-import { ServiceStatus } from "../Types";
+import { ServiceStatus } from "../PackageTypes";
 import { IHive, IHiveArray, createHive, createHiveArray } from "../Beehive";
 import { defaultOnError } from "./DefaultsServiceFunctions";
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { IWrapperProps, ListenToPullProps, onPullProps } from "./types";
+import { IWrapperProps, ListenToPullProps, onPullProps } from "./Types";
 import { StatusBee } from "../../StatusKit";
 import { IHive } from "../../Beehive";
 
@@ -23,7 +23,9 @@ class WrapperClassComponent extends React.Component {
     if (rememberScrollPosition) this.returnToLastScrollPostion();
   }
   private returnToLastScrollPostion() {
-    PostionById[this.id] && this.container.scrollTo({ top: PostionById[this.id], left: 0, behavior: "auto" });
+    setTimeout(() => {
+      PostionById[this.id] && this.container.scrollTo({ top: PostionById[this.id], left: 0, behavior: "instant" });
+    }, 20);
   }
 
   private listnToScroll(loadMore: () => void, canLoadHive?: IHive<boolean>) {
@@ -33,8 +35,10 @@ class WrapperClassComponent extends React.Component {
       };
   }
 
-  componentWillUnmount(): void {
-    PostionById[this.id] = this.container.scrollTop;
+  componentWillUnmount() {
+    const containerScrollTop = this.container.scrollTop;
+    if (containerScrollTop === 0) return;
+    PostionById[this.id] = containerScrollTop;
   }
   render() {
     const {

@@ -1,3 +1,4 @@
+import React from "react";
 import { IHive, IHiveArray, IHiveObserver, INestedFormHive, IProxyHive } from "../Hives/Types";
 
 export type KeyValueHive = { [key: string]: IHive<any> | IHiveArray<any> };
@@ -8,7 +9,7 @@ export type HoneySetter<HiveType> = (prev: HiveType) => void | HiveType;
 
 export type BeeProps<HiveType> = {
   hive: IHive<HiveType>;
-  Component: (props: { honey: HiveType; setHoney: HoneySetter<HiveType>; silentSetHoney: HoneySetter<HiveType> }) => any;
+  Component: (props: { honey: HiveType; setHoney: HoneySetter<HiveType>; silentSetHoney: HoneySetter<HiveType> }) => React.ReactNode;
 };
 
 export type BeesProps = {

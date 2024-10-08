@@ -3,7 +3,7 @@ import React from "react";
 interface Props {
   children?: React.ReactNode;
 }
-const loading = ({ children }: Props) => {
+const Loading = ({ children }: Props) => {
   return (
     <div className="fixed inset-0 col s-loading-container">
       <div className="col-center m-auto">
@@ -14,6 +14,6 @@ const loading = ({ children }: Props) => {
   );
 };
 
-export default loading;
+export default Loading;
 
 const LoadingComponent = () => <span className="s-loading-2" />;

@@ -2,7 +2,7 @@ export default class Storable {
   storage: Storage;
   storeKey: string;
   set = (store_key: string, data: any) =>
-    Object.values(data).length > 0 ? this.storage.setItem(this.getCleanString(store_key), JSON.stringify(data)) : this.remove(store_key);
+    data && Object.values(data).length > 0 ? this.storage.setItem(this.getCleanString(store_key), JSON.stringify(data)) : this.remove(store_key);
   get = (store_key: string) => JSON.parse(this.storage.getItem(this.getCleanString(store_key)) as string);
 
   insert = (key: string, value: Array<any> | Object) => {

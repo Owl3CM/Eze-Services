@@ -1,21 +1,22 @@
 import React from "react";
-import loading from "./loading";
-import processing from "./processing";
-import loadingMore from "./loadingMore";
-import empty from "./empty";
-import error from "./error";
+import Loading from "./Loading";
+import processing from "./Processing";
+import loadingMore from "./LoadingMore";
+import Empty from "./Empty";
+import Error from "./Error";
 
 export const StatusKit: IStatusKit = {
   processing,
-  loading,
-  error: error as any,
+  loading: Loading,
+  error: Error as any,
   loadingMore,
-  empty,
-  reloading: loading,
-  searching: loading,
+  empty: Empty,
+  reloading: Loading,
+  searching: Loading,
   success: () => {
     return <p>nice</p>;
   },
+  idle: null,
 };
 
 export const setDefaultStatusKit = (kit: Partial<IStatusKit>) => {

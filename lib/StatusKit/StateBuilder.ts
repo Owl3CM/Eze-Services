@@ -1,5 +1,5 @@
 import { IHive, createHive } from "../Beehive";
-import { ServiceStatus, Status } from "../Types";
+import { ServiceStatus, Status } from "../PackageTypes";
 
 // export type IStateBuilder<S> = {
 //   state: ServiceState<S | Status>;

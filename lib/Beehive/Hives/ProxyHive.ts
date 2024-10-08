@@ -28,7 +28,6 @@ export function createProxyHive<HiveType>(initialValue: HiveType, storeKey?: ISt
 
   proxyHive.getNestedHoney = (key: ProxyHiveKey) => _NestedHives.get(key)!.honey;
 
-  // proxyHive.getNestedHive = (key: ProxyHiveKey) => _NestedHives.get(key) as IHive<(typeof initialValue)[key]>;
   proxyHive.subscribeToNestedHive = (key: ProxyHiveKey, callback: (value: any) => void) => {
     _NestedHives.get(key)?.subscribe(callback);
   };
@@ -36,6 +35,11 @@ export function createProxyHive<HiveType>(initialValue: HiveType, storeKey?: ISt
   proxyHive.reset = () => {
     proxyHive.setHoney(initialValue);
   };
+
+  proxyHive.getNestedHive = <K extends keyof HiveType>(key: K) => {
+    return _NestedHives.get(key) as IHive<HiveType[K]>;
+  };
+
   // Create nested hives from initial value
   Object.entries(initialValue as any).forEach(([key, val]) => {
     proxyHive.createNestedHive(key, val);

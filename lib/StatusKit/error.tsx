@@ -6,7 +6,7 @@ interface Props {
   error?: any;
 }
 
-const error = ({ service, error = { Error: "not passed" } }: Props) => {
+const Error = ({ service, error = { Error: "not passed" } }: Props) => {
   if (process.env.NODE_ENV === "production") return <></>;
   return (
     <div
@@ -33,4 +33,4 @@ const error = ({ service, error = { Error: "not passed" } }: Props) => {
   );
 };
 
-export default error;
+export default Error;

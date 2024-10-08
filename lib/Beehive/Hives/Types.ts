@@ -73,14 +73,11 @@ export interface INestedFormHive<HiveType> {
   initialValue: HiveType;
   setHoney: (newValue: HiveType | ((prev: HiveType) => HiveType)) => void;
   silentSetHoney: (newValue: HiveType | ((prev: HiveType) => HiveType)) => void;
-  subscribe: (callback: (newValue: HiveType) => void) => () => void;
+  subscribe: (callback: (newValue: { value: HiveType; error?: string }) => void) => () => void;
   _subscribers: () => number;
   clearStore?: () => void;
 
-  honey: {
-    value: HiveType;
-    error?: string;
-  };
+  honey: { value: HiveType; error?: string };
 
   error?: string;
   setError: (err?: string) => void;

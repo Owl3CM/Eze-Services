@@ -3,9 +3,9 @@ import React from "react";
 interface Props {
   children?: React.ReactNode;
 }
-const processing = ({ children = <p>Processing...</p> }: Props) => {
+const Processing = ({ children = <p>Processing...</p> }: Props) => {
   return (
-    <div className="fixed inset-0 col s-processing-container">
+    <div className="fixed inset-0 col s-Processing-container">
       <div className="col-center m-auto">
         <ProgressingComponent />
         {children}
@@ -14,6 +14,6 @@ const processing = ({ children = <p>Processing...</p> }: Props) => {
   );
 };
 
-export default processing;
+export default Processing;
 
-const ProgressingComponent = () => <span className="s-processing" />;
+const ProgressingComponent = () => <span className="s-Processing" />;
