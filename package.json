@@ -1,6 +1,6 @@
 {
   "name": "eze-services",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Eze-Services is a flexible, high-performance state management library for React applications. It provides modular state handling through hives, enabling scalable and efficient management of simple and complex state types like primitives, arrays, forms, and nested objects without a centralized store. Built-in support for persistent storage, real-time updates, and simplified form handling makes Eze-Services ideal for both small and large-scale applications.",
   "private": false,
   "engines": {
