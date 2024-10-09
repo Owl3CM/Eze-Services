@@ -1,82 +1,77 @@
 import { ServiceConstructor } from "./Types";
-import { defaultLoad, defaultOnError, defaultOnResponse, defaultReload } from "./ServiceDefaults";
-import { State as IState, ServiceState } from "../Types";
-import { StateBuilder } from "../stateKit";
+import { defaultLoad, defaultOnError, defaultOnRes, defaultReload } from "./DefaultsServiceFunctions";
+import { ServiceStatus } from "../Types";
+import { IHive, createHive } from "../Beehive";
+export type IService<QueryParams = Object, Response = any, FormattedResponse = Response, Status = ServiceStatus> = Service<
+  QueryParams,
+  Response,
+  FormattedResponse,
+  Status
+>;
 
-export type IService = Service<IService, any, ServiceState>;
+export class Service<QueryParams = Object, Response = any, FormattedResponse = Response, Status = ServiceStatus> {
+  constructor(props: ServiceConstructor<QueryParams, Response, FormattedResponse>) {
+    const { formatResponse, loader, onError, onResponse, afterLoad, afterReload, beforeLoad, beforeReload = beforeLoad, initialValue } = props as any;
 
-export class Service<Service, QueryParams = Object, State = IState> extends StateBuilder<State> {
-  constructor({ client, onError, onResponse, afterLoad, afterReload, beforeLoad }: ServiceConstructor<Service, QueryParams>) {
-    super();
     Object.assign(this, {
-      client,
-      onResponse: onResponse ?? defaultOnResponse(this as any),
       onError: onError ?? defaultOnError(this as any),
-      load: defaultLoad(this as any),
-      reload: defaultReload(this as any),
-      afterLoad,
-      afterReload,
-      beforeLoad,
     });
 
-    if (!afterLoad)
-      this.afterLoad = (data) => {
-        this.onResponse({ data, service: this as any, clear: true });
-        setTimeout(() => {
-          this.canLoadMore = !!(this.limit && data.length >= this.limit);
-        }, 100);
-      };
-    if (!afterReload) this.afterReload = this.afterLoad;
+    if (loader) {
+      this.loader = loader;
+      Object.assign(this, {
+        onResponse: onResponse ?? defaultOnRes<Response, FormattedResponse>(this, formatResponse, initialValue),
+      });
+      if (loader.load)
+        Object.assign(this, {
+          load: defaultLoad(this as any),
+          afterLoad,
+          beforeLoad,
+        });
+
+      if (loader.reload)
+        Object.assign(this, {
+          reload: defaultReload(this as any),
+          afterReload,
+          beforeReload,
+        });
+
+      this.queryParamsHive.subscribe(() => {
+        this.load();
+      });
+    }
   }
 
-  queryParams: QueryParams = {} as any;
+  dataHive: IHive<FormattedResponse> = createHive(null as any);
+  queryParamsHive: IHive<QueryParams> = createHive({} as any);
+
+  statusHive: IHive<Status> = createHive<Status>("idle" as Status);
+  statusKit?: any;
+
   setQueryParams = (prev: QueryParams | ((prev: QueryParams) => QueryParams)) => {
-    if (typeof prev === "function") prev = (prev as any)(this.queryParams);
-    (this.queryParams as any) = prev;
-    this.load();
+    this.queryParamsHive.setHoney(prev);
   };
-  updateQueryParams = (prev: QueryParams | ((prev: QueryParams) => QueryParams)) => {
-    if (typeof prev === "function") prev = (prev as any)(this.queryParams);
-    (this.queryParams as any) = { ...this.queryParams, ...prev };
-    this.load();
-  };
-  offset = 0;
-  limit = 25;
-  canLoadMore = false;
-
-  client: {
-    load: (queryParams?: QueryParams) => Promise<any> | any;
-    reload: (queryParams?: QueryParams) => Promise<any> | any;
-  } = {
-    load: () => {},
-    reload: () => {},
+  updateQueryParams = (params: QueryParams) => {
+    this.queryParamsHive.setHoney((prev) => ({ ...prev, ...params }));
   };
 
-  data: any = [];
-  setData = (prev: any | ((prev: any) => any)) => {
-    if (typeof prev === "function") prev = prev(this.data);
-    this.data = prev;
+  loader: {
+    load: (queryParams?: QueryParams) => Promise<Response>;
+    reload: (queryParams?: QueryParams) => Promise<Response>;
+  } = {} as any;
+
+  load = async () => Promise<Response>;
+  reload = async () => Promise<Response>;
+
+  onError = (err: any) => {
+    this.statusHive.setHoney({ status: "error", props: { error: err } } as any);
   };
 
-  state = "idle" as any;
-  setState = (prev: any | ((prev: any) => any)) => {
-    if (typeof prev === "function") prev = prev(this.state);
-    this.state = prev;
-  };
+  onResponse = async (data: Response) => {};
 
-  onResponse = async ({ data, service, clear }: { data: any[]; service: Service; clear?: boolean }) => {};
+  afterLoad = (data: FormattedResponse) => {};
+  afterReload = (data: FormattedResponse) => {};
 
-  load = async () => Promise<any>;
-  reload = async () => Promise<any>;
-
-  interceptor?: ((service: Service) => void) | undefined;
-  onError = ({ error, service }: { error: any; service: Service }) => {
-    this.setState({ state: "error", props: { error, service } });
-  };
-
-  afterLoad = (data: any, service: Service) => {};
-  afterReload = (data: any, service: Service) => {};
-
-  beforeLoad = (service: Service, clearCash: boolean) => {};
-  beforeReload = (service: Service, clearCash: boolean) => {};
+  beforeLoad = (clearCash: boolean) => {};
+  beforeReload = (clearCash: boolean) => {};
 }

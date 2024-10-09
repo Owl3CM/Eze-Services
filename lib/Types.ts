@@ -1,6 +1,9 @@
-export type State = "idle" | "loading" | "processing" | "reloading" | "searching" | "error" | "noContent" | "loadingMore";
+import { StatusKit } from "./StatusKit";
 
-export type ServiceState<S = string> = S | State | { state: S | State; props: any; parent?: HTMLElement | undefined };
+// export type Status = "idle" | "loading" | "processing" | "reloading" | "searching" | "error" | "noContent" | "loadingMore";
+export type Status = keyof typeof StatusKit;
+
+export type ServiceStatus<S = any> = S | Status | { status: S | Status; props: any; parent?: HTMLElement | undefined };
 
 export interface QueryParam {
   id: string;

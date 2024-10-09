@@ -1,10 +1,11 @@
 import React from "react";
-import { ServiceStateBuilder } from "../../stateKit";
-import { IWrapperProps, ListenToPullProps, onPullProps } from "./types";
+import { IWrapperProps, ListenToPullProps, onPullProps } from "./Types";
+import { StatusBee } from "../../StatusKit";
+import { IHive } from "../../Beehive";
 
-class Wrapper extends React.Component {
+class WrapperClassComponent extends React.Component {
   id: string;
-  container = document.createElement("div");
+  container: HTMLDivElement = null as any;
   reloaderProps: ReloaderProps;
 
   constructor(props: IWrapperProps) {
@@ -15,28 +16,45 @@ class Wrapper extends React.Component {
     this.reloaderProps.className = `${className ? `${className} ` : ""}${position}`;
   }
   componentDidMount() {
-    // this.container = document.getElementById(this.id) as HTMLDivElement;
-    const { loadMore, reload, service } = this.props as IWrapperProps;
+    const { loadMore, reload, canLoadHive, statusHive, rememberScrollPosition } = this.props as IWrapperProps;
 
-    loadMore && this.listnToScroll(loadMore);
-    reload && listenToPull({ reload, container: this.container, service, reloaderProps: this.reloaderProps });
-    this.returnToLastScrollPostion();
+    loadMore && this.listnToScroll(loadMore, canLoadHive);
+    reload && listenToPull({ reload, container: this.container, statusHive: statusHive as any, reloaderProps: this.reloaderProps });
+    if (rememberScrollPosition) this.returnToLastScrollPostion();
   }
   private returnToLastScrollPostion() {
-    PostionById[this.id] && this.container.scrollTo({ top: PostionById[this.id], left: 0, behavior: "auto" });
+    setTimeout(() => {
+      PostionById[this.id] && this.container.scrollTo({ top: PostionById[this.id], left: 0, behavior: "instant" });
+    }, 20);
   }
 
-  private listnToScroll(loadMore: () => void) {
-    this.container.onscroll = ({ target }: any) => {
-      if ((this.props as IWrapperProps).service.canLoadMore && target.scrollHeight - target.scrollTop < target.clientHeight + 400) loadMore();
-    };
+  private listnToScroll(loadMore: () => void, canLoadHive?: IHive<boolean>) {
+    if (canLoadHive)
+      this.container.onscroll = ({ target }: any) => {
+        if (canLoadHive.honey && target.scrollHeight - target.scrollTop < target.clientHeight + 400) loadMore();
+      };
   }
 
-  componentWillUnmount(): void {
-    PostionById[this.id] = this.container.scrollTop;
+  componentWillUnmount() {
+    const containerScrollTop = this.container.scrollTop;
+    if (containerScrollTop === 0) return;
+    PostionById[this.id] = containerScrollTop;
   }
   render() {
-    const { service, children, reloader, addStateBuilder, reload, loadMore, reloaderProps, ...props } = this.props as IWrapperProps;
+    const {
+      service,
+      statusKit,
+      statusHive,
+      children,
+      reloader,
+      subscribeToStatus,
+      reload,
+      loadMore,
+      reloaderProps,
+      canLoadHive,
+      rememberScrollPosition,
+      ...props
+    } = this.props as IWrapperProps;
     const { Component, className } = this.reloaderProps;
     return (
       <div
@@ -50,13 +68,23 @@ class Wrapper extends React.Component {
           </div>
         )}
         {children}
-        {addStateBuilder && <ServiceStateBuilder service={service as any} />}
+        {subscribeToStatus && (
+          <StatusBee
+            hive={statusHive}
+            service={
+              service || {
+                statusHive,
+                statusKit,
+              }
+            }
+          />
+        )}
       </div>
     );
   }
 }
 
-const listenToPull = ({ reload, container, service, reloaderProps }: ListenToPullProps) => {
+const listenToPull = ({ reload, container, statusHive, reloaderProps }: ListenToPullProps) => {
   if (!container) return;
   const containerGap = parseInt(window.getComputedStyle(container).gap.replace("px", "")) || 0;
 
@@ -110,7 +138,7 @@ const listenToPull = ({ reload, container, service, reloaderProps }: ListenToPul
   };
 
   container.addEventListener("touchstart", (e: any) => {
-    if (container.scrollTop > 5 || isPulling || (service.state && service.state === "reloading")) return;
+    if (container.scrollTop > 5 || isPulling || statusHive.honey === "reloading") return;
     isPulling = true;
     reloader.style.display = "";
     reloader.style.opacity = "0";
@@ -126,17 +154,37 @@ const listenToPull = ({ reload, container, service, reloaderProps }: ListenToPul
 
 const PostionById: any = {};
 
-export default ({
+const Wrapper = ({
   service = {},
   reload = service.reload,
   loadMore = service.loadMore,
-  addStateBuilder = !!service.setState,
+  subscribeToStatus = !!service.statusHive,
+  statusHive = service.statusHive,
+  canLoadHive = service.canLoadHive,
+  statusKit = service.statusKit,
   className = "local-wrapper",
+  rememberScrollPosition = true,
   ...props
 }: IWrapperProps) => {
-  const _props = { service, reload, loadMore, addStateBuilder, className, ...props };
-  return <Wrapper {..._props} />;
+  return (
+    <WrapperClassComponent
+      {...{
+        service,
+        reload,
+        loadMore,
+        subscribeToStatus,
+        className,
+        statusHive,
+        canLoadHive,
+        statusKit,
+        rememberScrollPosition,
+        ...props,
+      }}
+    />
+  );
 };
+
+export default Wrapper;
 
 export type ReloaderProps = {
   [P in keyof typeof _reloaderProps]?: (typeof _reloaderProps)[P];
