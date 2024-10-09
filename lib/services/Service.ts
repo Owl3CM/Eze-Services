@@ -1,6 +1,6 @@
 import { ServiceConstructor } from "./Types";
 import { defaultLoad, defaultOnError, defaultOnRes, defaultReload } from "./DefaultsServiceFunctions";
-import { ServiceStatus } from "../PackageTypes";
+import { ServiceStatus } from "../Types";
 import { IHive, createHive } from "../Beehive";
 export type IService<QueryParams = Object, Response = any, FormattedResponse = Response, Status = ServiceStatus> = Service<
   QueryParams,

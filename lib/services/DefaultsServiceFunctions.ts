@@ -2,7 +2,7 @@ import { createHive } from "../Beehive";
 import { IPaginatorService } from "./PaginatorService";
 import { IService } from "./Service";
 
-export const loadingStauts = ["loading", "reloading", "loadingMore", "idle"];
+export const loadingStatus = ["loading", "reloading", "loadingMore", "idle"];
 
 export const defaultLoad =
   (service: IService, func: any = service.loader) =>
@@ -39,7 +39,7 @@ export const defaultOnRes = <Response, FormattedResponse>(
 ) => {
   service.dataHive = createHive<FormattedResponse>(initialValue);
   service.dataHive.subscribe((data) => {
-    if (loadingStauts.includes(service.statusHive.honey)) service.statusHive.setHoney(data ? "idle" : "empty");
+    if (loadingStatus.includes(service.statusHive.honey)) service.statusHive.setHoney(data ? "idle" : "empty");
   });
   if (formatResponse)
     return async (data: Response) => {

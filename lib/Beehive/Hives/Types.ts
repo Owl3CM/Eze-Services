@@ -66,6 +66,7 @@ export interface IFormHive<HiveType> extends IHive<HiveType> {
   isValidHive: IHive<boolean>;
   reValidate: <K extends keyof HiveType>(validateKeys?: K[]) => Promise<boolean>;
   submit: <K extends keyof HiveType>(e?: React.FormEvent<HTMLFormElement>, validateKeys?: K[]) => void;
+  validateMode: FormValidateMode;
 }
 
 export interface INestedFormHive<HiveType> {
@@ -82,8 +83,10 @@ export interface INestedFormHive<HiveType> {
   error?: string;
   setError: (err?: string) => void;
   validate: (honey: HiveType, effect?: boolean) => void;
-  isValid: () => boolean;
+  isValid: () => boolean | Promise<boolean>;
   reset: () => void;
 }
 
 export type IStoreKey = string | { storeKey: string; storage: StorageType };
+
+export type FormValidateMode = "onBlur" | "onChange" | "onSubmit";

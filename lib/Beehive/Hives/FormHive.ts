@@ -2,7 +2,7 @@ import { Toast } from "eze-utils";
 import { createHive } from "./Hive";
 import { _getHiveBase } from "./HiveBase";
 import { CheckSimilarity } from "./HiveUtils";
-import { IFormHive, INestedFormHive, IStoreKey } from "./Types";
+import { FormValidateMode, IFormHive, INestedFormHive, IStoreKey } from "./Types";
 
 export function createFormHive<HiveType>({
   initialValue,
@@ -14,19 +14,24 @@ export function createFormHive<HiveType>({
   initialValue: HiveType;
   storeKey?: IStoreKey;
   validator?: (key: keyof HiveType, value: any) => string;
-  validateMode?: "onBlur" | "onChange" | "onSubmit";
+  validateMode?: FormValidateMode;
   onSubmit: (honey: HiveType) => void;
 }): IFormHive<HiveType> {
   type FormHiveKey = keyof HiveType;
+  let _initialValue = JSON.parse(JSON.stringify(initialValue));
   const formHive = createHive(initialValue, storeKey) as IFormHive<HiveType>;
+  formHive.validateMode = validateMode;
+  formHive.isDirtyHive = createHive(false);
+  formHive.isValidHive = createHive(true);
+
   const _NestedHives = new Map<FormHiveKey, INestedFormHive<any>>();
 
-  formHive.createNestedHive = <NestedHiveType>(key: string, nestedIniVal: NestedHiveType, storeKey?: string) => {
-    const [nestedHive, pollinate] = _getHiveBase({ value: nestedIniVal, error: null }, storeKey) as any as [INestedFormHive<NestedHiveType>, () => void];
+  formHive.createNestedHive = <NestedHiveType>(key: string, nestedInitVal: NestedHiveType, storeKey?: string) => {
+    const [nestedHive, pollinate] = _getHiveBase({ value: nestedInitVal, error: null }, storeKey) as any as [INestedFormHive<NestedHiveType>, () => void];
     formHive.silentSetHoney = (newValue: any) => {
       formHive.honey = typeof newValue === "function" ? newValue(formHive.honey) : newValue;
-      formHive.isDirtyHive.setHoney(!CheckSimilarity(formHive.honey, initialValue));
-      formHive.isValidHive.setHoney(Object.keys(formHive.errors).length === 0);
+      formHive.isDirtyHive.setHoney(!CheckSimilarity(formHive.honey, _initialValue));
+      formHive.isValidHive.setHoney(!Object.values(formHive.errors).some((key) => key));
     };
 
     _NestedHives.set(key as any, nestedHive);
@@ -42,8 +47,8 @@ export function createFormHive<HiveType>({
     nestedHive.silentSetHoney = (value: any) => {
       if (typeof value === "function") value = value(nestedHive.honey.value);
       nestedHive.honey = {
-        value,
         error: nestedHive.honey.error,
+        value,
       };
     };
 
@@ -55,14 +60,12 @@ export function createFormHive<HiveType>({
         value: nestedHive.honey.value,
         error,
       };
-      if (nestedHive._subscribers() < 2) Toast.error({ title: error });
+      if (nestedHive._subscribers() < 2) alert({ title: JSON.stringify({ error }) });
       pollinate();
     };
 
     nestedHive.validate = validator
       ? (value: NestedHiveType, effect?: boolean) => {
-          // console.log("validate", key, value, effect);
-
           if (typeof value === "function") value = value(nestedHive.honey.value);
           if (nestedHive.honey.error) nestedHive.setError(validator(key as FormHiveKey, value));
           else if (validateMode !== "onSubmit")
@@ -96,16 +99,17 @@ export function createFormHive<HiveType>({
       : () => true;
 
     nestedHive.subscribe((newValue: any) => {
-      formHive.silentSetHoney({ ...formHive.honey, [key]: newValue.value });
+      (formHive.honey as any)[key] = newValue.value;
+      formHive.silentSetHoney(formHive.honey);
     });
     formHive.subscribe((newValue: any) => {
       if (newValue[key] === nestedHive.honey.value) return;
       nestedHive.setHoney(newValue[key]);
     });
 
-    if ((formHive as any).honey[key] !== nestedIniVal) {
-      formHive.setHoney((prev) => ({ ...prev, [key]: nestedIniVal }));
-      initialValue = { ...initialValue, [key]: nestedIniVal };
+    if ((formHive as any).honey[key] !== nestedInitVal) {
+      formHive.setHoney((prev) => ({ ...prev, [key]: nestedInitVal }));
+      _initialValue = { ..._initialValue, [key]: nestedInitVal };
     }
 
     return nestedHive;
@@ -155,7 +159,5 @@ export function createFormHive<HiveType>({
     });
   };
 
-  formHive.isDirtyHive = createHive(false);
-  formHive.isValidHive = createHive(true);
   return formHive;
 }

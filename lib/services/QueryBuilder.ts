@@ -14,10 +14,10 @@ export class QueryBuilder<T = any> {
     this.onQueryChange = onQueryChange ?? (() => {});
     this.pathParams = (useParams as any)();
     this.navigate = (useNavigate as any)();
-    this.loaction = (useLocation as any)();
+    this.location = (useLocation as any)();
     this.init(service, defaultQuery);
   }
-  loaction: any;
+  location: any;
 
   init = (service: any, defaultQuery: any) => {
     this.storageKey = `url-query-${window.location.pathname}`;
@@ -93,8 +93,8 @@ export class QueryBuilder<T = any> {
   };
 
   getStateParams = (obj: any = {}) => {
-    if (this.loaction?.state) {
-      Object.entries(this.loaction.state).forEach(([key, value]) => {
+    if (this.location?.state) {
+      Object.entries(this.location.state).forEach(([key, value]) => {
         obj[key] = value;
       });
     }

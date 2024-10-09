@@ -1,6 +1,6 @@
-import { PagenatedServiceConstructor } from "./Types";
+import { PaginatedServiceConstructor } from "./Types";
 import { defaultLoad, defaultLoadMore, defaultOnPaginatorRes, defaultReload } from "./DefaultsPaginatorServiceFunctions";
-import { ServiceStatus } from "../PackageTypes";
+import { ServiceStatus } from "../Types";
 import { IHive, IHiveArray, createHive, createHiveArray } from "../Beehive";
 import { defaultOnError } from "./DefaultsServiceFunctions";
 
@@ -12,7 +12,7 @@ export type IPaginatorService<QueryParams = Object, Response = any, FormattedRes
 >;
 
 export class PaginatorService<QueryParams = Object, Response = Object, FormattedResponse = Response, Status = ServiceStatus> {
-  constructor(props: PagenatedServiceConstructor<QueryParams, Response, FormattedResponse>) {
+  constructor(props: PaginatedServiceConstructor<QueryParams, Response, FormattedResponse>) {
     const { paginator, onError, onResponse, beforeLoad, beforeReload = beforeLoad, beforeLoadMore, formatResponse } = props as any;
 
     this.paginator = paginator;

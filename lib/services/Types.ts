@@ -1,11 +1,11 @@
 // type Status = "idle" | "loading" | "reload" | "processing" | "reloading" | "searching" | "error" | "noContent" | "loadingMore" | string;
 // export type ServiceState = Status | { state: Status; props: any; parent?: HTMLElement | undefined };
 
-export interface IPagenatedServiceParams {
+export interface IPaginatedServiceParams {
   [id: string]: string | number | boolean;
 }
 
-export type PagenatedServiceConstructor<QueryParams, Response, FormattedResponse = Response> = {
+export type PaginatedServiceConstructor<QueryParams, Response, FormattedResponse = Response> = {
   onError?: (error: any) => void;
 
   paginator: {

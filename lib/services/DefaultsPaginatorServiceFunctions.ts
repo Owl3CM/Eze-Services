@@ -1,5 +1,4 @@
-import { createHiveArray } from "../Beehive";
-import { loadingStauts } from "./DefaultsServiceFunctions";
+import { loadingStatus } from "./DefaultsServiceFunctions";
 import { IPaginatorService } from "./PaginatorService";
 import { IService } from "./Service";
 export const defaultLoad =
@@ -44,11 +43,9 @@ interface DefaultOnPaginatorResProps<Response> {
   hasMore: boolean;
 }
 export const defaultOnPaginatorRes = <Response, FormattedResponse>(service: IPaginatorService<any, Response, FormattedResponse, any>, formatResponse: any) => {
-  // service.dataHive = createHiveArray<FormattedResponse>([] as FormattedResponse[]);
-
   service.dataHive.subscribe((data) => {
     setTimeout(() => {
-      if (loadingStauts.includes(service.statusHive.honey)) service.statusHive.setHoney(data.length ? "idle" : "empty");
+      if (loadingStatus.includes(service.statusHive.honey)) service.statusHive.setHoney(data.length ? "idle" : "empty");
     }, 1);
   });
   if (formatResponse)

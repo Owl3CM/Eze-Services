@@ -5,7 +5,6 @@ import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import postcss from "rollup-plugin-postcss";
 import { terser } from "rollup-plugin-terser";
-import packageJson from "./package.json";
 
 const config = {
   input: "lib/index.ts",
@@ -29,7 +28,7 @@ const config = {
     }),
   ],
   output: {
-    file: packageJson.main,
+    file: "dist/index.js",
     format: "cjs",
     sourcemap: true,
   },
