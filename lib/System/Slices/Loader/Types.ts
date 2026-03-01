@@ -24,7 +24,7 @@ export interface LoaderAPI<Response> {
   isLoading: () => boolean;
 }
 
-export interface LoaderDependencies {
-  status: StatusAPI;
+export interface LoaderDependencies<OperationName extends string = string> {
+  status: StatusAPI<any, OperationName>;
   query?: QueryAPI<any, any>;
 }

@@ -1,7 +1,6 @@
-import React from "react";
 import { IWrapperProps, ListenToPullProps, onPullProps } from "./types";
-import { StatusBee } from "../StatusKit";
 import { IHive } from "../../Hives";
+import React from "react";
 
 class WrapperClassComponent extends React.Component {
   id: string;
@@ -100,17 +99,6 @@ class WrapperClassComponent extends React.Component {
           </div>
         )}
         {children}
-        {subscribeToStatus && (
-          <StatusBee
-            hive={statusHive}
-            factory={
-              service || {
-                statusHive,
-                statusKit,
-              }
-            }
-          />
-        )}
       </div>
     );
   }

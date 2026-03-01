@@ -1,0 +1,441 @@
+/* Layout Helpers - Scoped to ez-flow-view */
+/* GRID STACKING LAYOUT */
+.ez-flow-view { 
+    display: grid;
+    grid-template-areas: "stack";
+    width: 100%;
+    --time: 0.5s;
+    --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --ease-smooth: cubic-bezier(0.4, 0.0, 0.2, 1);
+    --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
+    perspective: 1500px;
+}
+
+.ez-flow-view > * {
+    grid-area: stack;
+    width: 100%;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    
+    /* DEFAULT STACKING: New content on top */
+}
+
+/* Default Stacking Order */
+[data-transitional-stage$="entering"] { z-index: 2; }
+[data-transitional-stage$="leaving"] { z-index: 1; }
+
+
+.ez-flow-view.relative { position: relative; }
+
+/* =========================================
+   1. ELASTIC SLIDE
+   ========================================= */
+[data-animation="slide"] [data-transitional-stage="next-entering"] {
+  animation: entering-prev-frames calc(var(--time) * 0.7) var(--ease-smooth) calc(var(--time) * 0.3) both;
+}
+[data-animation="slide"] [data-transitional-stage="next-leaving"] {
+  animation: leaving-prev-frames var(--time) var(--ease-smooth) both;
+}
+[data-animation="slide"] [data-transitional-stage="prev-entering"] {
+  animation: entering-next-frames calc(var(--time) * 0.7) var(--ease-smooth) calc(var(--time) * 0.3) both;
+}
+[data-animation="slide"] [data-transitional-stage="prev-leaving"] {
+  animation: leaving-next-frames var(--time) var(--ease-smooth) both;
+}
+
+/* RTL OVERRIDES FOR ELASTIC SLIDE */
+[dir="rtl"] [data-animation="slide"] [data-transitional-stage="next-entering"] { animation-name: entering-next-frames; }
+[dir="rtl"] [data-animation="slide"] [data-transitional-stage="next-leaving"] { animation-name: leaving-next-frames; }
+[dir="rtl"] [data-animation="slide"] [data-transitional-stage="prev-entering"] { animation-name: entering-prev-frames; }
+[dir="rtl"] [data-animation="slide"] [data-transitional-stage="prev-leaving"] { animation-name: leaving-prev-frames; }
+
+/* =========================================
+   2. SIMPLE SLIDE
+   ========================================= */
+[data-animation="slide-simple"] [data-transitional-stage="next-entering"] {
+    animation: simple-slide-in-right var(--time) var(--ease-out) both;
+}
+[data-animation="slide-simple"] [data-transitional-stage="next-leaving"] {
+    animation: simple-slide-out-left var(--time) var(--ease-out) both;
+}
+[data-animation="slide-simple"] [data-transitional-stage="prev-entering"] {
+    animation: simple-slide-in-left var(--time) var(--ease-out) both;
+}
+[data-animation="slide-simple"] [data-transitional-stage="prev-leaving"] {
+    animation: simple-slide-out-right var(--time) var(--ease-out) both;
+}
+
+/* RTL - SIMPLE SLIDE */
+[dir="rtl"] [data-animation="slide-simple"] [data-transitional-stage="next-entering"] { animation-name: simple-slide-in-left; }
+[dir="rtl"] [data-animation="slide-simple"] [data-transitional-stage="next-leaving"] { animation-name: simple-slide-out-right; }
+[dir="rtl"] [data-animation="slide-simple"] [data-transitional-stage="prev-entering"] { animation-name: simple-slide-in-right; }
+[dir="rtl"] [data-animation="slide-simple"] [data-transitional-stage="prev-leaving"] { animation-name: simple-slide-out-left; }
+
+/* =========================================
+   3. CENTER SCALE
+   ========================================= */
+[data-animation="scale"] [data-transitional-stage$="entering"] {
+    animation: zoom-in var(--time) var(--ease-elastic) both;
+    z-index: 2;
+}
+[data-animation="scale"] [data-transitional-stage$="leaving"] {
+    animation: zoom-out var(--time) ease-out both;
+    z-index: 1;
+}
+
+/* =========================================
+   4. iOS PUSH
+   ========================================= */
+[data-animation="ios-push"] [data-transitional-stage="next-entering"] {
+    animation: simple-slide-in-right var(--time) var(--ease-smooth) both;
+    z-index: 2;
+}
+[data-animation="ios-push"] [data-transitional-stage="next-leaving"] {
+    animation: depth-scale-down var(--time) var(--ease-smooth) both;
+}
+[data-animation="ios-push"] [data-transitional-stage="prev-entering"] {
+     animation: depth-scale-up var(--time) var(--ease-smooth) both;
+     z-index: 1;
+}
+[data-animation="ios-push"] [data-transitional-stage="prev-leaving"] {
+    animation: simple-slide-out-right var(--time) var(--ease-smooth) both;
+    z-index: 2;
+}
+
+/* RTL - iOS PUSH */
+[dir="rtl"] [data-animation="ios-push"] [data-transitional-stage="next-entering"] { animation-name: simple-slide-in-left; }
+[dir="rtl"] [data-animation="ios-push"] [data-transitional-stage="prev-leaving"] { animation-name: simple-slide-out-left; }
+
+/* =========================================
+   5. MORPH OVERLAY
+   ========================================= */
+[data-animation="morph-overlay"] [data-transitional-stage="next-entering"] {
+    animation: morph-up-enter var(--time) var(--ease-smooth) both;
+    z-index: 2;
+    transform-origin: center bottom;
+}
+[data-animation="morph-overlay"] [data-transitional-stage="next-leaving"] {
+    animation: morph-scale-down-leave var(--time) var(--ease-smooth) both;
+    z-index: 1;
+}
+[data-animation="morph-overlay"] [data-transitional-stage="prev-entering"] {
+    animation: morph-scale-up-enter var(--time) var(--ease-smooth) both;
+    z-index: 1;
+}
+[data-animation="morph-overlay"] [data-transitional-stage="prev-leaving"] {
+    animation: morph-down-leave var(--time) var(--ease-smooth) both;
+    z-index: 2;
+    transform-origin: center bottom;
+}
+
+/* =========================================
+   6. CIRCLE REVEAL - FAST DISAPPEAR
+   ========================================= */
+[data-animation="circle-reveal"] [data-transitional-stage$="entering"] {
+    /* Animation + Stacking */
+    -webkit-animation: circle-expand-final var(--time) var(--ease-smooth) both !important;
+    animation: circle-expand-final var(--time) var(--ease-smooth) both !important;
+    
+    z-index: 10 !important;
+    will-change: clip-path;
+}
+[data-animation="circle-reveal"] [data-transitional-stage$="leaving"] {
+    /* Make the leave animation much faster (40% of total time) */
+    animation: circle-reveal-leave calc(var(--time) * 0.4) linear both !important;
+    z-index: 1;
+}
+
+/* =========================================
+   7. 3D CUBE
+   ========================================= */
+[data-animation="3d-cube"] [data-transitional-stage="next-entering"] {
+    animation: cube-in-right var(--time) ease-in-out both; 
+    transform-origin: 0% 50%;
+}
+[data-animation="3d-cube"] [data-transitional-stage="next-leaving"] {
+    animation: cube-out-left var(--time) ease-in-out both;
+    transform-origin: 100% 50%;
+}
+[data-animation="3d-cube"] [data-transitional-stage="prev-entering"] {
+    animation: cube-in-left var(--time) ease-in-out both;
+    transform-origin: 100% 50%;
+}
+[data-animation="3d-cube"] [data-transitional-stage="prev-leaving"] {
+    animation: cube-out-right var(--time) ease-in-out both;
+    transform-origin: 0% 50%;
+}
+
+/* RTL - 3D CUBE */
+[dir="rtl"] [data-animation="3d-cube"] [data-transitional-stage="next-entering"] { animation-name: cube-in-left; transform-origin: 100% 50%; }
+[dir="rtl"] [data-animation="3d-cube"] [data-transitional-stage="next-leaving"] { animation-name: cube-out-right; transform-origin: 0% 50%; }
+[dir="rtl"] [data-animation="3d-cube"] [data-transitional-stage="prev-entering"] { animation-name: cube-in-right; transform-origin: 0% 50%; }
+[dir="rtl"] [data-animation="3d-cube"] [data-transitional-stage="prev-leaving"] { animation-name: cube-out-left; transform-origin: 100% 50%; }
+
+/* =========================================
+   8. GLITCH (Cyberpunk)
+   ========================================= */
+[data-animation="glitch"] [data-transitional-stage$="entering"] {
+    animation: glitch-anim-1 var(--time) infinite linear alternate-reverse both;
+    z-index: 2;
+}
+[data-animation="glitch"] [data-transitional-stage$="leaving"] {
+    animation: fade-out var(--time) steps(1) both;
+    z-index: 1;
+}
+
+/* =========================================
+   9. FOLD (Paper)
+   ========================================= */
+[data-animation="fold"] [data-transitional-stage="next-entering"] {
+    animation: fold-in-right var(--time) ease-in-out both;
+    transform-origin: 0% 50%;
+}
+[data-animation="fold"] [data-transitional-stage="next-leaving"] {
+    animation: fold-out-left var(--time) ease-in-out both;
+    transform-origin: 100% 50%;
+}
+[data-animation="fold"] [data-transitional-stage="prev-entering"] {
+    animation: fold-in-left var(--time) ease-in-out both;
+    transform-origin: 100% 50%;
+}
+[data-animation="fold"] [data-transitional-stage="prev-leaving"] {
+    animation: fold-out-right var(--time) ease-in-out both;
+    transform-origin: 0% 50%;
+}
+
+/* RTL - FOLD */
+[dir="rtl"] [data-animation="fold"] [data-transitional-stage="next-entering"] { animation-name: fold-in-left; transform-origin: 100% 50%; }
+[dir="rtl"] [data-animation="fold"] [data-transitional-stage="next-leaving"] { animation-name: fold-out-right; transform-origin: 0% 50%; }
+[dir="rtl"] [data-animation="fold"] [data-transitional-stage="prev-entering"] { animation-name: fold-in-right; transform-origin: 0% 50%; }
+[dir="rtl"] [data-animation="fold"] [data-transitional-stage="prev-leaving"] { animation-name: fold-out-left; transform-origin: 100% 50%; }
+
+
+/* =========================================
+   10. FADE
+   ========================================= */
+[data-animation="fade"] [data-transitional-stage$="entering"] {
+  animation: fade-in var(--time) ease-out both;
+}
+[data-animation="fade"] [data-transitional-stage$="leaving"] {
+  animation: fade-out var(--time) ease-in both;
+}
+
+/* =========================================
+   11. BLUR
+   ========================================= */
+[data-animation="blur"] [data-transitional-stage$="entering"] {
+    animation: blur-in var(--time) ease-out both;
+}
+[data-animation="blur"] [data-transitional-stage$="leaving"] {
+    animation: blur-out var(--time) ease-in both;
+}
+
+/* =========================================
+   12. FLIP
+   ========================================= */
+[data-animation="flip"] [data-transitional-stage="next-entering"] {
+    animation: flip-in-right var(--time) ease-out both;
+}
+[data-animation="flip"] [data-transitional-stage="next-leaving"] {
+    animation: flip-out-left var(--time) ease-in both;
+}
+[data-animation="flip"] [data-transitional-stage="prev-entering"] {
+    animation: flip-in-left var(--time) ease-out both;
+}
+[data-animation="flip"] [data-transitional-stage="prev-leaving"] {
+    animation: flip-out-right var(--time) ease-in both;
+}
+
+/* LIFT ANIMATIONS */
+[data-animation="lift"] [data-transitional-stage="next-entering"] {
+    animation: lift-in-up var(--time) var(--ease-smooth) both;
+}
+[data-animation="lift"] [data-transitional-stage="next-leaving"] {
+    animation: fade-out var(--time) ease-in both;
+}
+[data-animation="lift"] [data-transitional-stage="prev-entering"] {
+    animation: lift-in-down var(--time) var(--ease-smooth) both;
+}
+[data-animation="lift"] [data-transitional-stage="prev-leaving"] {
+    animation: fade-out var(--time) ease-in both;
+}
+
+/* =========================================
+   KEYFRAMES 
+   ========================================= */
+
+/* Elastic Slide (Legacy) */
+@keyframes entering-next-frames {
+  0% { opacity: 0; transform: translateX(-100%) scaleX(0); }
+  70% { opacity: 1; transform: translateX(10%) scaleX(1.05); }
+  100% { opacity: 1; transform: translateX(0) scaleX(1); }
+}
+@keyframes leaving-next-frames {
+  0% { opacity: 1; transform: translateX(0) scaleX(1); }
+  30% { opacity: 1; transform: translateX(-10%) scaleX(1.05); }
+  100% { opacity: 0; transform: translateX(100%) scaleX(0); }
+}
+@keyframes entering-prev-frames {
+  0% { opacity: 0; transform: translateX(100%) scaleX(0); }
+  70% { opacity: 1; transform: translateX(-10%) scaleX(1.05); }
+  100% { opacity: 1; transform: translateX(0) scaleX(1); }
+}
+@keyframes leaving-prev-frames {
+  0% { opacity: 1; transform: translateX(0) scaleX(1); }
+  30% { opacity: 1; transform: translateX(10%) scaleX(1.05); }
+  100% { opacity: 0; transform: translateX(-100%) scaleX(0); }
+}
+
+/* Simple Slide */
+@keyframes simple-slide-in-right {
+    0% { transform: translateX(100%); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+}
+@keyframes simple-slide-out-left {
+    0% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(-100%); opacity: 0; }
+}
+@keyframes simple-slide-in-left {
+    0% { transform: translateX(-100%); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+}
+@keyframes simple-slide-out-right {
+    0% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(100%); opacity: 0; }
+}
+
+/* Zoom */
+@keyframes zoom-in {
+    0% { opacity: 0; transform: scale(0.5); }
+    100% { opacity: 1; transform: scale(1); }
+}
+@keyframes zoom-out {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.2); }
+}
+
+/* Depth Scale (iOS) */
+@keyframes depth-scale-down {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0; }
+}
+@keyframes depth-scale-up {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Morph Overlay */
+@keyframes morph-up-enter {
+    0% { transform: translateY(100%); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes morph-scale-down-leave {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.85); opacity: 0.5; }
+}
+@keyframes morph-scale-up-enter {
+    0% { transform: scale(0.85); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+@keyframes morph-down-leave {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(100%); opacity: 0; }
+}
+
+/* Circle Reveal Keyframes (RENAMED and FINALIZED) */
+@keyframes circle-expand-final {
+    0% { 
+        -webkit-clip-path: circle(0% at 50% 50%); 
+        clip-path: circle(0% at 50% 50%); 
+    } 
+    100% { 
+        -webkit-clip-path: circle(150% at 50% 50%); 
+        clip-path: circle(150% at 50% 50%); 
+    }
+}
+@keyframes circle-reveal-leave {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.95); }
+}
+
+/* Cube 3D */
+@keyframes cube-in-right {
+    0% { transform: translateX(100%) rotateY(90deg); opacity: 0; }
+    100% { transform: translateX(0) rotateY(0); opacity: 1; }
+}
+@keyframes cube-out-left {
+    0% { transform: translateX(0) rotateY(0); opacity: 1; }
+    100% { transform: translateX(-100%) rotateY(-90deg); opacity: 0; }
+}
+@keyframes cube-in-left {
+    0% { transform: translateX(-100%) rotateY(-90deg); opacity: 0; }
+    100% { transform: translateX(0) rotateY(0); opacity: 1; }
+}
+@keyframes cube-out-right {
+    0% { transform: translateX(0) rotateY(0); opacity: 1; }
+    100% { transform: translateX(100%) rotateY(90deg); opacity: 0; }
+}
+
+/* Glitch */
+@keyframes glitch-anim-1 {
+  0% { opacity: 0; transform: translate(10px, 0) scale(1.02); }
+  20% { opacity: 1; transform: translate(-10px, -5px) scale(0.98); }
+  40% { transform: translate(5px, 5px) scale(1.05); }
+  60% { transform: translate(-5px, 0) scale(1); }
+  80% { transform: translate(2px, -2px) scale(1.02); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+/* Fold */
+@keyframes fold-in-right {
+    0% { transform: translateX(100%) rotateY(-90deg); opacity: 0; }
+    100% { transform: translateX(0) rotateY(0); opacity: 1; }
+}
+@keyframes fold-out-left {
+    0% { transform: translateX(0) rotateY(0); opacity: 1; }
+    100% { transform: translateX(-100%) rotateY(90deg); opacity: 0; }
+}
+@keyframes fold-in-left {
+    0% { transform: translateX(-100%) rotateY(90deg); opacity: 0; }
+    100% { transform: translateX(0) rotateY(0); opacity: 1; }
+}
+@keyframes fold-out-right {
+    0% { transform: translateX(0) rotateY(0); opacity: 1; }
+    100% { transform: translateX(100%) rotateY(-90deg); opacity: 0; }
+}
+
+/* Fade */
+@keyframes fade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes fade-out { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+/* Blur */
+@keyframes blur-in { 0% { opacity: 0; filter: blur(10px); } 100% { opacity: 1; filter: blur(0); } }
+@keyframes blur-out { 0% { opacity: 1; filter: blur(0); } 100% { opacity: 0; filter: blur(10px); } }
+
+/* Flip 3D */
+@keyframes flip-in-right {
+    0% { transform: rotateY(-90deg); opacity: 0; }
+    100% { transform: rotateY(0); opacity: 1; }
+}
+@keyframes flip-out-left {
+    0% { transform: rotateY(0); opacity: 1; }
+    100% { transform: rotateY(90deg); opacity: 0; }
+}
+@keyframes flip-in-left {
+    0% { transform: rotateY(90deg); opacity: 0; }
+    100% { transform: rotateY(0); opacity: 1; }
+}
+@keyframes flip-out-right {
+    0% { transform: rotateY(0); opacity: 1; }
+    100% { transform: rotateY(-90deg); opacity: 0; }
+}
+
+/* Lift */
+@keyframes lift-in-up {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes lift-in-down {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}

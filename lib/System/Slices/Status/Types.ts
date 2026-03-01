@@ -17,17 +17,17 @@ export interface StatusTypeConfig<P = any> {
 /**
  * A StatusKit is a record of status type names to their configurations
  */
-export type StatusKit = Record<string, StatusTypeConfig<any>>;
+export type IStatusKit<K extends string = string> = Record<K, StatusTypeConfig<any>>;
 
 /**
  * Extract status type names from a StatusKit
  */
-export type StatusTypeNames<K extends StatusKit> = keyof K & string;
+export type StatusTypeNames<K extends IStatusKit> = keyof K & string;
 
 /**
  * Extract props type for a specific status type from a StatusKit
  */
-export type StatusPropsFor<K extends StatusKit, T extends StatusTypeNames<K>> = K[T]["props"];
+export type StatusPropsFor<K extends IStatusKit, T extends StatusTypeNames<K>> = K[T]["props"];
 
 // ============================================================================
 // Operation State
@@ -36,7 +36,7 @@ export type StatusPropsFor<K extends StatusKit, T extends StatusTypeNames<K>> = 
 /**
  * State for a single operation stored in the hive
  */
-export interface OperationState<K extends StatusKit = StatusKit> {
+export interface OperationState<K extends IStatusKit = IStatusKit> {
   operation: string;
   statusType: StatusTypeNames<K>;
   props: any;
@@ -60,7 +60,7 @@ export interface StatusOptions {
  * The chain returned by operation(name) or ready()
  * Dynamically typed based on the StatusKit
  */
-export type OperationChain<K extends StatusKit = StatusKit> = {
+export type OperationChain<K extends IStatusKit = IStatusKit> = {
   [T in StatusTypeNames<K>]: (props: StatusPropsFor<K, T>, options?: StatusOptions) => void;
 } & {
   idle: () => void;
@@ -69,17 +69,17 @@ export type OperationChain<K extends StatusKit = StatusKit> = {
 /**
  * The main StatusSlice API exposed to slices and components
  */
-export interface StatusAPI<K extends StatusKit = StatusKit> {
+export interface StatusAPI<K extends IStatusKit = IStatusKit, OperationName extends string = string> {
   // Main API
-  operation: (name: string) => OperationChain<K>;
+  operation: (name: OperationName) => OperationChain<K>;
   ready: () => OperationChain<K>;
 
   // Query API
-  isActive: (operation: string) => boolean;
-  isAnyActive: (operations: string[]) => boolean;
-  getState: (operation: string) => OperationState<K> | null;
-  getPrimary: (operations?: string[], statusTypes?: StatusTypeNames<K>[]) => OperationState<K> | null;
-  getActiveOperations: () => string[];
+  isActive: (operation: OperationName) => boolean;
+  isAnyActive: (operations: OperationName[]) => boolean;
+  getState: (operation: OperationName) => OperationState<K> | null;
+  getPrimary: (operations?: OperationName[], statusTypes?: StatusTypeNames<K>[]) => OperationState<K> | null;
+  getActiveOperations: () => OperationName[];
   getComponent: (statusType: StatusTypeNames<K>) => (props: any) => ReactNode;
 
   // Hive for component subscription
@@ -93,10 +93,14 @@ export interface StatusAPI<K extends StatusKit = StatusKit> {
 /**
  * Configuration for the StatusSlice
  */
-export interface StatusSliceConfig<K extends StatusKit = StatusKit> {
-  statusKit: K;
+export interface StatusSliceConfig<K extends IStatusKit = IStatusKit, OperationName extends string = string> {
+  statusKit?: K;
   staleTimeout?: number;
   onStaleOperation?: (operation: OperationState<K>) => void;
+  /**
+   * Optional list of allowed operation names for type inference
+   */
+  allowedOperations?: readonly OperationName[];
 }
 
 // ============================================================================

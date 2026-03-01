@@ -1,36 +1,26 @@
 import { TableColumnDef } from "../Table/Types";
 import { ExporterDependencies, ExporterSliceConfig } from "./Types";
 
-// Lazy loaders for optional dependencies
-const lazyExcelJS = async () => {
-  // @ts-ignore - optional dependency
-  const mod = await import("exceljs");
-  return mod.default ?? mod;
-};
-
-const lazyCapacitorFilesystem = async () => {
-  // @ts-ignore - optional dependency
-  const mod = await import("@capacitor/filesystem");
-  return { Filesystem: mod.Filesystem, Directory: mod.Directory };
-};
-
-const lazyCapacitorShare = async () => {
-  // @ts-ignore - optional dependency
-  const mod = await import("@capacitor/share");
-  return mod.Share;
-};
-
-const lazyToast = async () => {
-  // @ts-ignore - optional dependency
-  const mod = await import("eze-utils");
-  return mod.Toast;
-};
-
-const lazyGetLabel = async () => {
-  // @ts-ignore - optional dependency
-  const mod = await import("@/Language");
-  return mod.GetLabel;
-};
+// TODO: Investigate these optional dependencies — they break consumer builds
+// because rollup bundles the dynamic import() calls and consumers can't resolve them.
+// Needs a proper solution (e.g., dependency injection or peer deps).
+//
+// const lazyExcelJS = async () => {
+//   const mod = await import("exceljs");
+//   return mod.default ?? mod;
+// };
+// const lazyCapacitorFilesystem = async () => {
+//   const mod = await import("@capacitor/filesystem");
+//   return { Filesystem: mod.Filesystem, Directory: mod.Directory };
+// };
+// const lazyCapacitorShare = async () => {
+//   const mod = await import("@capacitor/share");
+//   return mod.Share;
+// };
+// const lazyGetLabel = async () => {
+//   const mod = await import("@/Language");
+//   return mod.GetLabel;
+// };
 
 export const ExporterMechanics = {
   // CSV builder (robust escaping)
@@ -51,16 +41,17 @@ export const ExporterMechanics = {
     return lines.join("\n");
   },
 
+  // TODO: Re-enable when optional deps are properly handled
   // Excel builder using ExcelJS
-  rowsToXlsx: async (headers: string[], rows: Record<string, any>[]) => {
-    const ExcelJS = await lazyExcelJS();
-    const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet("Data");
-    ws.columns = headers.map((h) => ({ header: String(h), key: String(h), width: Math.max(10, String(h).length + 4) }));
-    rows.forEach((r) => ws.addRow(r));
-    const buf = await wb.xlsx.writeBuffer();
-    return new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-  },
+  // rowsToXlsx: async (headers: string[], rows: Record<string, any>[]) => {
+  //   const ExcelJS = await lazyExcelJS();
+  //   const wb = new ExcelJS.Workbook();
+  //   const ws = wb.addWorksheet("Data");
+  //   ws.columns = headers.map((h) => ({ header: String(h), key: String(h), width: Math.max(10, String(h).length + 4) }));
+  //   rows.forEach((r) => ws.addRow(r));
+  //   const buf = await wb.xlsx.writeBuffer();
+  //   return new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  // },
 
   saveFileBrowser: async (filename: string, blob: Blob) => {
     const url = URL.createObjectURL(blob);
@@ -73,41 +64,33 @@ export const ExporterMechanics = {
     URL.revokeObjectURL(url);
   },
 
-  saveFileNative: async (filename: string, blob: Blob | string) => {
-    try {
-      const { Filesystem, Directory } = await lazyCapacitorFilesystem();
-      const Share = await lazyCapacitorShare();
-      const GetLabel = await lazyGetLabel();
-
-      let base64: string;
-      if (typeof blob === "string") base64 = blob;
-      else {
-        base64 = await new Promise<string>((res, rej) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const str = reader.result as string;
-            res(str.split(",")[1]);
-          };
-          reader.onerror = rej;
-          reader.readAsDataURL(blob);
-        });
-      }
-      const writeResult = await Filesystem.writeFile({ path: filename, data: base64, directory: Directory.External });
-      const uri = writeResult.uri ?? (writeResult as any).path ? `file://${(writeResult as any).path}` : undefined;
-      if (uri) {
-        await Share.share({ title: GetLabel("downloaded"), url: uri });
-      }
-    } catch (e) {
-      console.warn("exporter: native save failed", e);
-    }
-  },
+  // TODO: Re-enable when optional deps are properly handled
+  // saveFileNative: async (filename: string, blob: Blob | string) => {
+  //   try {
+  //     const { Filesystem, Directory } = await lazyCapacitorFilesystem();
+  //     const Share = await lazyCapacitorShare();
+  //     const GetLabel = await lazyGetLabel();
+  //     let base64: string;
+  //     if (typeof blob === "string") base64 = blob;
+  //     else {
+  //       base64 = await new Promise<string>((res, rej) => {
+  //         const reader = new FileReader();
+  //         reader.onload = () => { res((reader.result as string).split(",")[1]); };
+  //         reader.onerror = rej;
+  //         reader.readAsDataURL(blob);
+  //       });
+  //     }
+  //     const writeResult = await Filesystem.writeFile({ path: filename, data: base64, directory: Directory.External });
+  //     const uri = writeResult.uri ?? ((writeResult as any).path ? `file://${(writeResult as any).path}` : undefined);
+  //     if (uri) await Share.share({ title: GetLabel("downloaded"), url: uri });
+  //   } catch (e) { console.warn("exporter: native save failed", e); }
+  // },
 
   resolveData: async <TItem>(config: ExporterSliceConfig<TItem>, ctx: ExporterDependencies<TItem>): Promise<TItem[]> => {
     if (config.dataProvider) {
       const provided = config.dataProvider(ctx);
       return provided instanceof Promise ? await provided : provided;
     }
-    // Use either paginator or loader hive
     const dataHive = ctx.paginator ? ctx.paginator.paginatorHive : ctx.loader!.loaderHive;
     return dataHive.honey as TItem[];
   },
@@ -140,8 +123,7 @@ export const ExporterMechanics = {
       cols = result.cols!;
 
       if (!cols.length) {
-        const Toast = await lazyToast();
-        Toast.info({ title: "No export columns" });
+        console.warn("exporter: no export columns configured");
         return;
       }
 
@@ -159,8 +141,8 @@ export const ExporterMechanics = {
         const csv = ExporterMechanics.rowsToCsv(headers, rows);
         await ExporterMechanics.saveFileBrowser(`${filenameBase}.csv`, new Blob([csv], { type: "text/csv;charset=utf-8;" }));
       } else {
-        const blob = await ExporterMechanics.rowsToXlsx(headers, rows);
-        await ExporterMechanics.saveFileBrowser(`${filenameBase}.xlsx`, blob);
+        // TODO: Re-enable excel export when optional deps are resolved
+        console.warn("exporter: excel export is disabled until optional dependencies are resolved");
       }
     };
 

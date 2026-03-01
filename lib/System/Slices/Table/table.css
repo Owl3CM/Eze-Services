@@ -1,0 +1,171 @@
+/* ── eze-factory: Table Defaults ── */
+/* Uses CSS vars so the factory's fallback is theme-aware. */
+/* DS overrides these via its own builders (owl-table__* classes). */
+
+.ez-table {
+  overflow: auto;
+  border-radius: 6px;
+}
+
+.ez-table table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+/* ── Head ── */
+.ez-table__head {
+  background: var(--ez-table-head-bg, #f8f9fa);
+}
+
+.ez-table__th {
+  padding: 10px 14px;
+  text-align: inherit;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ez-table-header-color, #6b7280);
+  border-bottom: 1px solid var(--ez-table-border, #e5e7eb);
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.ez-table__th--checkbox,
+.ez-table__th--index {
+  width: 48px;
+  text-align: center;
+}
+
+.ez-table__th[data-sort-dir]::after {
+  margin-inline-start: 4px;
+  font-size: 10px;
+}
+
+.ez-table__th[data-sort-dir="asc"]::after {
+  content: "↑";
+}
+
+.ez-table__th[data-sort-dir="desc"]::after {
+  content: "↓";
+}
+
+/* ── Rows ── */
+.ez-table__row {
+  border-bottom: 1px solid var(--ez-table-row-border, #f0f0f0);
+  transition: background 0.15s;
+}
+
+.ez-table__row:hover {
+  background: var(--ez-table-row-hover, #f8f9fa);
+}
+
+.ez-table__row[data-selected] {
+  background: var(--ez-table-row-selected, #eff6ff);
+}
+
+/* ── Cells ── */
+.ez-table__td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--ez-table-row-border, #f0f0f0);
+}
+
+.ez-table__td--checkbox,
+.ez-table__td--index {
+  width: 48px;
+  text-align: center;
+  color: var(--ez-table-muted, #9ca3af);
+  font-size: 12px;
+}
+
+/* ── Footer ── */
+.ez-table__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-top: 1px solid var(--ez-table-border, #e5e7eb);
+}
+
+.ez-table__footer-info {
+  font-size: 13px;
+  color: var(--ez-table-muted, #6b7280);
+}
+
+.ez-table__footer-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Empty ── */
+.ez-table__empty {
+  padding: 40px 14px;
+  text-align: center;
+  color: var(--ez-table-muted, #9ca3af);
+  font-size: 14px;
+}
+
+/* ── Cell Variants (StandardCells) ── */
+.ez-cell--nowrap { white-space: nowrap; }
+
+.ez-cell--money {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ez-cell--currency {
+  font-size: 11px;
+  color: var(--ez-table-muted, #9ca3af);
+  margin-inline-start: 4px;
+}
+
+.ez-cell--badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--ez-badge-bg, #f3f4f6);
+  color: var(--ez-badge-color, #4b5563);
+}
+
+.ez-cell--actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Action Button ── */
+.ez-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ez-table-muted, #6b7280);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-size: 14px;
+}
+
+.ez-action-btn:hover {
+  background: var(--ez-action-hover-bg, #f3f4f6);
+  color: var(--ez-action-hover-color, #111827);
+}
+
+.ez-action-btn[data-variant="danger"]:hover {
+  background: var(--ez-action-danger-bg, #fef2f2);
+  color: var(--ez-action-danger-color, #dc2626);
+}
+
+.ez-action-btn[data-variant="primary"]:hover {
+  background: var(--ez-action-primary-bg, #eff6ff);
+  color: var(--ez-action-primary-color, #2563eb);
+}

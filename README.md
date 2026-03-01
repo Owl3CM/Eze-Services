@@ -47,6 +47,38 @@ UsersFactory.table.toggleColumnVisibility('email');
 UsersFactory.exporter.download({ type: 'csv' });
 ```
 
+### Form Handling
+
+```typescript
+import { createFormHive, FormBee } from "eze-factory";
+
+const loginForm = createFormHive({
+  initialValue: { email: "", password: "" },
+  onSubmit: (values) => api.login(values),
+  validator: (key, value) => {
+    if (key === "email" && !value.includes("@")) return "Invalid email";
+  },
+});
+
+// In JSX:
+<FormBee
+  hive={loginForm.getNestedHive("email")}
+  Component={({ honey, error, validate }) => (
+    <input value={honey} onChange={(e) => validate(e.target.value)} />
+  )}
+/>
+```
+
+### Validation
+
+```typescript
+import { Validator } from "eze-factory";
+
+const validate = new Validator("Email").required().email().min(5).build();
+validate(""); // → "Email is required"
+validate("a@b.com"); // → undefined (valid)
+```
+
 ## Philosophy
 
 - **🐝 Hives** — State lives outside React, accessible anywhere

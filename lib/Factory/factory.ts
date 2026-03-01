@@ -1,21 +1,28 @@
-import { SliceFactory } from "./types";
+// FactoryPackage.ts
+export type Slice<T = any, Ctx = any> = (ctx: Ctx) => T;
 
-export function createFactory() {
-  return new FactoryBuilder<{}>({});
-}
+export type Factory<Ctx = {}> = {
+  use: <S extends Slice<any, Ctx>>(slice: S) => Factory<Ctx & ReturnType<S>>;
+  build: () => Ctx;
+};
 
-class FactoryBuilder<Ctx> {
-  constructor(private ctx: Ctx) {}
+export function createFactory<Ctx = {}>(): Factory<Ctx> {
+  const slices: Slice[] = [];
 
-  use<Add>(factory: SliceFactory<Ctx, Add>) {
-    const slice = factory(this.ctx);
-    return new FactoryBuilder<Ctx & Add>({
-      ...this.ctx,
-      ...slice,
-    });
-  }
+  const factory: Factory<Ctx> = {
+    use: <S extends Slice<any, Ctx>>(slice: S) => {
+      slices.push(slice);
+      return factory as any;
+    },
+    build: () => {
+      const ctx: any = {};
+      for (const slice of slices) {
+        const result = slice(ctx);
+        Object.assign(ctx, result);
+      }
+      return ctx as Ctx;
+    },
+  };
 
-  build(): Ctx {
-    return this.ctx;
-  }
+  return factory;
 }

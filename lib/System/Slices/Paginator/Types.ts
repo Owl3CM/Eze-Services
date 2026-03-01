@@ -1,7 +1,6 @@
 import { IHive, IHiveArray } from "../../../Hives";
 import { StatusAPI } from "../Status/Types";
 import { QueryAPI } from "../Query/Types";
-import { IQueryFilterBuilder } from "../Types";
 
 export interface PaginatorProps<
   P extends {
@@ -31,7 +30,7 @@ export interface PaginatorAPI<Item, Query = any> {
   canLoadHive: IHive<boolean>;
 }
 
-export interface PaginatorDependencies {
-  status: StatusAPI;
+export interface PaginatorDependencies<OperationName extends string = string> {
+  status: StatusAPI<any, OperationName>;
   query?: QueryAPI<any>;
 }

@@ -30,8 +30,8 @@ export function createFormHive<HiveType>({
       onSubmit: (honey: HiveType) => void;
     }): IFormHive<HiveType> {
   type FormHiveKey = keyof HiveType;
-  let _initialValue = JSON.parse(JSON.stringify(initialValue));
-  const formHive = createHive(JSON.parse(JSON.stringify(_initialValue)), storeKey) as IFormHive<HiveType>;
+  let _initialValue = structuredClone(initialValue);
+  const formHive = createHive(structuredClone(_initialValue), storeKey) as IFormHive<HiveType>;
   formHive.validateMode = validateMode;
   formHive.isDirtyHive = createHive(false);
   formHive.isValidHive = createHive(true);
@@ -72,7 +72,7 @@ export function createFormHive<HiveType>({
         value: nestedHive.honey.value,
         error,
       };
-      if (nestedHive._subscribers() < 2) alert({ title: JSON.stringify({ error }) });
+
       pollinate();
     };
 
@@ -89,6 +89,7 @@ export function createFormHive<HiveType>({
           if (nestedHive.honey.error) nestedHive.setError((validator as any)(key as FormHiveKey, value));
           else if (validateMode !== "onSubmit")
             if (validateMode === "onChange") nestedHive.setError((validator as any)(key as FormHiveKey, value));
+            // TODO: onBlur validation couples to document.querySelector — consider making injectable for SSR/testing
             else if (validateMode === "onBlur") {
               const focusedElement = document.querySelector(":focus") as HTMLElement & { willValidateOnBlur?: boolean };
               if (focusedElement && !focusedElement.willValidateOnBlur) {
@@ -101,7 +102,7 @@ export function createFormHive<HiveType>({
                       focusedElement.willValidateOnBlur = false;
                     }, 10);
                   },
-                  { once: true }
+                  { once: true },
                 );
               }
             }
@@ -181,9 +182,9 @@ export function createFormHive<HiveType>({
   (formHive as any).reset = (
     _init: {
       [K in keyof HiveType]?: HiveType[K];
-    } = {}
+    } = {},
   ) => {
-    const newValues = JSON.parse(JSON.stringify(_initialValue));
+    const newValues = structuredClone(_initialValue) as any;
     if (_init) {
       Object.keys(newValues).forEach((key: any) => {
         const newVal = (_init as any)[key];
@@ -191,7 +192,7 @@ export function createFormHive<HiveType>({
       });
     }
     formHive.setHoney(newValues);
-    _initialValue = JSON.parse(JSON.stringify(newValues));
+    _initialValue = structuredClone(newValues) as any;
 
     formHive.clearErrors();
     formHive.isDirtyHive.setHoney(false);

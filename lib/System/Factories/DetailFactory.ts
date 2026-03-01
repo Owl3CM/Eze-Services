@@ -1,42 +1,26 @@
-import { createFactory } from "./FactoryPackage";
-import { FilterDefinition, QueryComponentMap } from "../Slices/Query/Types";
+import { createFactory } from "../../Factory";
+import { FactoryQueryConfig, QueryComponentMap } from "../Slices/Query/Types";
 import { StatusSlice } from "../Slices/Status/StatusSlice";
-import { StatusSliceConfig } from "../Slices/Status/Types";
+import { IStatusKit, StatusSliceConfig } from "../Slices/Status/Types";
 import { QuerySlice } from "../Slices/Query/QuerySlice";
 import { LoaderSlice } from "../Slices/Loader/LoaderSlice";
 import { LoaderFunction, LoaderProps } from "../Slices/Loader/Types";
-import { DefaultComponentMap } from "../Constants/QueryDefaults";
 import { DefaultStatusKit } from "../Constants/StatusDefaults";
 
-type DefaultMap = typeof DefaultComponentMap;
-type MergedMap<M extends QueryComponentMap> = DefaultMap & M;
-
-type FactoryQueryConfig<M extends QueryComponentMap> = {
-    componentMap?: M;
-    filters: Record<string, FilterDefinition<MergedMap<M>>>;
-    validators?: any[];
-    onQueryChange?: (query: any) => void;
-    syncWithRouter?: boolean;
-};
+type DefaultStatusMap = typeof DefaultStatusKit;
 
 export function createDetailFactory<
-    L extends LoaderFunction,
-    R = Awaited<ReturnType<L>>,
-    Fmt = undefined,
-    M extends QueryComponentMap = {}
->(config: {
-    query?: FactoryQueryConfig<M>;
-    loader: LoaderProps<L, R, Fmt>;
-    status?: Partial<StatusSliceConfig>;
-}) {
-    type MergedComponentMap = MergedMap<M>;
-    const componentMap = { ...DefaultComponentMap, ...config.query?.componentMap } as MergedComponentMap;
-    const queryConfig = config.query ? { ...config.query, componentMap } : undefined;
+  L extends LoaderFunction,
+  R = Awaited<ReturnType<L>>,
+  Fmt = undefined,
+  M extends QueryComponentMap = {},
+  K extends IStatusKit = DefaultStatusMap,
+  OperationName extends string = string,
+>(config: { query?: FactoryQueryConfig<M>; loader: LoaderProps<L, R, Fmt>; status?: Partial<StatusSliceConfig<K, OperationName>> }) {
+  const statusConfig = config.status ? { ...config.status, statusKit: { ...DefaultStatusKit, ...config.status.statusKit } } : { statusKit: DefaultStatusKit };
 
-    const statusConfig = config.status ? { ...config.status, statusKit: { ...DefaultStatusKit, ...config.status.statusKit } } : { statusKit: DefaultStatusKit };
-
-    return createFactory()
-        .use(StatusSlice(statusConfig as any))
-        .use(QuerySlice(queryConfig!))
-        .use(LoaderSlice<L, R, Fmt>(config.loader));
+  return createFactory()
+    .use(StatusSlice<K, OperationName>(statusConfig as any))
+    .use(QuerySlice(config.query ?? ({ filters: {}, componentMap: {} } as any)))
+    .use(LoaderSlice<L, R, Fmt, OperationName>(config.loader));
 }

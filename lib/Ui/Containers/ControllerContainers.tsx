@@ -1,9 +1,8 @@
-import React from "react";
-import { FormBee } from "../../Bees";
+import { Bee } from "../../Bees";
 import { IFormHive } from "../../Hives/Types";
 import { INestedFormHoneySetter } from "../../Bees/Types";
 
-interface ControllerContainerProps<T, K extends keyof T> {
+interface ControllerContainerBaseProps<T, K extends keyof T> {
   formHive: IFormHive<T>;
   id: K;
   Element: React.ComponentType<{
@@ -16,13 +15,12 @@ interface ControllerContainerProps<T, K extends keyof T> {
   [key: string]: any;
 }
 
-export function ControllerContainer<T, K extends keyof T>({ id, formHive, Element, ...props }: ControllerContainerProps<T, K>) {
+export function ControllerContainer<T, K extends keyof T>({ id, formHive, Element, ...props }: ControllerContainerBaseProps<T, K> & Record<string, unknown>) {
   return (
-    <FormBee
-      hive={formHive.getNestedHive(id)}
-      Component={({ honey, validate, error, silentSetHoney }) => {
-        return <Element setValue={validate} value={honey} error={error} silentSetHoney={silentSetHoney} id={id} {...props} />;
+    <Bee.Form hive={formHive.getNestedHive(id)}>
+      {({ value, set, error }) => {
+        return <Element setValue={set as any} value={value} error={error} silentSetHoney={set as any} id={id} {...props} />;
       }}
-    />
+    </Bee.Form>
   );
 }

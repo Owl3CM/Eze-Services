@@ -26,7 +26,7 @@ const config = {
     terser(),
     babel({
       babelHelpers: "bundled",
-      presets: ["@babel/preset-react"],
+      presets: [["@babel/preset-react", { runtime: "automatic" }]],
       extensions: [".js", ".jsx", ".ts", ".tsx"],
       exclude: "node_modules/**",
     }),

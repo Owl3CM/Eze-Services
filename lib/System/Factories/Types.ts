@@ -1,10 +1,9 @@
 import { PaginatorAPI } from "../Slices/Paginator/Types";
-import { StatusAPI } from "../Slices/Status/Types";
-import { IQueryFilterBuilder } from "../Slices/Types";
+import { StatusAPI, IStatusKit } from "../Slices/Status/Types";
 import { TableAPI } from "../Slices/Table/Types";
 import { ExporterAPI } from "../Slices/Exporter/Types";
 import { LoaderAPI } from "../Slices/Loader/Types";
-import { QueryAPI } from "../Slices/Query/Types";
+import { QueryAPI, QueryComponentMap } from "../Slices/Query/Types";
 
 export interface IPaginatorFactory<T> {
   paginator: PaginatorAPI<T>;
@@ -14,13 +13,12 @@ export interface ILoaderFactory<Response> {
   loader: LoaderAPI<Response>;
 }
 
-export interface IStatusFactory {
-  status: StatusAPI;
+export interface IStatusFactory<K extends IStatusKit = any, Op extends string = any> {
+  status: StatusAPI<K, Op>;
 }
 
-export interface IQueryFactory<F extends readonly IQueryFilterBuilder[]> {
-  // @ts-ignore
-  query: QueryAPI<F>;
+export interface IQueryFactory<M extends QueryComponentMap = any> {
+  query: QueryAPI<M>;
 }
 
 export interface ITableFactory<T> {

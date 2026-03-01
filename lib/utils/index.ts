@@ -1,5 +1,7 @@
 export { default as Utils } from "./Utils";
 
+export * from "./TimedCallback";
+
 export const ExtractId = (obj: any, key: string) => {
   if (typeof obj[key] === "object") obj[key] = obj[key].id;
 };

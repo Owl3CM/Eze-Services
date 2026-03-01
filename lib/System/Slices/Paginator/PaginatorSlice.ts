@@ -22,9 +22,10 @@ export function PaginatorSlice<
     limit: number;
   },
   R = Awaited<ReturnType<P["load"]>>,
-  F = undefined
->(props: PaginatorProps<P, R, F>): (ctx: PaginatorDependencies) => { paginator: PaginatorAPI<ArrayElement<F extends undefined ? R : F>> } {
-  return (ctx: PaginatorDependencies): { paginator: PaginatorAPI<ArrayElement<F extends undefined ? R : F>> } => {
+  F = undefined,
+  OperationName extends string = string
+>(props: PaginatorProps<P, R, F>): (ctx: PaginatorDependencies<OperationName>) => { paginator: PaginatorAPI<ArrayElement<F extends undefined ? R : F>> } {
+  return (ctx: PaginatorDependencies<OperationName>): { paginator: PaginatorAPI<ArrayElement<F extends undefined ? R : F>> } => {
     type Data = F extends undefined ? R : F;
     type Item = ArrayElement<Data>;
     type Query = Parameters<P["load"]>[0];
@@ -32,9 +33,9 @@ export function PaginatorSlice<
     const hive = createHiveArray<Item>([]);
     const canLoadHive = createHive(false);
 
-    const load = (q?: Query) => PaginatorMechanics.exec(ctx, props, hive, canLoadHive, () => props.paginator.load(q), false);
-    const reload = (q?: Query) => PaginatorMechanics.exec(ctx, props, hive, canLoadHive, () => props.paginator.reload(q), false);
-    const loadMore = () => PaginatorMechanics.exec(ctx, props, hive, canLoadHive, () => props.paginator.loadMore(), true);
+    const load = (q?: Query) => PaginatorMechanics.exec(ctx as any, props, hive, canLoadHive, () => props.paginator.load(q), false);
+    const reload = (q?: Query) => PaginatorMechanics.exec(ctx as any, props, hive, canLoadHive, () => props.paginator.reload(q), false);
+    const loadMore = () => PaginatorMechanics.exec(ctx as any, props, hive, canLoadHive, () => props.paginator.loadMore(), true);
 
     const clear = () => hive.setHoney([]);
 

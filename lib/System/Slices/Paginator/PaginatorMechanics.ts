@@ -34,9 +34,10 @@ export const PaginatorMechanics = {
     },
     R,
     F,
-    Item
+    Item,
+    OperationName extends string = string
   >(
-    ctx: PaginatorDependencies,
+    ctx: PaginatorDependencies<OperationName>,
     props: PaginatorProps<P, R, F>,
     hive: IHiveArray<Item>,
     canLoadHive: IHive<boolean>,
@@ -53,11 +54,11 @@ export const PaginatorMechanics = {
     };
 
     try {
-      ctx.status.operation("paginator").loading({ variant: "skeleton" });
+      ctx.status.operation("paginator" as OperationName).loading({ variant: "skeleton" });
       await action();
-      ctx.status.operation("paginator").idle();
+      ctx.status.operation("paginator" as OperationName).idle();
     } catch (e) {
-      ctx.status.operation("paginator").error({ message: String(e) });
+      ctx.status.operation("paginator" as OperationName).error({ message: String(e) });
       props.onError?.(e);
     }
   },

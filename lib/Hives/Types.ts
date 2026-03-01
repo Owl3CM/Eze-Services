@@ -38,8 +38,9 @@ export interface IHiveArray<HiveType> {
   removeByIndex: (index: number) => void;
   append: (items: HiveType[]) => void;
   update: () => void;
-  updateById: (id: any, newValue: HiveType) => void;
+  updateById: (id: any, newValue: Partial<HiveType>) => void;
   updateByIndex: (index: number, newValue: HiveType) => void;
+  getById: (id: any) => HiveType | undefined;
 }
 
 export interface IProxyHive<HiveType> extends IHive<HiveType> {

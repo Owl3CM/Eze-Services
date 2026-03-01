@@ -1,19 +1,15 @@
-import React from "react";
 import Loader from "./Loader";
 
 export interface Props {
   label?: string;
-  service?: any;
 }
 
-const Progressing = ({ label = "processing" }: Props) => {
+const Progressing = ({ label = "Processing..." }: Props) => {
   return (
-    <div className="processing-container">
-      <div className="col-center m-auto bg-prim round-md p-3x min-w:200px col justify-center shadow-sm">
-        <div className="mx-auto">
-          <Loader />
-        </div>
-        <p className="text-center">{label}</p>
+    <div className="eze-kit-processing">
+      <div className="eze-kit-processing-card">
+        <Loader />
+        <p className="eze-kit-processing-label">{label}</p>
       </div>
     </div>
   );

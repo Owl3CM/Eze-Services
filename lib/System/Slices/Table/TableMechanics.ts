@@ -1,4 +1,4 @@
-import { CellBuilder } from "./Components";
+import { TextCell } from "./Components/Columns/StandardCells";
 import { TableColumnDef, TableSliceConfig, TableSort } from "./Types";
 
 export const TableMechanics = {
@@ -45,10 +45,8 @@ export const TableMechanics = {
       const rawCols = config.columns(ctx);
       const defaults = rawCols.map((col) => {
         col.visible = col.visible !== false;
-        if (!col.cell) col.cell = (item: any) => CellBuilder(item[col.id]);
+        if (!col.cell) col.cell = (item: any) => TextCell({ value: item[col.id] });
         if (!col.header) col.header = col.id;
-        //@ts-ignore
-        col.header = GetLabel(col.header);
         return col;
       });
 
@@ -92,6 +90,10 @@ export const TableMechanics = {
         map[(r as any)[idKey]] = r;
       });
       return map;
+    },
+    isItemSelected: <TItem>(item: any, selected: Record<string, TItem>, idKey: string): boolean => {
+      const id = item[idKey];
+      return !!selected[id];
     },
   },
 };

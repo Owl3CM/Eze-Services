@@ -14,10 +14,10 @@ import { LoaderAPI, LoaderDependencies, LoaderFunction, LoaderProps } from "./Ty
  *   .use(LoaderSlice({ loader: myLoader }))
  */
 
-export function LoaderSlice<L extends LoaderFunction, R = Awaited<ReturnType<L>>, Fmt = undefined>(
+export function LoaderSlice<L extends LoaderFunction, R = Awaited<ReturnType<L>>, Fmt = undefined, OperationName extends string = string>(
   props: LoaderProps<L, R, Fmt>
-): (ctx: LoaderDependencies) => { loader: LoaderAPI<Fmt extends undefined ? R : Fmt> } {
-  return (ctx: LoaderDependencies): { loader: LoaderAPI<Fmt extends undefined ? R : Fmt> } => {
+): (ctx: LoaderDependencies<OperationName>) => { loader: LoaderAPI<Fmt extends undefined ? R : Fmt> } {
+  return (ctx: LoaderDependencies<OperationName>): { loader: LoaderAPI<Fmt extends undefined ? R : Fmt> } => {
     type Response = Fmt extends undefined ? R : Fmt;
     type Query = Parameters<L>[0];
 
@@ -29,14 +29,15 @@ export function LoaderSlice<L extends LoaderFunction, R = Awaited<ReturnType<L>>
 
       try {
         loading = true;
-        if (useStatus) ctx.status!.operation("loader").loading({});
+        // Cast "loader" to OperationName to allow internal usage even if restricted
+        if (useStatus) ctx.status!.operation("loader" as OperationName).loading({});
 
         const data = await LoaderMechanics.load(props, q, clearCache);
         loaderHive.setHoney(data);
 
-        if (useStatus) ctx.status!.operation("loader").idle();
+        if (useStatus) ctx.status!.operation("loader" as OperationName).idle();
       } catch (error) {
-        if (useStatus) ctx.status!.operation("loader").error({ message: String(error) });
+        if (useStatus) ctx.status!.operation("loader" as OperationName).error({ message: String(error) });
         throw error;
       } finally {
         loading = false;

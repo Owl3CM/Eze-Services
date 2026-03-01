@@ -12,7 +12,7 @@ type Subscriber<T> = {
 export function _getHiveBase<HiveType>(initialValue: HiveType, storeKey?: IStoreKey): IHiveBase<HiveType> {
   const subscribers = new Set<Subscriber<HiveType>>();
 
-  const pollinate = async () => {
+  const pollinate = () => {
     for (const subscriber of subscribers) {
       if (subscriber.weakRef) {
         // Weak subscription - check if instance is still alive

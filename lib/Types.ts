@@ -1,7 +1,6 @@
-import { StatusKit } from "./Ui";
+import { DefaultStatusKit } from "./System/Constants/StatusDefaults";
 
-// export type Status = "idle" | "loading" | "processing" | "reloading" | "searching" | "error" | "noContent" | "loadingMore";
-export type Status = keyof typeof StatusKit;
+export type Status = keyof typeof DefaultStatusKit;
 
 export type ServiceStatus<S = any> = S | Status | { status: S | Status; props: any; parent?: HTMLElement | undefined };
 
