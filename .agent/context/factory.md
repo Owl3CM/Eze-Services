@@ -17,18 +17,38 @@ const ctx = createFactory().use(SliceA()).use(SliceB()).build();
 | `createTableFactory`       | Status + Query + Paginator + Table + Exporter | Data tables (CRUD)   |
 | `createListFactory`        | Status + Query + Paginator                    | Paginated lists      |
 | `createDetailFactory`      | Status + Query + Loader                       | Detail views         |
-| `createStaticTableFactory` | Status + Table + Exporter                     | Non-paginated tables |
+| `createStaticTableFactory` | Status + Query + Loader + Table + Exporter    | Non-paginated tables |
+
+### Preset Operation Defaults
+
+Presets inject default operation names for their internal slices so StatusSlice integration works automatically:
+
+| Preset                     | Slice          | Default `operation` |
+| -------------------------- | -------------- | ------------------- |
+| `createListFactory`        | PaginatorSlice | `"paginator"`       |
+| `createTableFactory`       | PaginatorSlice | `"paginator"`       |
+| `createDetailFactory`      | LoaderSlice    | `"loader"`          |
+| `createStaticTableFactory` | LoaderSlice    | `"loader"`          |
+
+Users can override by passing `operation` in the slice config:
+
+```ts
+createListFactory({
+  status: { statusKit: DSStatusKit },
+  paginator: { ...paginatorConfig, operation: "product-list" },
+});
+```
 
 Shared config type: `FactoryQueryConfig<M>`.
 
 ## Source Files
 
-| File                     | Path                                         |
-| ------------------------ | -------------------------------------------- |
-| createFactory            | `lib/Factory/factory.ts`                     |
-| Factory types            | `lib/Factory/types.ts`                       |
-| createTableFactory       | `lib/System/Factories/TableFactory.ts`       |
-| createListFactory        | `lib/System/Factories/ListFactory.ts`        |
-| createDetailFactory      | `lib/System/Factories/DetailFactory.ts`      |
-| createStaticTableFactory | `lib/System/Factories/StaticTableFactory.ts` |
-| Preset types             | `lib/System/Factories/Types.ts`              |
+| File                     | Path                                |
+| ------------------------ | ----------------------------------- |
+| createFactory            | `lib/Factory/factory.ts`            |
+| Factory types            | `lib/Factory/types.ts`              |
+| createTableFactory       | `lib/Presets/TableFactory.ts`       |
+| createListFactory        | `lib/Presets/ListFactory.ts`        |
+| createDetailFactory      | `lib/Presets/DetailFactory.ts`      |
+| createStaticTableFactory | `lib/Presets/StaticTableFactory.ts` |
+| Preset types             | `lib/Presets/Types.ts`              |

@@ -1,10 +1,5 @@
 import React from "react";
-import { IHive, IHiveArray, IHiveObserver, INestedFormHive, IProxyHive } from "../Hives/Types";
-
-// ─── Utility Types ───────────────────────────────────────────────────────────
-
-export type INestedFormHoneySetter<K> = (prev: K, effect?: boolean) => void | ((hive: K, effect?: boolean) => void);
-export type ProxyHoneySetter<K> = (prev: K, effect?: boolean) => void | ((hive: K, effect?: boolean) => void);
+import { IHive, IHiveList, IHiveObserver, INestedFormHive, IProxyHive } from "../Hives/Types";
 
 // ─── Honey (Read-Only) ──────────────────────────────────────────────────────
 
@@ -15,11 +10,15 @@ export type HoneyProps<T> = {
   children: (args: HoneyChildrenArgs<T>) => React.ReactNode;
 };
 
-export type HoneyFormChildrenArgs<T> = { value: T; error?: string };
+export type HoneyFieldChildrenArgs<T> = {
+  honey: { value: T; error?: string };
+  value: T;
+  error?: string;
+};
 
-export type HoneyFormProps<T> = {
+export type HoneyFieldProps<T> = {
   hive: INestedFormHive<T>;
-  children: (args: HoneyFormChildrenArgs<T>) => React.ReactNode;
+  children: (args: HoneyFieldChildrenArgs<T>) => React.ReactNode;
 };
 
 // ─── Bee (Read + Write) ─────────────────────────────────────────────────────
@@ -35,22 +34,23 @@ export type BeeProps<T> = {
   children: (args: BeeChildrenArgs<T>) => React.ReactNode;
 };
 
-export type BeeFormChildrenArgs<T> = {
+export type BeeFieldChildrenArgs<T> = {
+  honey: { value: T; error?: string };
   value: T;
-  set: (value: T) => void;
+  set: (value: T | ((prev: T) => T)) => void;
+  validate: (value: T, effect?: boolean) => void;
   error?: string;
-  validate: (value: T) => void;
 };
 
-export type BeeFormProps<T> = {
+export type BeeFieldProps<T> = {
   hive: INestedFormHive<T>;
-  children: (args: BeeFormChildrenArgs<T>) => React.ReactNode;
+  children: (args: BeeFieldChildrenArgs<T>) => React.ReactNode;
 };
 
 export type BeeListChildrenArgs<T> = { item: T; i: number };
 
 export type BeeListProps<T> = {
-  hive: IHiveArray<T>;
+  hive: IHiveList<T>;
   children: (args: BeeListChildrenArgs<T>) => React.ReactNode;
 };
 
@@ -68,10 +68,10 @@ export type BeeProxyProps<T, K extends keyof T = keyof T> = {
 
 // ─── Cluster (Multi-Hive) ───────────────────────────────────────────────────
 
-export type HiveCluster = Record<string, IHive<any> | IHiveObserver<any> | IHiveArray<any>>;
+export type HiveCluster = Record<string, IHive<any> | IHiveObserver<any> | IHiveList<any>>;
 
 export type ClusterValues<T extends HiveCluster> = {
-  [K in keyof T]: T[K] extends IHive<infer V> | IHiveObserver<infer V> ? V : T[K] extends IHiveArray<infer V> ? V[] : never;
+  [K in keyof T]: T[K] extends IHive<infer V> | IHiveObserver<infer V> ? V : T[K] extends IHiveList<infer V> ? V[] : never;
 };
 
 export type HoneyClusterChildrenArgs<T extends HiveCluster> = { cell: ClusterValues<T> };

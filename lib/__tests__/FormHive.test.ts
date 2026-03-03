@@ -41,9 +41,9 @@ describe("createFormHive", () => {
       expect(form.honey.password).toBe("");
     });
 
-    it("creates nested hives for each key", () => {
+    it("creates field hives for each key", () => {
       const { form } = createTestForm();
-      const emailHive = form.getNestedHive("email");
+      const emailHive = form.getFieldHive("email");
       expect(emailHive).toBeDefined();
       expect(emailHive.honey.value).toBe("");
     });
@@ -64,29 +64,29 @@ describe("createFormHive", () => {
     });
   });
 
-  // ─── Nested Hive Access ───────────────────────────────────────
+  // ─── Field Access ─────────────────────────────────────────────
 
-  describe("nested hive access", () => {
-    it("getNestedHoney returns current value", () => {
+  describe("field access", () => {
+    it("getFieldValue returns current value", () => {
       const { form } = createTestForm();
-      expect(form.getNestedHoney("email")).toBe("");
+      expect(form.getFieldValue("email")).toBe("");
     });
 
-    it("setNestedHoney updates value", () => {
+    it("setFieldValue updates value", () => {
       const { form } = createTestForm();
-      form.setNestedHoney("email", "test@test.com");
-      expect(form.getNestedHoney("email")).toBe("test@test.com");
+      form.setFieldValue("email", "test@test.com");
+      expect(form.getFieldValue("email")).toBe("test@test.com");
     });
 
-    it("setNestedHoney accepts function updater", () => {
+    it("setFieldValue accepts function updater", () => {
       const { form } = createTestForm();
-      form.setNestedHoney("email", () => "updated@test.com");
-      expect(form.getNestedHoney("email")).toBe("updated@test.com");
+      form.setFieldValue("email", () => "updated@test.com");
+      expect(form.getFieldValue("email")).toBe("updated@test.com");
     });
 
-    it("setNestedHoney with effect updates parent honey", () => {
+    it("setFieldValue with effect updates parent honey", () => {
       const { form } = createTestForm();
-      form.setNestedHoney("email", "synced@test.com", true);
+      form.setFieldValue("email", "synced@test.com", true);
       expect(form.honey.email).toBe("synced@test.com");
     });
   });
@@ -96,16 +96,16 @@ describe("createFormHive", () => {
   describe("dirty tracking", () => {
     it("becomes dirty when value changes", () => {
       const { form } = createTestForm();
-      form.getNestedHive("email").setHoney("changed");
+      form.getFieldHive("email").setHoney("changed");
       expect(form.isDirtyHive.honey).toBe(true);
     });
 
     it("becomes clean when value returns to initial", () => {
       const { form } = createTestForm();
-      form.getNestedHive("email").setHoney("changed");
+      form.getFieldHive("email").setHoney("changed");
       expect(form.isDirtyHive.honey).toBe(true);
 
-      form.getNestedHive("email").setHoney("");
+      form.getFieldHive("email").setHoney("");
       expect(form.isDirtyHive.honey).toBe(false);
     });
   });
@@ -129,11 +129,11 @@ describe("createFormHive", () => {
       expect(form.getError("password")).toBeUndefined();
     });
 
-    it("setError updates nested hive error field", () => {
+    it("setError updates field hive error", () => {
       const { form } = createTestForm();
       form.setError("email", "boom");
 
-      const nestedHive = form.getNestedHive("email");
+      const nestedHive = form.getFieldHive("email");
       expect(nestedHive.honey.error).toBe("boom");
     });
 
@@ -142,7 +142,7 @@ describe("createFormHive", () => {
       form.setError("email", "bad");
       // isValidHive updates via silentSetHoney — dirty tracking runs
       // Need to trigger a value change so silentSetHoney re-evaluates
-      form.getNestedHive("email").setHoney("trigger");
+      form.getFieldHive("email").setHoney("trigger");
       expect(form.isValidHive.honey).toBe(false);
     });
   });
@@ -167,10 +167,10 @@ describe("createFormHive", () => {
       expect(form.getError("email")).toBeUndefined();
     });
 
-    it("validate updates the nested value", () => {
+    it("validate updates the field value", () => {
       const { form } = createTestForm({ validateMode: "onChange" });
       form.validate("email", "new@email.com");
-      expect(form.getNestedHoney("email")).toBe("new@email.com");
+      expect(form.getFieldValue("email")).toBe("new@email.com");
     });
 
     it("validate with effect=true updates parent honey", () => {
@@ -193,7 +193,7 @@ describe("createFormHive", () => {
     it("still updates the field value", () => {
       const { form } = createTestForm({ validateMode: "onSubmit" });
       form.validate("email", "whatever");
-      expect(form.getNestedHoney("email")).toBe("whatever");
+      expect(form.getFieldValue("email")).toBe("whatever");
     });
 
     it("shows errors once field already has error (even in onSubmit mode)", () => {
@@ -319,7 +319,7 @@ describe("createFormHive", () => {
       form.validate("email", "changed@email.com");
       form.validate("password", "changed123");
 
-      (form as any).reset();
+      form.reset();
       expect(form.honey.email).toBe("");
       expect(form.honey.password).toBe("");
     });
@@ -329,40 +329,40 @@ describe("createFormHive", () => {
       form.validate("email", "bad");
       expect(form.getError("email")).toBe("Invalid email");
 
-      (form as any).reset();
+      form.reset();
       expect(form.getError("email")).toBeUndefined();
     });
 
     it("resets dirty state", () => {
       const { form } = createTestForm();
-      form.getNestedHive("email").setHoney("changed");
+      form.getFieldHive("email").setHoney("changed");
       expect(form.isDirtyHive.honey).toBe(true);
 
-      (form as any).reset();
+      form.reset();
       expect(form.isDirtyHive.honey).toBe(false);
     });
 
     it("accepts partial initial values override", () => {
       const { form } = createTestForm();
-      (form as any).reset({ email: "new@default.com" });
+      form.reset({ email: "new@default.com" });
       expect(form.honey.email).toBe("new@default.com");
       expect(form.honey.password).toBe(""); // untouched
     });
   });
 
-  // ─── Nested ↔ Parent Sync ─────────────────────────────────────
+  // ─── Field ↔ Parent Sync ───────────────────────────────────────
 
-  describe("nested ↔ parent sync", () => {
-    it("nested hive change reflects in parent honey", () => {
+  describe("field ↔ parent sync", () => {
+    it("field hive change reflects in parent honey", () => {
       const { form } = createTestForm();
-      form.getNestedHive("email").setHoney("from-nested@test.com");
+      form.getFieldHive("email").setHoney("from-nested@test.com");
       expect(form.honey.email).toBe("from-nested@test.com");
     });
 
-    it("parent setHoney change reflects in nested hive", () => {
+    it("parent setHoney change reflects in field hive", () => {
       const { form } = createTestForm();
       form.setHoney({ email: "from-parent@test.com", password: "abc" });
-      expect(form.getNestedHoney("email")).toBe("from-parent@test.com");
+      expect(form.getFieldValue("email")).toBe("from-parent@test.com");
     });
   });
 
@@ -372,13 +372,13 @@ describe("createFormHive", () => {
     it("validate is just setHoney (no error logic)", () => {
       const { form } = createTestForm({ withValidator: false });
       form.validate("email", "anything");
-      expect(form.getNestedHoney("email")).toBe("anything");
+      expect(form.getFieldValue("email")).toBe("anything");
       expect(form.getError("email")).toBeUndefined();
     });
 
     it("isValid always returns true", () => {
       const { form } = createTestForm({ withValidator: false });
-      const nh = form.getNestedHive("email");
+      const nh = form.getFieldHive("email");
       expect(nh.isValid()).toBe(true);
     });
   });
@@ -406,17 +406,70 @@ describe("createFormHive", () => {
     });
   });
 
-  // ─── subscribeToNestedHive ─────────────────────────────────────
+  // ─── subscribeToField ──────────────────────────────────────────
 
-  describe("subscribeToNestedHive", () => {
-    it("notifies on nested hive changes", () => {
+  describe("subscribeToField", () => {
+    it("notifies on field changes", () => {
       const { form } = createTestForm();
       const cb = vi.fn();
-      form.subscribeToNestedHive("email", cb);
+      form.subscribeToField("email", cb);
       cb.mockClear();
 
-      form.getNestedHive("email").setHoney("new@val.com");
+      form.getFieldHive("email").setHoney("new@val.com");
       expect(cb).toHaveBeenCalled();
+    });
+  });
+
+  // ─── Runtime createFieldHive ───────────────────────────────────
+
+  describe("runtime createFieldHive", () => {
+    it("adding a field at runtime does not break existing field dirty tracking", () => {
+      const onSubmit = vi.fn();
+      const form = createFormHive<Record<string, any>>({
+        initialValue: { name: "Alice" },
+        validateMode: "onChange",
+        onSubmit,
+      });
+
+      // Verify initial field works
+      form.getFieldHive("name").setHoney("Bob");
+      expect(form.isDirtyHive.honey).toBe(true);
+      expect(form.honey.name).toBe("Bob");
+
+      // Reset to clean state
+      form.getFieldHive("name").setHoney("Alice");
+      expect(form.isDirtyHive.honey).toBe(false);
+
+      // Add a new field at runtime
+      form.createFieldHive("age", 25);
+
+      // Original field should still track dirty correctly
+      form.getFieldHive("name").setHoney("Charlie");
+      expect(form.isDirtyHive.honey).toBe(true);
+      expect(form.honey.name).toBe("Charlie");
+
+      // New field should also work
+      form.getFieldHive("age").setHoney(30);
+      expect(form.honey.age).toBe(30);
+    });
+
+    it("parent ↔ runtime field sync works both directions", () => {
+      const onSubmit = vi.fn();
+      const form = createFormHive<Record<string, any>>({
+        initialValue: { name: "Alice" },
+        validateMode: "onChange",
+        onSubmit,
+      });
+
+      form.createFieldHive("age", 25);
+
+      // Runtime field → parent
+      form.getFieldHive("age").setHoney(30);
+      expect(form.honey.age).toBe(30);
+
+      // Parent → runtime field
+      form.setHoney({ name: "Alice", age: 42 });
+      expect(form.getFieldValue("age")).toBe(42);
     });
   });
 });

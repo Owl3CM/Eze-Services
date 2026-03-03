@@ -11,6 +11,7 @@
 | **Bee**     | React connector: children-as-function pattern           |
 | **Slice**   | Pure TS logic module — returns hives + actions          |
 | **Factory** | DI container: `.use(SliceA()).use(SliceB()).build()`    |
+| **Preset**  | Pre-configured factory recipe (List, Table, Detail)     |
 
 ## Area Guide — Read Only What You Need
 
@@ -23,7 +24,7 @@
 | Built-in slices (overview) | `context/slices.md`    |
 | QuerySlice (deep dive)     | `context/query.md`     |
 | Validator                  | `context/validator.md` |
-| Wrapper / StatusKit / UI   | `context/ui.md`        |
+| UI components              | `context/ui.md`        |
 
 > **Need everything?** Read all `context/*.md` files — each is self-contained, no cross-dependencies.
 
@@ -31,38 +32,60 @@
 
 Entry point: `lib/index.ts` (barrel export)
 
-**Hive Creators:** `createHive`, `createHiveArray`, `createHiveObserver`, `createProxyHive`, `createFormHive`
-**Bee Components:** `Honey` (.Form, .List, .Cluster) · `Bee` (.Form, .Proxy, .Cluster)
-**Hooks (7):** `useHoney`, `useHive`, `useFormHoney`, `useFormHive`, `useProxy`, `useFormProxy`, `useCluster`
-**System:** `createFactory`, 8 slices, 4 factory presets, `Validator`, `createQueryFilter`
-**UI:** `Wrapper`, `StatusKit`, `StatusBee`, `StateBuilder`, `ControllerContainer`
+**Hive Namespace:** `Hive.state`, `Hive.list`, `Hive.observer`, `Hive.proxy`, `Hive.form`
+**Bee Components:** `Honey` (.Field, .List, .Cluster) · `Bee` (.Field, .Proxy, .Cluster)
+**Hooks (6):** `useHoney`, `useHive`, `useFormField`, `useForm`, `useProxy`, `useCluster`
+**Slices (8):** Query, Status, Table, Flow, Form, Paginator, Loader, Exporter
+**OperationHandler:** `OperationHandler`, `OperationHandlerFactory`, `resolveHandler`, `defaultOperationHandler`, `defaultReadyHandler`, `noopHandler`
+**Presets (4):** `createListFactory`, `createTableFactory`, `createDetailFactory`, `createStaticTableFactory`
+**Validator:** `Validator` builder
+**UI:** StatusIndicator, LoadingIndicator, ErrorDisplay, SuccessToast, StatusGuard, ProgressBar, DefaultStatusKit, DataTableBase, FlowView, FlowIndicator, useFlowSteps, createQueryFilter, Wrapper
 
 ## Anti-Patterns
 
 - ❌ Don't use `useState` inside a Factory — factories are not React hooks
 - ❌ Don't read hive values without `Bee` or `useHoney` in React (won't re-render)
 - ❌ Don't put business logic in components — it belongs in Slices
+- ❌ Don't put React components or CSS in `Slices/` — they go in `Ui/`
 
 ## Source Structure
 
 ```
 lib/
 ├── index.ts          # Barrel export
-├── Bees/             # Honey, Bee, Types
-├── Hives/            # All hive creators + Types
+├── index.css         # Global styles
+├── Bees/             # Honey, Bee (compound components)
+├── Hives/            # All hive creators + Types + HiveUtils
 ├── Hooks/            # 7 hooks
-├── Factory/          # createFactory, Slice type
-├── System/
-│   ├── Factories/    # 4 presets
-│   ├── Slices/       # 8 slices (Query has Components/)
-│   └── Utils/        # Validator
-├── Ui/               # Wrapper, StatusKit, Containers
-└── Utils/            # ExtractId/Value, TimedCallback
+├── Factory/          # createFactory (core engine)
+├── Presets/          # 4 factory recipes (List, Table, Detail, StaticTable)
+├── Slices/           # Pure TS only — no React imports
+│   ├── Query/        # QuerySlice, QueryMechanics
+│   ├── Flow/         # FlowSlice, FlowMechanics
+│   ├── Table/        # TableSlice, TableMechanics
+│   ├── Status/       # StatusSlice (statusKit required, no default)
+│   ├── Form/         # FormSlice
+│   ├── Paginator/    # PaginatorSlice
+│   ├── Loader/       # LoaderSlice
+│   ├── Exporter/     # ExporterSlice
+│   └── OperationHandler.ts  # Handler abstraction + resolveHandler utility
+├── Ui/               # React components + co-located CSS
+│   ├── Query/        # createQueryFilter
+│   ├── Flow/         # FlowView, FlowIndicator, useFlowSteps
+│   ├── Table/        # DataTableBase, TableBody/Head/Row/Footer, Columns
+│   ├── Status/       # StatusIndicator + convenience components, DefaultStatusKit
+│   └── Wrappers/     # Wrapper
+├── Validator/        # Validator builder
+└── Utils/            # TimedCallback, ExtractId/Value
 ```
+
+## Refactoring
+
+Active refactor tasks tracked in `.agent/refactor-tasks.md` — T1–T14 + T16–T17 + T19–T22 complete, **T15, T18, T23 open**.
 
 ## Testing
 
 ```bash
-pnpm test           # Vitest — 212 tests (~1s)
+pnpm test           # Vitest — 229 tests (~1s)
 npx tsc --noEmit    # Type check
 ```

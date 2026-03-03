@@ -15,9 +15,9 @@ npm install eze-factory
 ### Basic State (Hive)
 
 ```typescript
-import { createHive } from "eze-factory";
+import { Hive } from "eze-factory";
 
-const counter = createHive(0);
+const counter = Hive.state(0);
 counter.setHoney(1);
 counter.subscribe((value) => console.log(value));
 ```
@@ -50,9 +50,9 @@ UsersFactory.exporter.download({ type: 'csv' });
 ### Form Handling
 
 ```typescript
-import { createFormHive, FormBee } from "eze-factory";
+import { Hive } from "eze-factory";
 
-const loginForm = createFormHive({
+const loginForm = Hive.form({
   initialValue: { email: "", password: "" },
   onSubmit: (values) => api.login(values),
   validator: (key, value) => {
@@ -61,10 +61,11 @@ const loginForm = createFormHive({
 });
 
 // In JSX:
-<FormBee
-  hive={loginForm.getNestedHive("email")}
-  Component={({ honey, error, validate }) => (
-    <input value={honey} onChange={(e) => validate(e.target.value)} />
+<Bee.Field
+  formHive={loginForm}
+  id="email"
+  children={({ value, error, set }) => (
+    <input value={value} onChange={(e) => set(e.target.value)} />
   )}
 />
 ```

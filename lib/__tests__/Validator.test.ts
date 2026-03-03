@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Validator, ValidatorMessagesEnglish, ValidatorMessagesArabic } from "../System/Utils/Validator/Validator";
+import { Validator, ValidatorMessagesEnglish } from "../Validator/Validator";
 
 describe("Validator", () => {
   describe("required", () => {

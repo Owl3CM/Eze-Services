@@ -1,8 +1,8 @@
 import { createHive } from "./Hive";
-import { IHiveArray, IStoreKey } from "./Types";
+import { IHiveList, IStoreKey } from "./Types";
 
-export function createHiveArray<HiveType>(initialValue: HiveType[], storeKey?: IStoreKey): IHiveArray<HiveType> {
-  const hive = createHive(initialValue, storeKey) as any as IHiveArray<HiveType>;
+export function createHiveArray<HiveType>(initialValue: HiveType[], storeKey?: IStoreKey): IHiveList<HiveType> {
+  const hive = createHive(initialValue, storeKey) as any as IHiveList<HiveType>;
 
   hive.push = (newValue: HiveType) => hive.setHoney((prev) => [...prev, newValue]);
   hive.pop = () => hive.setHoney((prev) => prev.slice(0, -1));

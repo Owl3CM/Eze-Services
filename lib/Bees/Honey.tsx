@@ -1,13 +1,8 @@
-import { useHoney, useFormHoney } from "../Hooks";
-import { HoneyProps, HoneyFormProps, BeeListProps, HoneyClusterProps, HiveCluster, ClusterValues } from "./Types";
+import { useHoney } from "../Hooks";
+import { HoneyProps, BeeListProps, HoneyClusterProps, HoneyFieldProps, HiveCluster, ClusterValues } from "./Types";
 
 function Honey<T>({ hive, children }: HoneyProps<T>) {
   return <>{children({ honey: useHoney(hive) })}</>;
-}
-
-function HoneyForm<T>({ hive, children }: HoneyFormProps<T>) {
-  const { value, error } = useFormHoney(hive);
-  return <>{children({ value, error })}</>;
 }
 
 function HoneyList<T>({ hive, children }: BeeListProps<T>) {
@@ -15,6 +10,11 @@ function HoneyList<T>({ hive, children }: BeeListProps<T>) {
   return <>{items.map((item: T, i: number) => children({ item, i }))}</>;
 }
 
+/**
+ * Subscribes to multiple hives (read-only).
+ * @constraint The `hives` object shape must be stable between renders.
+ * Do not add/remove keys dynamically — this calls useHoney() per key.
+ */
 function HoneyCluster<T extends HiveCluster>({ hives, children }: HoneyClusterProps<T>) {
   const cell = {} as ClusterValues<T>;
   Object.entries(hives).forEach(([key, hive]) => {
@@ -23,8 +23,14 @@ function HoneyCluster<T extends HiveCluster>({ hives, children }: HoneyClusterPr
   return <>{children({ cell })}</>;
 }
 
-Honey.Form = HoneyForm;
+/** Read-only form field. Subscribes to a nested form hive. Provides honey, value, error. */
+function HoneyField<T>({ hive, children }: HoneyFieldProps<T>) {
+  const honey = useHoney(hive);
+  return <>{children({ honey, value: honey.value, error: honey.error })}</>;
+}
+
 Honey.List = HoneyList;
 Honey.Cluster = HoneyCluster;
+Honey.Field = HoneyField;
 
 export { Honey };

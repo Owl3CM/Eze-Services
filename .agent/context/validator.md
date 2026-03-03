@@ -46,7 +46,7 @@ All methods accept an optional `customMessage` parameter.
 
 ## Source Files
 
-| File            | Path                                      |
-| --------------- | ----------------------------------------- |
-| Validator class | `lib/System/Utils/Validator/Validator.ts` |
-| Barrel export   | `lib/System/Utils/Validator/index.ts`     |
+| File            | Path                         |
+| --------------- | ---------------------------- |
+| Validator class | `lib/Validator/Validator.ts` |
+| Barrel export   | `lib/Validator/index.ts`     |

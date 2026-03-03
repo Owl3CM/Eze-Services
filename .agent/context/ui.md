@@ -1,39 +1,68 @@
 # UI Components
 
-## Component Reference
+## Status Components (`Ui/Status/`)
 
-| Export                | Purpose                                                                 |
-| --------------------- | ----------------------------------------------------------------------- |
-| `Wrapper`             | Scroll container with pull-to-refresh, infinite scroll, status overlay  |
-| `StatusKit`           | Default status → component map: loading, error, empty, processing, etc. |
-| `setDefaultStatusKit` | Override specific StatusKit entries at runtime                          |
-| `StatusBee`           | Renders status UI from a status hive using StatusKit                    |
-| `StateBuilder`        | Builds state-dependent UI from a StateKit map                           |
-| `ControllerContainer` | Connects a `FormHive` nested field to any `Element` component           |
+| Export              | Purpose                                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------------------------- |
+| `StatusIndicator`   | Generic status display — renders component from StatusKit by priority                                |
+| `LoadingIndicator`  | Convenience — scoped to `loading` status type                                                        |
+| `ErrorDisplay`      | Convenience — scoped to `error` status type                                                          |
+| `SuccessToast`      | Convenience — scoped to `success` status type                                                        |
+| `StatusGuard`       | Conditional render: show fallback while blocking status is active                                    |
+| `ProgressBar`       | Shows progress from status props                                                                     |
+| `StatusComponents`  | Namespace object grouping all 6 status components                                                    |
+| `DefaultStatusKit`  | Default status → component map (`error`, `processing`, `loading`, `noContent`, `empty`, `reloading`) |
+| `StatusError`       | Default error UI component                                                                           |
+| `StatusLoading`     | Default loading UI component                                                                         |
+| `StatusLoader`      | Default loader UI component                                                                          |
+| `StatusNoContent`   | Default empty/no-content UI component                                                                |
+| `StatusProgressing` | Default processing UI component                                                                      |
 
-## Wrapper Props
+## Flow Components (`Ui/Flow/`)
 
-`service`, `reload`, `loadMore`, `subscribeToStatus`, `statusHive`, `canLoadHive`, `statusKit`, `rememberScrollPosition`, `isScrollPositionTopHive`, `reloaderProps`, `className`
+| Export          | Purpose                          |
+| --------------- | -------------------------------- |
+| `FlowView`      | Multi-step wizard/stepper layout |
+| `FlowIndicator` | Step progress indicator          |
+| `useFlowSteps`  | Hook for flow step navigation    |
 
-## ControllerContainer
+## Table Components (`Ui/Table/`)
 
-Connects a `FormHive` nested field to any `Element` component — passes `setValue`, `value`, `error`, `id`.
+| Export          | Purpose                            |
+| --------------- | ---------------------------------- |
+| `DataTableBase` | Core data table component          |
+| `TableBody`     | Table body section                 |
+| `TableHead`     | Table header section               |
+| `TableRow`      | Table row component                |
+| `TableFooter`   | Table footer section               |
+| `Columns/*`     | Column components (subpath export) |
 
-## Constants
+## Query Components (`Ui/Query/`)
 
-| Export             | Purpose                                            |
-| ------------------ | -------------------------------------------------- |
-| `DefaultStatusKit` | Status → component map with priority               |
-| `StateKit`         | Default state rendering map                        |
-| `Loader`           | Loading spinner component                          |
-| `IState`           | Type: `"idle" \| "loading" \| "processing" \| ...` |
-| `ServiceState`     | Type: `IState \| { state: IState; props: any }`    |
+| Export              | Purpose                                         |
+| ------------------- | ----------------------------------------------- |
+| `createQueryFilter` | Adapter factory — wraps component into a filter |
+
+## Wrapper (`Ui/Wrappers/`)
+
+| Export    | Purpose                                                                |
+| --------- | ---------------------------------------------------------------------- |
+| `Wrapper` | Scroll container with pull-to-refresh, infinite scroll, status overlay |
+
+### Wrapper Props (`IWrapperProps`)
+
+`id`, `service`, `className`, `children`, `reloader`, `subscribeToStatus`, `canLoadHive`, `statusHive`, `statusKit`, `reloaderProps`, `loadMore`, `reload`, `style`, `rememberScrollPosition`, `isScrollPositionTopHive`
 
 ## Source Files
 
-| File                | Path                                         |
-| ------------------- | -------------------------------------------- |
-| Wrapper             | `lib/Ui/Wrappers/Wrapper.tsx`                |
-| Wrapper types       | `lib/Ui/Wrappers/types.ts`                   |
-| ControllerContainer | `lib/Ui/Containers/ControllerContainers.tsx` |
-| Constants           | `lib/System/Constants/`                      |
+| File              | Path                                 |
+| ----------------- | ------------------------------------ |
+| StatusIndicator   | `lib/Ui/Status/StatusIndicator.tsx`  |
+| StatusDefaults    | `lib/Ui/Status/StatusDefaults.ts`    |
+| FlowView          | `lib/Ui/Flow/FlowView.tsx`           |
+| FlowIndicator     | `lib/Ui/Flow/FlowIndicator.tsx`      |
+| useFlowSteps      | `lib/Ui/Flow/useFlowSteps.ts`        |
+| DataTableBase     | `lib/Ui/Table/DataTableBase.tsx`     |
+| createQueryFilter | `lib/Ui/Query/createQueryFilter.tsx` |
+| Wrapper           | `lib/Ui/Wrappers/Wrapper.tsx`        |
+| Wrapper types     | `lib/Ui/Wrappers/types.ts`           |

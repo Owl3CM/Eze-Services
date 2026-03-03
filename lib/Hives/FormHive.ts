@@ -38,23 +38,24 @@ export function createFormHive<HiveType>({
 
   const _NestedHives = new Map<FormHiveKey, INestedFormHive<any>>();
 
-  formHive.createNestedHive = <NestedHiveType>(key: string, nestedInitVal: NestedHiveType, storeKey?: string) => {
+  formHive.silentSetHoney = (newValue: any) => {
+    formHive.honey = typeof newValue === "function" ? newValue(formHive.honey) : newValue;
+    formHive.isDirtyHive.setHoney(!CheckSimilarity(formHive.honey, _initialValue));
+    formHive.isValidHive.setHoney(!Object.values(formHive.errors).some((key) => key));
+  };
+  formHive.errors = {};
+  formHive.getError = (key: keyof HiveType) => formHive.errors[key as string];
+  formHive.setError = (key: keyof HiveType, err?: string) => formHive.getFieldHive(key).setError(err);
+  formHive.clearErrors = () => {
+    _NestedHives.forEach((nh) => {
+      nh.setError();
+    });
+  };
+
+  formHive.createFieldHive = <NestedHiveType>(key: string, nestedInitVal: NestedHiveType, storeKey?: string) => {
     const [nestedHive, pollinate] = _getHiveBase({ value: nestedInitVal, error: null }, storeKey) as any as [INestedFormHive<NestedHiveType>, () => void];
-    formHive.silentSetHoney = (newValue: any) => {
-      formHive.honey = typeof newValue === "function" ? newValue(formHive.honey) : newValue;
-      formHive.isDirtyHive.setHoney(!CheckSimilarity(formHive.honey, _initialValue));
-      formHive.isValidHive.setHoney(!Object.values(formHive.errors).some((key) => key));
-    };
 
     _NestedHives.set(key as any, nestedHive);
-    formHive.errors = {};
-    formHive.getError = (key: keyof HiveType) => formHive.errors[key as string];
-    formHive.setError = (key: keyof HiveType, err?: string) => formHive.getNestedHive(key).setError(err);
-    formHive.clearErrors = () => {
-      _NestedHives.forEach((nh) => {
-        nh.setError();
-      });
-    };
 
     nestedHive.silentSetHoney = (value: any) => {
       if (typeof value === "function") value = value(nestedHive.honey.value);
@@ -67,7 +68,7 @@ export function createFormHive<HiveType>({
     nestedHive.setError = (error?: string) => {
       if (!error) error = undefined;
       if (formHive.errors[key as string] === error) return;
-      formHive.errors[key as string] = error as any;
+      formHive.errors[key as string] = error;
       nestedHive.honey = {
         value: nestedHive.honey.value,
         error,
@@ -135,23 +136,27 @@ export function createFormHive<HiveType>({
     return nestedHive;
   };
 
-  formHive.setNestedHoney = (key: FormHiveKey, value: any, effect?: boolean) => {
+  formHive.setFieldValue = (key: FormHiveKey, value: any, effect?: boolean) => {
     if (typeof value === "function") value = value(formHive.honey[key]);
     if (effect) formHive.setHoney((prev) => ({ ...prev, [key]: value }));
     else _NestedHives.get(key)?.setHoney(value);
   };
-  formHive.getNestedHoney = (key: FormHiveKey) => _NestedHives.get(key)!.honey.value;
-  formHive.getNestedHive = (key: FormHiveKey) => _NestedHives.get(key) as any;
-  formHive.subscribeToNestedHive = (key: FormHiveKey, callback: (value: any) => void) => {
+  formHive.getFieldValue = (key: FormHiveKey) => {
+    const nested = _NestedHives.get(key);
+    if (!nested) throw new Error(`[FormHive] getFieldValue: no field "${String(key)}" exists`);
+    return nested.honey.value;
+  };
+  formHive.getFieldHive = <K extends keyof HiveType>(key: K) => _NestedHives.get(key) as unknown as INestedFormHive<HiveType[K]>;
+  formHive.subscribeToField = (key: FormHiveKey, callback: (value: any) => void) => {
     _NestedHives.get(key)?.subscribe(callback);
   };
   formHive.validate = (key: keyof HiveType, value: any, effect?: boolean) => {
-    formHive.getNestedHive(key).validate(value, effect);
+    formHive.getFieldHive(key).validate(value, effect);
   };
 
   // Create nested hives from initial value
   Object.entries(_initialValue as any).forEach(([key, val]) => {
-    formHive.createNestedHive(key, val);
+    formHive.createFieldHive(key, val);
   });
 
   formHive.reValidate = (validateKeys?: FormHiveKey[]) =>
@@ -179,7 +184,7 @@ export function createFormHive<HiveType>({
     });
   };
 
-  (formHive as any).reset = (
+  formHive.reset = (
     _init: {
       [K in keyof HiveType]?: HiveType[K];
     } = {},

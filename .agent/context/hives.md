@@ -2,14 +2,18 @@
 
 **Concept:** Reactive state containers that live outside React. Pure TypeScript.
 
-## Hive Creators
+## Hive Namespace
+
+All hive creators are grouped under the `Hive` namespace:
 
 ```typescript
-createHive<T>(initial, storeKey?);          // Simple reactive value
-createHiveArray<T>(initial, storeKey?);     // Array with mutation helpers
-createHiveObserver<T>(listen);              // Read-only derived hive
-createProxyHive<T>(initial, storeKey?);     // Nested-hive container (each key → own hive)
-createFormHive({ initialValue, ... });      // Form state with validation
+import { Hive } from "eze-factory";
+
+Hive.state<T>(initial, storeKey?);          // Simple reactive value
+Hive.list<T>(initial, storeKey?);            // List with mutation helpers
+Hive.observer<T>(listen);                    // Read-only derived hive
+Hive.proxy<T>(initial, storeKey?);           // Nested-hive container (each key → own hive)
+Hive.form({ initialValue, ... });            // Form state with validation
 ```
 
 ## Common API (all hive types)
@@ -28,8 +32,8 @@ hive.initialValue; // The initial value passed at creation
 Any hive creator accepts an optional `storeKey`:
 
 ```typescript
-createHive(0, "counter"); // memoryStorage (default)
-createHive(0, { storeKey: "counter", storage: "localStorage" }); // localStorage
+Hive.create(0, "counter"); // memoryStorage (default)
+Hive.create(0, { storeKey: "counter", storage: "localStorage" }); // localStorage
 hive.clearStore?.(); // reset + remove from storage
 ```
 
@@ -40,7 +44,7 @@ Storage types: `"localStorage"` | `"sessionStorage"` | `"memoryStorage"` | custo
 Wraps an object, creates a **separate hive for each key** with **two-way sync**:
 
 ```typescript
-const settings = createProxyHive({ theme: "dark", lang: "en" });
+const settings = Hive.proxy({ theme: "dark", lang: "en" });
 
 const themeHive = settings.getNestedHive("theme"); // subscribes to "theme" only
 settings.setNestedHoney("theme", "light"); // parent auto-synced
@@ -51,7 +55,7 @@ settings.setNestedHoney("theme", "light"); // parent auto-synced
 Read-only hive that recomputes when sources change:
 
 ```typescript
-const fullName = createHiveObserver((observe) => {
+const fullName = Hive.observer((observe) => {
   return observe(firstName) + " " + observe(lastName);
 });
 // fullName.honey → "John Doe" (auto-updates)
@@ -61,7 +65,7 @@ const fullName = createHiveObserver((observe) => {
 ## FormHive — Config Options
 
 ```typescript
-const form = createFormHive({
+const form = Hive.form({
   initialValue: { email: "", password: "" }, // Required
   onSubmit: (values) => api.login(values), // Required
   validateMode: "onBlur", // "onBlur" | "onChange" | "onSubmit"
@@ -82,17 +86,17 @@ const form = createFormHive({
 
 ## Interface Reference
 
-| Interface               | Key Members                                                                                                                                                       |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `IHive<T>`              | `honey`, `setHoney`, `silentSetHoney`, `subscribe`, `reset`, `initialValue`, `clearStore?`                                                                        |
-| `IHiveArray<T>`         | All `IHive` + `push`, `pop`, `shift`, `unshift`, `splice`, `remove`, `removeById`, `removeByIndex`, `append`, `update`, `updateById`, `updateByIndex`, `getById`  |
-| `IHiveObserver<T>`      | Read-only: `honey`, `subscribe` (no `setHoney` — throws)                                                                                                          |
-| `IProxyHive<T>`         | `IHive` + `createNestedHive`, `getNestedHive`, `setNestedHoney`, `getNestedHoney`, `subscribeToNestedHive`                                                        |
-| `IFormHive<T>`          | `IHive` + `validate`, `errors`, `getError`, `setError`, `clearErrors`, `isDirtyHive`, `isValidHive`, `reValidate`, `submit`, `validateMode` + nested hive methods |
-| `INestedFormHive<T>`    | `honey: {value, error?}`, `setHoney`, `silentSetHoney`, `subscribe`, `error`, `setError`, `validate`, `isValid`, `reset`                                          |
-| `IStoreKey`             | `string \| { storeKey: string; storage: StorageType }`                                                                                                            |
-| `FormValidateMode`      | `"onBlur" \| "onChange" \| "onSubmit"`                                                                                                                            |
-| `IFormHiveValidator<T>` | `{ [K in keyof T]?: (value: T[K]) => string \| undefined }`                                                                                                       |
+| Interface               | Key Members                                                                                                                                                                                                                                   |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `IHive<T>`              | `honey`, `setHoney`, `silentSetHoney`, `subscribe`, `reset`, `initialValue`, `clearStore?`                                                                                                                                                    |
+| `IHiveList<T>`          | `honey`, `setHoney`, `silentSetHoney`, `subscribe`, `push`, `pop`, `shift`, `unshift`, `splice`, `remove`, `removeById`, `removeByIndex`, `append`, `update`, `updateById`, `updateByIndex`, `getById`                                        |
+| `IHiveObserver<T>`      | Read-only: `honey`, `subscribe` (no `setHoney` — throws)                                                                                                                                                                                      |
+| `IProxyHive<T>`         | `IHive` + `createNestedHive`, `getNestedHive`, `setNestedHoney`, `getNestedHoney`, `subscribeToNestedHive`                                                                                                                                    |
+| `IFormHive<T>`          | `IHive` + `createFieldHive`, `getFieldHive`, `setFieldValue`, `getFieldValue`, `subscribeToField`, `validate`, `errors`, `getError`, `setError`, `clearErrors`, `isDirtyHive`, `isValidHive`, `reValidate`, `submit`, `validateMode`, `reset` |
+| `INestedFormHive<T>`    | `honey: {value, error?}`, `setHoney`, `silentSetHoney`, `subscribe`, `error`, `setError`, `validate`, `isValid`, `reset`                                                                                                                      |
+| `IStoreKey`             | `string \| { storeKey: string; storage: StorageType }`                                                                                                                                                                                        |
+| `FormValidateMode`      | `"onBlur" \| "onChange" \| "onSubmit"`                                                                                                                                                                                                        |
+| `IFormHiveValidator<T>` | `{ [K in keyof T]?: (value: T[K]) => string \| undefined }`                                                                                                                                                                                   |
 
 ## Source Files
 
@@ -104,4 +108,6 @@ const form = createFormHive({
 | Proxy hive     | `lib/Hives/ProxyHive.ts`    |
 | Form hive      | `lib/Hives/FormHive.ts`     |
 | Shared base    | `lib/Hives/HiveBase.ts`     |
+| Hive utilities | `lib/Hives/HiveUtils.ts`    |
 | All interfaces | `lib/Hives/Types.ts`        |
+| Barrel export  | `lib/Hives/index.ts`        |

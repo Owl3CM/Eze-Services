@@ -22,7 +22,7 @@ export interface IHiveObserver<HiveType> {
   silentSetHoney?: undefined;
 }
 
-export interface IHiveArray<HiveType> {
+export interface IHiveList<HiveType> {
   honey: HiveType[];
   setHoney: (newValue: HiveType[] | ((prev: HiveType[]) => HiveType[])) => void;
   silentSetHoney: (newValue: HiveType[]) => void;
@@ -53,15 +53,15 @@ export interface IProxyHive<HiveType> extends IHive<HiveType> {
 }
 
 export interface IFormHive<HiveType> extends IHive<HiveType> {
-  createNestedHive: <NestedHiveType>(key: string, initialValue: NestedHiveType, storeKey?: string) => INestedFormHive<NestedHiveType>;
-  getNestedHive: <K extends keyof HiveType>(key: K) => INestedFormHive<HiveType[K]>;
-  setNestedHoney: <K extends keyof HiveType>(key: K, value: HiveType[K] | ((prev: HiveType[K]) => HiveType[K]), effect?: boolean) => void;
-  getNestedHoney: <K extends keyof HiveType>(key: K) => HiveType[K];
-  subscribeToNestedHive: <K extends keyof HiveType>(key: K, callback: (value: HiveType[K]) => void) => void;
+  createFieldHive: <FieldType>(key: string, initialValue: FieldType, storeKey?: string) => INestedFormHive<FieldType>;
+  getFieldHive: <K extends keyof HiveType>(key: K) => INestedFormHive<HiveType[K]>;
+  setFieldValue: <K extends keyof HiveType>(key: K, value: HiveType[K] | ((prev: HiveType[K]) => HiveType[K]), effect?: boolean) => void;
+  getFieldValue: <K extends keyof HiveType>(key: K) => HiveType[K];
+  subscribeToField: <K extends keyof HiveType>(key: K, callback: (value: HiveType[K]) => void) => void;
   // validate: (key: keyof HiveType, value: HiveType[keyof HiveType], effect?: boolean) => void;
   validate: <K extends keyof HiveType>(key: K, value: HiveType[K], effect?: boolean) => void;
-  errors: { [key: string]: string };
-  getError: (key: keyof HiveType) => string;
+  errors: { [key: string]: string | undefined };
+  getError: (key: keyof HiveType) => string | undefined;
   setError: (key: keyof HiveType, value: string) => void;
   clearErrors: () => void;
   isDirtyHive: IHive<boolean>;
@@ -69,7 +69,7 @@ export interface IFormHive<HiveType> extends IHive<HiveType> {
   reValidate: <K extends keyof HiveType>(validateKeys?: K[]) => Promise<boolean>;
   submit: <K extends keyof HiveType>(e?: React.FormEvent<HTMLFormElement>, validateKeys?: K[]) => void;
   validateMode: FormValidateMode;
-  reset: (initialValue?: { key: keyof HiveType; value: HiveType[keyof HiveType] }) => void;
+  reset: (initialValue?: Partial<HiveType>) => void;
 }
 
 export interface INestedFormHive<HiveType> {

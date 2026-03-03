@@ -4,18 +4,18 @@
 
 ## Component Table
 
-| Component         | Mode       | Children args                           | Hive type                |
-| ----------------- | ---------- | --------------------------------------- | ------------------------ |
-| `<Honey>`         | Read-only  | `{ honey }`                             | `IHive`, `IHiveObserver` |
-| `<Bee>`           | Read+Write | `{ honey, set, silentSet }`             | `IHive`                  |
-| `<Bee.Form>`      | Form R+W   | `{ value, set, error, validate }`       | `INestedFormHive`        |
-| `<Honey.Form>`    | Form Read  | `{ value, error }`                      | `INestedFormHive`        |
-| `<Honey.List>`    | Array      | `{ item, i }`                           | `IHiveArray`             |
-| `<Bee.Proxy>`     | Nested     | `{ honey, set, silentSet }` + `id` prop | `IProxyHive`             |
-| `<Honey.Cluster>` | Multi Read | `{ cell }`                              | `HiveCluster`            |
-| `<Bee.Cluster>`   | Multi R+W  | `{ cell, set }`                         | `HiveCluster`            |
+| Component         | Mode       | Children args                            | Hive type                |
+| ----------------- | ---------- | ---------------------------------------- | ------------------------ |
+| `<Honey>`         | Read-only  | `{ honey }`                              | `IHive`, `IHiveObserver` |
+| `<Bee>`           | Read+Write | `{ honey, set, silentSet }`              | `IHive`                  |
+| `<Bee.Field>`     | Form R+W   | `{ honey, value, set, validate, error }` | `INestedFormHive`        |
+| `<Honey.Field>`   | Form Read  | `{ honey, value, error }`                | `INestedFormHive`        |
+| `<Honey.List>`    | Array      | `{ item, i }`                            | `IHiveList`              |
+| `<Bee.Proxy>`     | Nested     | `{ honey, set, silentSet }` + `id` prop  | `IProxyHive`             |
+| `<Honey.Cluster>` | Multi Read | `{ cell }`                               | `HiveCluster`            |
+| `<Bee.Cluster>`   | Multi R+W  | `{ cell, set }`                          | `HiveCluster`            |
 
-> `HiveCluster` = `Record<string, IHive<any> | IHiveObserver<any> | IHiveArray<any>>`
+> `HiveCluster` = `Record<string, IHive<any> | IHiveObserver<any> | IHiveList<any>>`
 
 ## Usage Examples
 
@@ -28,11 +28,15 @@ import { Honey, Bee } from "eze-factory";
 // Read + Write
 <Bee hive={counterHive}>{({ honey, set }) => <button onClick={() => set(honey + 1)}>{honey}</button>}</Bee>
 
-// Form field
-<Bee.Form hive={emailHive}>{({ value, set, error }) => <input value={value} onChange={e => set(e.target.value)} />}</Bee.Form>
+// Form field (read+write)
+<Bee.Field hive={formHive.getFieldHive("email")}>
+  {({ honey, validate }) => <input value={honey.value} onChange={e => validate(e.target.value)} />}
+</Bee.Field>
 
-// Form read-only
-<Honey.Form hive={emailHive}>{({ value, error }) => <span>{value}</span>}</Honey.Form>
+// Form field (read-only)
+<Honey.Field hive={formHive.getFieldHive("email")}>
+  {({ honey }) => <span>{honey.value}</span>}
+</Honey.Field>
 
 // Array iteration
 <Honey.List hive={itemsHive}>{({ item, i }) => <li>{item.name}</li>}</Honey.List>
@@ -55,13 +59,11 @@ import { Honey, Bee } from "eze-factory";
 
 All from `Bees/Types.ts`:
 
-**Props:** `HoneyProps<T>`, `HoneyFormProps<T>`, `BeeProps<T>`, `BeeFormProps<T>`, `BeeListProps<T>`, `BeeProxyProps<T>`, `HoneyClusterProps<T>`, `BeeClusterProps<T>`
+**Props:** `HoneyProps<T>`, `HoneyFieldProps<T>`, `BeeProps<T>`, `BeeFieldProps<T>`, `BeeListProps<T>`, `BeeProxyProps<T>`, `HoneyClusterProps<T>`, `BeeClusterProps<T>`
 
-**Children args:** `HoneyChildrenArgs<T>`, `HoneyFormChildrenArgs<T>`, `BeeChildrenArgs<T>`, `BeeFormChildrenArgs<T>`, `BeeListChildrenArgs<T>`, `BeeProxyChildrenArgs<T>`, `HoneyClusterChildrenArgs<T>`, `BeeClusterChildrenArgs<T>`
+**Children args:** `HoneyChildrenArgs<T>`, `HoneyFieldChildrenArgs<T>`, `BeeChildrenArgs<T>`, `BeeFieldChildrenArgs<T>`, `BeeListChildrenArgs<T>`, `BeeProxyChildrenArgs<T>`, `HoneyClusterChildrenArgs<T>`, `BeeClusterChildrenArgs<T>`
 
 **Cluster utilities:** `HiveCluster`, `ClusterValues<T>`
-
-**Legacy (used by ControllerContainers):** `INestedFormHoneySetter<K>`, `ProxyHoneySetter<K>`
 
 ## Source Files
 
