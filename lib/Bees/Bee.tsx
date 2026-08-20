@@ -1,6 +1,6 @@
 import { useHoney } from "../Hooks";
 import { BeeProps, BeeClusterProps, BeeFieldProps, HiveCluster, ClusterValues, BeeProxyProps } from "./Types";
-import { IProxyHive } from "../Hives/Types";
+import { FormFieldSetter, IProxyHive } from "../Hives/Types";
 
 function Bee<T>({ hive, children }: BeeProps<T>) {
   return <>{children({ honey: useHoney(hive), set: hive.setHoney, silentSet: hive.silentSetHoney })}</>;
@@ -29,10 +29,14 @@ function BeeCluster<T extends HiveCluster>({ hives, children }: BeeClusterProps<
   return <>{children({ cell, set })}</>;
 }
 
-/** Subscribes to a form field hive. Provides honey, value, set, validate, error. */
-function BeeField<T>({ hive, children }: BeeFieldProps<T>) {
-  const honey = useHoney(hive);
-  return <>{children({ honey, value: honey.value, set: hive.setHoney, validate: hive.validate, error: honey.error })}</>;
+/** Subscribes to a form field hive. Provides value, validation, value/state setters, error, and flat TState. */
+function BeeField<T, TState = {}>({ hive, children }: BeeFieldProps<T, TState>) {
+  const set = ((...args: [unknown] | [keyof TState, TState[keyof TState]]) => {
+    if (args.length === 1) hive.setHoney(args[0] as T | ((prev: T) => T));
+    else hive.set(args[0], args[1]);
+  }) as FormFieldSetter<T, TState>;
+
+  return <>{children({ ...useHoney(hive), validate: hive.validate, set, setValue: hive.setHoney, setState: hive.setState })}</>;
 }
 
 Bee.Proxy = BeeProxy;

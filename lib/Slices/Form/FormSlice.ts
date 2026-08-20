@@ -25,7 +25,7 @@ export function FormSlice<T, Q = any>(config: FormSliceConfig<T, Q>) {
           await config.onSubmit(values);
           submitOp.success({});
         } catch (error) {
-          submitOp.error({ message: String(error) });
+          submitOp.error(errorPayload(error));
         }
       },
     };
@@ -39,7 +39,7 @@ export function FormSlice<T, Q = any>(config: FormSliceConfig<T, Q>) {
     const hive = Hive.form<T>(hiveOptions);
 
     const reset = (newValues?: Partial<T>) => {
-      (hive as any).reset(newValues);
+      hive.reset(newValues);
       submitOp.idle();
     };
 
@@ -55,7 +55,7 @@ export function FormSlice<T, Q = any>(config: FormSliceConfig<T, Q>) {
         reset(data);
         loadOp.idle();
       } catch (error) {
-        loadOp.error({ message: String(error) });
+        loadOp.error(errorPayload(error));
       }
     };
 
@@ -73,4 +73,10 @@ export function FormSlice<T, Q = any>(config: FormSliceConfig<T, Q>) {
       },
     };
   };
+}
+
+function errorPayload(error: unknown) {
+  const payload = { message: String(error) } as { message: string; error?: unknown };
+  Object.defineProperty(payload, "error", { value: error, enumerable: false });
+  return payload;
 }

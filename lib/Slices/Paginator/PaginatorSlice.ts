@@ -8,13 +8,15 @@ export function PaginatorSlice<
     load: (...args: any[]) => Promise<any>;
     reload: (...args: any[]) => Promise<any>;
     loadMore: () => Promise<any>;
+    goToPage: (page: number) => Promise<any>;
     hasMore: boolean;
     limit: number;
   },
   R = Awaited<ReturnType<P["load"]>>,
   F = undefined,
 >(props: PaginatorProps<P, R, F>): (ctx: PaginatorDependencies) => { paginator: PaginatorAPI<ArrayElement<F extends undefined ? R : F>> } {
-  // Rule 1: Build Clean, Run Lean — resolve handler factory at construction
+  // Rule 1: Build Clean, Run Lean — resolve handler factory at construction.
+  // Presets provide an operation name; direct slices remain explicitly unlinked.
   const handlerFactory = resolveHandler(props.operation, props.operationHandler);
 
   return (ctx: PaginatorDependencies): { paginator: PaginatorAPI<ArrayElement<F extends undefined ? R : F>> } => {
@@ -30,6 +32,7 @@ export function PaginatorSlice<
     const load = (q?: Query) => PaginatorMechanics.exec(op, props, hive, canLoadHive, () => props.paginator.load(q), false);
     const reload = (q?: Query) => PaginatorMechanics.exec(op, props, hive, canLoadHive, () => props.paginator.reload(q), false);
     const loadMore = () => PaginatorMechanics.exec(op, props, hive, canLoadHive, () => props.paginator.loadMore(), true);
+    const goToPage = (page: number) => PaginatorMechanics.exec(op, props, hive, canLoadHive, () => props.paginator.goToPage(page), false);
 
     const clear = () => hive.setHoney([]);
 
@@ -51,6 +54,7 @@ export function PaginatorSlice<
         load: load as (q?: Query) => Promise<void>,
         reload: reload as (q?: Query) => Promise<void>,
         loadMore,
+        goToPage,
         get hasMore() {
           return canLoadHive.honey;
         },

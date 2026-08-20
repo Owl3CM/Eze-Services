@@ -11,6 +11,30 @@ export type QueryRecord<F> = { [K in keyof F]?: any };
 /** Query record with exact filter keys — no index signature. Gives IDE autocomplete for filter names in predicates. */
 export type StrictQueryRecord<F> = { [K in keyof F & string]?: any };
 
+// ─── Typed Value Inference ───────────────────────────────────────────────────
+/** Extract value types from filter definitions. Filters without `value` fallback to `unknown`. */
+export type InferValueMap<F> = {
+  [K in keyof F]: F[K] extends { value: infer V } ? V : unknown;
+};
+
+/** Typed query record — values inferred from filter definitions. */
+export type TypedQuery<F> = { [K in keyof F & string]?: InferValueMap<F>[K] };
+
+/**
+ * Structural filter constraint for inference-first pattern.
+ * Uses a simple shape instead of FilterInput union to preserve literal value types.
+ * TExtra fields pass through via index signature.
+ */
+export type FilterBase<M extends QueryComponentMap> = {
+  type: keyof M | (string & {}) | React.ComponentType<any>;
+  value?: any;
+  required?: boolean;
+  hidden?: boolean | ((q: any) => boolean);
+  disabled?: boolean | ((q: any) => boolean);
+  props?: any;
+  [k: string]: any;
+};
+
 // ─── Filter Predicate ────────────────────────────────────────────────────────
 /** Static boolean or function of current query state. */
 export type FilterPredicate = boolean | ((query: Record<string, any>) => boolean);
@@ -42,6 +66,8 @@ export type TypedFilterProps<M extends QueryComponentMap, T extends keyof M> =
 export type FilterDefinition<M extends QueryComponentMap = any, TExtra extends Record<string, any> = {}> = {
   type: keyof M | (string & {}) | React.ComponentType<any>;
   value?: any;
+  /** When true, `clearQuery()` and `removeParam()` restore default value instead of deleting. */
+  required?: boolean;
   hidden?: FilterPredicate;
   disabled?: FilterPredicate;
   /** Component-specific props — passed through to the rendered filter component. */
@@ -59,6 +85,7 @@ export type FilterInput<M extends QueryComponentMap, TExtra extends Record<strin
       [T in keyof M]: {
         type: T;
         value?: any;
+        required?: boolean;
         hidden?: FilterPredicate;
         disabled?: FilterPredicate;
         props?: TypedFilterProps<M, T>;
@@ -67,6 +94,7 @@ export type FilterInput<M extends QueryComponentMap, TExtra extends Record<strin
   | ({
       type: React.ComponentType<any>;
       value?: any;
+      required?: boolean;
       hidden?: FilterPredicate;
       disabled?: FilterPredicate;
       props?: FilterProps;
@@ -117,11 +145,25 @@ export interface QuerySliceConfig<M extends QueryComponentMap, F extends Record<
       disabled?: boolean | ((query: StrictQueryRecord<F>) => boolean);
     };
   };
+  /** Fires when the query changes. When `debounce` is set, this callback is collapsed — the hive updates immediately. */
   onQueryChange?: (query: QueryRecord<F>) => void;
-  /** Debounce `onQueryChange` notifications (ms). Hive updates immediately; only the callback is collapsed. */
+  /**
+   * Debounce `onQueryChange` notifications (ms).
+   * Hive updates immediately; only the callback is collapsed.
+   *
+   * NOTE: This is separate from `createQueryFilter` adapter debounce,
+   * which delays hive writes for controlled inputs (UX concern).
+   * This debounce controls the notification callback (API concern).
+   */
   debounce?: number;
   /** Pre-populate query state. Merged on top of filter `value` fields. */
   initialQuery?: Partial<QueryRecord<F>>;
+  /**
+   * External state engine (URL router, localStorage, WebSocket, etc.).
+   * When provided, all mutations go through engine.set, and engine.subscribe → hive.
+   * Hive becomes a read-only mirror of the engine state.
+   */
+  engine?: QueryEngine;
 }
 
 // ─── API ─────────────────────────────────────────────────────────────────────
@@ -149,14 +191,42 @@ export interface QueryAPI<
   updateMany: (patches: { id: IdOf<F>; value: any }[]) => void;
   /** Remove a single param. */
   removeParam: (key: IdOf<F>) => void;
+  /** Remove multiple params atomically (single hive notification). */
+  removeMany: (keys: IdOf<F>[]) => void;
   /** Clear all query params (empty query). */
   clearQuery: () => void;
   /** Reset all filters to initial state (def.value + initialQuery merged). */
   resetQuery: () => void;
   /** Reset a single filter to its default value (initialQuery override > def.value > undefined). */
   resetFilter: <K extends IdOf<F>>(key: K) => void;
+  /** Returns true if current query differs from initial state. */
+  isDirty: () => boolean;
+  /** Count of query params that have a defined (non-undefined) value. */
+  activeFilterCount: () => number;
   /** Subscribe to query changes. Fires immediately with current value, then on each change. */
   listenToQuery: (cb: (q: QueryRecord<F>) => void) => () => void;
   /** Get all filters as ready-to-render entries with resolved components, props, and predicates. */
-  getFilterEntries: () => FilterEntry<TMeta, F>[];
+  getFilterEntries: () => ReadonlyArray<FilterEntry<TMeta, F>>;
+  /** Unsubscribe from the external engine and release its resources. Idempotent. */
+  dispose: () => void;
+}
+
+// ─── Query Engine ────────────────────────────────────────────────────────────
+/**
+ * Generic state sync engine — set + subscribe pattern.
+ * Projects implement this to bridge their router (or any external store)
+ * into QuerySlice. When provided, QuerySlice forwards all mutations through
+ * the engine and listens for external changes.
+ *
+ * The engine speaks QuerySlice's language (Record<string, any>).
+ * Serialization to/from strings (for URL, localStorage, etc.) is the
+ * adapter's responsibility, not the slice's.
+ */
+export interface QueryEngine {
+  /** Set the full query state. */
+  set: (params: Record<string, any>) => void;
+  /** Subscribe to state changes. Fires immediately with current value. Returns unsubscribe. */
+  subscribe: (cb: (params: Record<string, any> | null) => void) => () => void;
+  /** Cleanup — called when the slice is disposed (path navigation, unmount). Optional. */
+  dispose?: () => void;
 }

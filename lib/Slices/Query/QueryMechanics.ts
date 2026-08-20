@@ -1,12 +1,13 @@
 import { IHive } from "../../Hives";
 import { FilterDefinition, QueryComponentMap, QueryRecord, QuerySliceConfig } from "./Types";
 
-/** Functional keys on FilterDefinition — typed so the set stays in sync with the type. */
-type FunctionalKey = keyof Pick<FilterDefinition, "type" | "value" | "hidden" | "disabled" | "props">;
-const DEFINITION_KEYS: ReadonlySet<string> = new Set<FunctionalKey>(["type", "value", "hidden", "disabled", "props"]);
-
-/** Pre-built resolver closures for a single filter's dynamic fields. */
-type FilterResolvers = {
+/** All resolved data for a single filter — built once at construction. */
+export type ResolvedFilter<TExtra extends Record<string, any> = Record<string, any>> = {
+  type: string;
+  component: React.ComponentType<any> | undefined;
+  meta: TExtra;
+  defaultValue: any;
+  required: boolean;
   hidden: (query: Record<string, any>) => boolean;
   disabled: (query: Record<string, any>) => boolean;
   props: (query: Record<string, any>) => Record<string, any>;
@@ -16,8 +17,8 @@ type FilterResolvers = {
  * Builds the heavy parts at construction time:
  * - Resolves component registration (type = Component → map key)
  * - Builds the commit function (debounced or direct)
- * - Caches static data (type key, component ref, meta, defaults) per filter
- * - Pre-resolves predicates and props into per-filter closures (zero typeof at call time)
+ * - Consolidates all per-filter data into a single ResolvedFilter record
+ * - Pre-resolves predicates and props into closures (zero typeof at call time)
  * - Computes initial/default state
  *
  * Does NOT own state or API — that's the slice's job.
@@ -27,53 +28,41 @@ export function createQueryMechanics<M extends QueryComponentMap, F extends Reco
 ) {
   const filters = config.filters;
 
-  // ─── Single build loop — resolve everything once ──────────────────────────
-  const resolvedComponentMap: Record<string, React.ComponentType<any>> = { ...(config.componentMap ?? {}) };
-  const resolvedTypeMap: Record<string, string> = {};
-  const cachedComponentMap: Record<string, React.ComponentType<any> | undefined> = {};
-  const cachedMetaMap: Record<string, TExtra> = {};
-  const cachedDefaultMap: Record<string, any> = {};
-  const resolvers: Record<string, FilterResolvers> = {};
+  // ─── Build: resolve everything once per filter ──────────────────────────────
+  const componentMap: Record<string, React.ComponentType<any>> = { ...(config.componentMap ?? {}) };
+  const resolved: Record<string, ResolvedFilter<TExtra>> = {};
 
   const iq = config.initialQuery as Record<string, any> | undefined;
 
   for (const [id, def] of Object.entries(filters)) {
     // Type resolution — component ref or map key
+    let typeKey: string;
     if (typeof def.type !== "string") {
-      const key = `__custom_${id}`;
-      resolvedComponentMap[key] = def.type as React.ComponentType<any>;
-      resolvedTypeMap[id] = key;
+      typeKey = `__custom_${id}`;
+      componentMap[typeKey] = def.type as React.ComponentType<any>;
     } else {
-      resolvedTypeMap[id] = def.type;
+      typeKey = def.type;
     }
 
-    // Component — resolved from the type key
-    cachedComponentMap[id] = resolvedComponentMap[resolvedTypeMap[id]];
+    // Meta — exhaustive extraction via destructure + spread (R2)
+    const { type: _type, value: _value, required: _required, hidden: hiddenVal, disabled: disabledVal, props: propsVal, ...meta } = def as Record<string, any>;
 
-    // Meta — TExtra fields (everything except functional keys)
-    const meta: Record<string, any> = {};
-    for (const key of Object.keys(def)) {
-      if (!DEFINITION_KEYS.has(key)) {
-        meta[key] = (def as Record<string, any>)[key];
-      }
-    }
-    cachedMetaMap[id] = meta as TExtra;
-
-    // Default value — initialQuery overrides def.value
-    cachedDefaultMap[id] = iq && id in iq ? iq[id] : def.value;
-
-    // Pre-resolve predicates and props — typeof check happens once here, never at call time
-    const hiddenVal = def.hidden;
-    const hiddenFn: FilterResolvers["hidden"] = typeof hiddenVal === "function" ? hiddenVal : () => (hiddenVal as boolean) ?? false;
-
-    const disabledVal = def.disabled;
-    const disabledFn: FilterResolvers["disabled"] = typeof disabledVal === "function" ? disabledVal : () => (disabledVal as boolean) ?? false;
-
-    const propsVal = def.props;
-    const propsFn: FilterResolvers["props"] =
+    // Pre-resolve predicates — typeof check happens once here, never at call time
+    const hiddenFn = typeof hiddenVal === "function" ? hiddenVal : () => (hiddenVal as boolean) ?? false;
+    const disabledFn = typeof disabledVal === "function" ? disabledVal : () => (disabledVal as boolean) ?? false;
+    const propsFn =
       typeof propsVal === "function" ? (propsVal as (query: Record<string, any>) => Record<string, any>) : () => (propsVal as Record<string, any>) ?? {};
 
-    resolvers[id] = { hidden: hiddenFn, disabled: disabledFn, props: propsFn };
+    resolved[id] = {
+      type: typeKey,
+      component: componentMap[typeKey],
+      meta: meta as TExtra,
+      defaultValue: iq && id in iq ? iq[id] : def.value,
+      required: !!def.required,
+      hidden: hiddenFn,
+      disabled: disabledFn,
+      props: propsFn,
+    };
   }
 
   // ─── Build commit function (Rule 1: resolve config at build time) ──────────
@@ -106,19 +95,19 @@ export function createQueryMechanics<M extends QueryComponentMap, F extends Reco
     };
   }
 
-  // ─── Derive initial state from cached defaults ─────────────────────────────
+  // ─── Derive initial state from resolved defaults ───────────────────────────
   function deriveInitial(): QueryRecord<F> {
-    return { ...cachedDefaultMap } as QueryRecord<F>;
+    const initial: Record<string, any> = {};
+    for (const [id, r] of Object.entries(resolved)) {
+      initial[id] = r.defaultValue;
+    }
+    return initial as QueryRecord<F>;
   }
 
   return {
     filters,
-    resolvedComponentMap,
-    cachedComponentMap,
-    cachedMetaMap,
-    cachedDefaultMap,
-    resolvedTypeMap,
-    resolvers,
+    componentMap,
+    resolved,
     createCommit,
     deriveInitial,
   };

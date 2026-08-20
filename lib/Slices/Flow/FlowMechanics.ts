@@ -42,15 +42,10 @@ export function createFlowMechanics<F, StepKey extends string, FlowKey extends s
   async function next() {
     const { currentStep, sequence } = hive.honey;
     const currentIndex = sequence.indexOf(currentStep);
-
-    if (currentIndex >= sequence.length - 1) {
-      config.onFlowComplete?.(hive.honey.currentFlow, factoryProvider());
-      return;
-    }
-
-    const nextStep = sequence[currentIndex + 1];
+    const isLastStep = currentIndex >= sequence.length - 1;
     const currentDef = getDefinition(currentStep);
 
+    // Always run onNext first — validation, side-effects, etc.
     if (currentDef?.onNext) {
       hive.setHoney((prev) => ({ ...prev, status: "transitioning", error: undefined }));
       try {
@@ -65,6 +60,13 @@ export function createFlowMechanics<F, StepKey extends string, FlowKey extends s
       }
     }
 
+    // After onNext passes — complete or navigate
+    if (isLastStep) {
+      config.onFlowComplete?.(hive.honey.currentFlow, factoryProvider());
+      return;
+    }
+
+    const nextStep = sequence[currentIndex + 1];
     goTo(nextStep, "forward");
   }
 

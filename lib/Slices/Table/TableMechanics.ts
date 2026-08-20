@@ -1,13 +1,16 @@
-import { TableColumnDef, TableSliceConfig, TableSort } from "./Types";
+import { CellFunction, TableCellMap, TableColumnDef, TableSliceConfig, TableSort } from "./Types";
+
+const defaultStringCell: CellFunction = (item: any, col: any) => String(item[col.id] ?? "");
 
 export const TableMechanics = {
   Storage: {
     saveColumns: (key: string, columns: TableColumnDef<any>[]) => {
       try {
-        localStorage.setItem(key, JSON.stringify(columns));
+        const minimal = columns.map((c) => ({ id: c.id, visible: c.visible }));
+        localStorage.setItem(key, JSON.stringify(minimal));
       } catch {}
     },
-    getColumns: <T>(key: string): Partial<TableColumnDef<T>>[] => {
+    getColumns: (key: string): { id: string; visible?: boolean }[] => {
       try {
         const raw = localStorage.getItem(key);
         return raw ? JSON.parse(raw) : [];
@@ -30,8 +33,8 @@ export const TableMechanics = {
           const va = a[key],
             vb = b[key];
           if (va === vb) continue;
-          if (va == null) return s.dir === "asc" ? -1 : 1;
-          if (vb == null) return s.dir === "asc" ? 1 : -1;
+          if (va == null) return 1;
+          if (vb == null) return -1;
           if (va < vb) return s.dir === "asc" ? -1 : 1;
           if (va > vb) return s.dir === "asc" ? 1 : -1;
         }
@@ -42,33 +45,58 @@ export const TableMechanics = {
   Columns: {
     initialize: <TItem>(config: TableSliceConfig<TItem>, ctx: any, storeKey: string): TableColumnDef<TItem>[] => {
       const rawCols = config.columns(ctx);
+      const cellMap: TableCellMap = { ...(config.cellMap ?? {}) };
+
       const defaults = rawCols.map((col) => {
-        col.visible = col.visible !== false;
-        if (!col.cell) col.cell = (item: any) => item[col.id] ?? "";
-        if (!col.header) col.header = col.id;
-        return col;
+        const resolved: TableColumnDef<TItem> = {
+          ...col,
+          visible: col.visible !== false,
+          header: col.header || col.id,
+        };
+        resolved.props ??= {};
+
+        // Cell resolution: explicit cell > cellMap type > default string
+        if (!resolved.cell) {
+          const cellFn = resolved.type && typeof resolved.type === "string" ? (cellMap[resolved.type] ?? defaultStringCell) : defaultStringCell;
+
+          if (resolved.resolve) {
+            // Bake resolve into cell at init — zero checks at render
+            const resolver = resolved.resolve;
+            resolved.cell = (item: any, c: any, meta: any) => cellFn(item, { ...c, props: resolver(item, c) }, meta);
+          } else {
+            resolved.cell = cellFn;
+          }
+        }
+
+        // Header resolution: only set renderHeader for explicit headerComponent.
+        // When undefined, headBuilder (e.g. DSTableHead) falls through to resolve(col.header) for i18n.
+        if (col.headerComponent) {
+          resolved.renderHeader = col.headerComponent;
+        }
+
+        return resolved;
       });
 
       if (config.restoreFromStore !== false) {
         const stored = TableMechanics.Storage.getColumns(storeKey);
         if (stored && stored.length) {
-          const merged = defaults.map((d) => {
+          return defaults.map((d) => {
             const s = stored.find((sc: any) => sc.id === d.id);
-            if (s) d.visible = s.visible;
-            return d;
-          });
-          return merged as any;
+            return s ? { ...d, visible: s.visible } : d;
+          }) as TableColumnDef<TItem>[];
         }
       }
-      return defaults as any;
+      return defaults as TableColumnDef<TItem>[];
     },
-    setVisible: <TItem>(config: TableSliceConfig<TItem>, ctx: any, cols: TableColumnDef<TItem>[], storeKey: string): TableColumnDef<TItem>[] => {
-      const updated = config.columns(ctx).map((base) => {
-        const found = cols.find((c) => c.id === base.id);
-        return found ? { ...base, ...found } : base;
+    /** Merges visibility changes into already-resolved columns (preserves cellMap cells). */
+    setVisible: <TItem>(currentCols: TableColumnDef<TItem>[], incomingCols: TableColumnDef<TItem>[], storeKey: string): TableColumnDef<TItem>[] => {
+      const incoming = new Map(incomingCols.map((c) => [c.id, c]));
+      const updated = currentCols.map((base) => {
+        const found = incoming.get(base.id);
+        return found ? { ...base, visible: found.visible } : base;
       });
       TableMechanics.Storage.saveColumns(storeKey, updated);
-      return updated as any;
+      return updated as TableColumnDef<TItem>[];
     },
   },
   Selection: {
@@ -81,12 +109,12 @@ export const TableMechanics = {
     },
     isAllSelected: <TItem>(rows: TItem[], selected: Record<string, TItem>, idKey: string): boolean => {
       if (!rows || rows.length === 0) return false;
-      return rows.every((r: any) => !!selected[(r as any)[idKey]]);
+      return rows.every((r) => !!selected[(r as Record<string, unknown>)[idKey] as string]);
     },
     selectAll: <TItem>(rows: TItem[], idKey: string): Record<string, TItem> => {
       const map: Record<string, TItem> = {};
-      rows.forEach((r: any) => {
-        map[(r as any)[idKey]] = r;
+      rows.forEach((r) => {
+        map[(r as Record<string, unknown>)[idKey] as string] = r;
       });
       return map;
     },

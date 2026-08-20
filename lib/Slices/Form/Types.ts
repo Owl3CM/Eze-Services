@@ -6,11 +6,11 @@ import { OperationHandlerFactory } from "../OperationHandler";
 // FormSlice Configuration
 // ============================================================================
 
-export interface FormSliceConfig<T, Q = any> {
+export interface FormSliceConfig<T, Q = any, TState = {}> {
   initialValue: T;
 
   validator?: (key: keyof T, value: T[keyof T]) => string | undefined;
-  getValidator?: (formHive: IFormHive<T>) => IFormHiveValidator<T>;
+  getValidator?: (formHive: IFormHive<T, TState>) => IFormHiveValidator<T>;
 
   validateMode?: FormValidateMode;
 
@@ -29,8 +29,8 @@ export interface FormSliceConfig<T, Q = any> {
 // FormSlice API
 // ============================================================================
 
-export interface FormAPI<T, Q = any> {
-  hive: IFormHive<T>;
+export interface FormAPI<T, Q = any, TState = {}> {
+  hive: IFormHive<T, TState>;
   submit: () => void;
   reset: (newValues?: Partial<T>) => void;
   load: (query?: Q) => Promise<void>;

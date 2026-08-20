@@ -10,7 +10,7 @@
 | **Hive**    | Reactive state container (like atoms/signals) — pure TS |
 | **Bee**     | React connector: children-as-function pattern           |
 | **Slice**   | Pure TS logic module — returns hives + actions          |
-| **Factory** | DI container: `.use(SliceA()).use(SliceB()).build()`    |
+| **Factory** | DI container: `.use(SliceA()).use(SliceB()).build()` or `.useBuild()` (React-memoized) |
 | **Preset**  | Pre-configured factory recipe (List, Table, Detail)     |
 
 ## Area Guide — Read Only What You Need
@@ -28,6 +28,10 @@
 
 > **Need everything?** Read all `context/*.md` files — each is self-contained, no cross-dependencies.
 
+## Installed Package
+
+For an npm install, start at `node_modules/eze-factory/.agent/_index.md`. The published package includes `lib/`, so every package-root-relative source path in these guides is inspectable. Stable context guides ship; tests, release tooling, conversation handoffs, and internal refactor notes do not.
+
 ## API Surface
 
 Entry point: `lib/index.ts` (barrel export)
@@ -43,7 +47,7 @@ Entry point: `lib/index.ts` (barrel export)
 
 ## Anti-Patterns
 
-- ❌ Don't use `useState` inside a Factory — factories are not React hooks
+- ❌ Don't use `useState`/`useRef` to wrap factory creation — use `.useBuild()` instead
 - ❌ Don't read hive values without `Bee` or `useHoney` in React (won't re-render)
 - ❌ Don't put business logic in components — it belongs in Slices
 - ❌ Don't put React components or CSS in `Slices/` — they go in `Ui/`
@@ -56,7 +60,7 @@ lib/
 ├── index.css         # Global styles
 ├── Bees/             # Honey, Bee (compound components)
 ├── Hives/            # All hive creators + Types + HiveUtils
-├── Hooks/            # 7 hooks
+├── Hooks/            # 6 hooks
 ├── Factory/          # createFactory (core engine)
 ├── Presets/          # 4 factory recipes (List, Table, Detail, StaticTable)
 ├── Slices/           # Pure TS only — no React imports
@@ -72,20 +76,17 @@ lib/
 ├── Ui/               # React components + co-located CSS
 │   ├── Query/        # createQueryFilter
 │   ├── Flow/         # FlowView, FlowIndicator, useFlowSteps
-│   ├── Table/        # DataTableBase, TableBody/Head/Row/Footer, Columns
+│   ├── Table/        # DataTableBase, createTableCell, standard Columns
 │   ├── Status/       # StatusIndicator + convenience components, DefaultStatusKit
 │   └── Wrappers/     # Wrapper
 ├── Validator/        # Validator builder
 └── Utils/            # TimedCallback, ExtractId/Value
 ```
 
-## Refactoring
-
-Active refactor tasks tracked in `.agent/refactor-tasks.md` — T1–T14 + T16–T17 + T19–T22 complete, **T15, T18, T23 open**.
-
 ## Testing
 
 ```bash
-pnpm test           # Vitest — 229 tests (~1s)
-npx tsc --noEmit    # Type check
+pnpm test           # Vitest
+pnpm run typecheck  # Type check
+pnpm run verify     # Tests + typecheck + dual ESM/CJS build
 ```

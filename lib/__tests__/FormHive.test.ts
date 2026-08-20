@@ -348,6 +348,17 @@ describe("createFormHive", () => {
       expect(form.honey.email).toBe("new@default.com");
       expect(form.honey.password).toBe(""); // untouched
     });
+
+    it("accepts falsy partial initial values", () => {
+      const form = createFormHive({
+        initialValue: { count: 5, enabled: true, label: "ready" },
+        onSubmit: vi.fn(),
+      });
+
+      form.reset({ count: 0, enabled: false, label: "" });
+
+      expect(form.honey).toEqual({ count: 0, enabled: false, label: "" });
+    });
   });
 
   // ─── Field ↔ Parent Sync ───────────────────────────────────────
@@ -403,6 +414,25 @@ describe("createFormHive", () => {
 
       form.validate("email", "good@test.com");
       expect(form.getError("email")).toBeUndefined();
+    });
+
+    it("receives a fully initialized form and may inspect sibling fields", () => {
+      const seen = vi.fn();
+      const form = createFormHive<LoginForm>({
+        initialValue: { email: "start@test.com", password: "secret" },
+        getValidator: (readyForm) => {
+          seen(readyForm.getFieldValue("email"), readyForm.getFieldValue("password"), readyForm.getFieldHive("email").honey.value);
+          return {
+            email: (value) => (value === readyForm.getFieldValue("password") ? "Must differ" : undefined),
+          };
+        },
+        validateMode: "onChange",
+        onSubmit: vi.fn(),
+      });
+
+      expect(seen).toHaveBeenCalledWith("start@test.com", "secret", "start@test.com");
+      form.validate("email", "secret");
+      expect(form.getError("email")).toBe("Must differ");
     });
   });
 
@@ -470,6 +500,164 @@ describe("createFormHive", () => {
       // Parent → runtime field
       form.setHoney({ name: "Alice", age: 42 });
       expect(form.getFieldValue("age")).toBe(42);
+    });
+  });
+
+  // ─── TState ────────────────────────────────────────────────────
+
+  describe("TState", () => {
+    type FieldState = { disabled: boolean; hidden: boolean; label: string };
+
+    function createTStateForm() {
+      const onSubmit = vi.fn();
+      const form = createFormHive<LoginForm, FieldState>({
+        initialValue: { email: "", password: "" },
+        validator: simpleValidator,
+        validateMode: "onChange",
+        onSubmit,
+        fields: {
+          email: { disabled: false, hidden: false, label: "Email" },
+          password: { disabled: false, hidden: false, label: "Password" },
+        },
+      });
+      return { form, onSubmit };
+    }
+
+    it("createFieldHive includes TState in honey", () => {
+      const { form } = createTStateForm();
+      const nh = form.getFieldHive("email");
+      expect(nh.honey.value).toBe("");
+      expect(nh.honey.disabled).toBe(false);
+      expect(nh.honey.hidden).toBe(false);
+      expect(nh.honey.label).toBe("Email");
+    });
+
+    it("set(key, value) updates one state field", () => {
+      const { form } = createTStateForm();
+      const nh = form.getFieldHive("email");
+      nh.set("disabled", true);
+      expect(nh.honey.disabled).toBe(true);
+      expect(nh.honey.hidden).toBe(false); // untouched
+    });
+
+    it("set(key, value) no-ops on same value", () => {
+      const { form } = createTStateForm();
+      const nh = form.getFieldHive("email");
+      const cb = vi.fn();
+      nh.subscribe(cb);
+      cb.mockClear();
+
+      nh.set("disabled", false); // same as initial
+      expect(cb).not.toHaveBeenCalled();
+    });
+
+    it("set(key, value) fires subscribers on change", () => {
+      const { form } = createTStateForm();
+      const nh = form.getFieldHive("email");
+      const cb = vi.fn();
+      nh.subscribe(cb);
+      cb.mockClear();
+
+      nh.set("disabled", true);
+      expect(cb).toHaveBeenCalledTimes(1);
+      expect(cb).toHaveBeenCalledWith(expect.objectContaining({ disabled: true }));
+    });
+
+    it("setState merges partial state", () => {
+      const { form } = createTStateForm();
+      const nh = form.getFieldHive("email");
+      nh.setState({ disabled: true, label: "Updated" });
+      expect(nh.honey.disabled).toBe(true);
+      expect(nh.honey.hidden).toBe(false); // untouched
+      expect(nh.honey.label).toBe("Updated");
+    });
+
+    it("setState no-ops when nothing changed", () => {
+      const { form } = createTStateForm();
+      const nh = form.getFieldHive("email");
+      const cb = vi.fn();
+      nh.subscribe(cb);
+      cb.mockClear();
+
+      nh.setState({ disabled: false, hidden: false }); // same as initial
+      expect(cb).not.toHaveBeenCalled();
+    });
+
+    it("setFieldState delegates to nested hive", () => {
+      const { form } = createTStateForm();
+      form.setFieldState("password", { hidden: true });
+      expect(form.getFieldHive("password").honey.hidden).toBe(true);
+    });
+
+    it("getFieldState returns only TState portion", () => {
+      const { form } = createTStateForm();
+      const state = form.getFieldState("email");
+      expect(state).toEqual({ disabled: false, hidden: false, label: "Email" });
+      // Should NOT contain value or error
+      expect(state).not.toHaveProperty("value");
+      expect(state).not.toHaveProperty("error");
+    });
+
+    it("setFieldState throws for non-existent field", () => {
+      const { form } = createTStateForm();
+      expect(() => (form as any).setFieldState("bogus", { disabled: true })).toThrow("[FormHive] setFieldState");
+    });
+
+    it("getFieldState throws for non-existent field", () => {
+      const { form } = createTStateForm();
+      expect(() => (form as any).getFieldState("bogus")).toThrow("[FormHive] getFieldState");
+    });
+
+    it("value and validation still work alongside TState", () => {
+      const { form } = createTStateForm();
+      form.validate("email", "test@test.com");
+      expect(form.getFieldValue("email")).toBe("test@test.com");
+
+      const nh = form.getFieldHive("email");
+      expect(nh.honey.value).toBe("test@test.com");
+      expect(nh.honey.disabled).toBe(false); // TState untouched
+    });
+
+    it("reset restores TState to initial values", () => {
+      const { form } = createTStateForm();
+      form.setFieldState("email", { disabled: true, label: "Changed" });
+      expect(form.getFieldHive("email").honey.disabled).toBe(true);
+
+      form.reset();
+      expect(form.getFieldHive("email").honey.disabled).toBe(false);
+      expect(form.getFieldHive("email").honey.label).toBe("Email");
+    });
+
+    it("reset removes transient field-state keys", () => {
+      const { form } = createTStateForm();
+      const field = form.getFieldHive("email");
+      (field.setState as (state: Record<string, unknown>) => void)({ transient: "remove-me", disabled: true });
+
+      form.reset();
+
+      expect(field.honey).not.toHaveProperty("transient");
+      expect(field.honey.disabled).toBe(false);
+    });
+
+    it("backward compat — no TState works identically", () => {
+      const { form } = createTestForm();
+      // Should work exactly like before
+      expect(form.getFieldHive("email").honey.value).toBe("");
+      expect(form.getFieldHive("email").honey.error).toBeUndefined();
+      form.validate("email", "test@test.com");
+      expect(form.getFieldValue("email")).toBe("test@test.com");
+    });
+
+    it("fields config is optional even with TState generic", () => {
+      const form = createFormHive<LoginForm, FieldState>({
+        initialValue: { email: "", password: "" },
+        validateMode: "onChange",
+        onSubmit: vi.fn(),
+        // No fields config — TState will be empty object
+      });
+      const nh = form.getFieldHive("email");
+      expect(nh.honey.value).toBe("");
+      // TState fields won't exist but shouldn't break
     });
   });
 });

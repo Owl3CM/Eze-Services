@@ -1,3 +1,7 @@
+// TODO: Decompose DataTableBase into exportable sub-components
+// (EzTableHead, EzTableRow, EzTableFooter, EzTableEmpty)
+// so consumers can extend/replace individual pieces.
+import { useMemo, useCallback } from "react";
 import { useHoney } from "../../Hooks";
 import type {
   TableAPI,
@@ -18,6 +22,7 @@ import "./table.css";
 export function DataTableBase<T>({
   table,
   data,
+  startIndex = 0,
   onRowClick,
   headBuilder: HeadBuilder = DefaultTableHead,
   rowBuilder: RowBuilder = DefaultTableRow,
@@ -30,22 +35,27 @@ export function DataTableBase<T>({
   const columns = useHoney(table.columnsHive);
   const sorting = useHoney(table.sortingHive);
   useHoney(table.selectedItemsHive);
+  const isAllSelected = useHoney(table.isAllSelectedHive);
 
-  const visibleColumns = columns.filter((c: TableColumnDef<T>) => c.visible !== false);
-  const rows = table.getViewRows();
+  const visibleColumns = useMemo(() => columns.filter((c: TableColumnDef<T>) => c.visible !== false), [columns]);
+  // `data` prop = `dataHive.honey` — same-reference convention ensures stable memoization.
+  const rows = useMemo(() => table.getViewRows(), [data, sorting]);
 
-  const handleSort = (colId: string) => {
-    const existing = sorting.find((s: TableSort<T>) => s.id === colId);
-    if (existing) {
-      if (existing.dir === "asc") {
-        table.setSorting(sorting.map((s: TableSort<T>) => (s.id === colId ? { ...s, dir: "desc" as const } : s)));
+  const handleSort = useCallback(
+    (colId: string) => {
+      const existing = sorting.find((s: TableSort<T>) => s.id === colId);
+      if (existing) {
+        if (existing.dir === "asc") {
+          table.setSorting(sorting.map((s: TableSort<T>) => (s.id === colId ? { ...s, dir: "desc" as const } : s)));
+        } else {
+          table.setSorting(sorting.filter((s: TableSort<T>) => s.id !== colId));
+        }
       } else {
-        table.setSorting(sorting.filter((s: TableSort<T>) => s.id !== colId));
+        table.setSorting([...sorting, { id: colId as keyof T & string, dir: "asc" }]);
       }
-    } else {
-      table.setSorting([...sorting, { id: colId as keyof T & string, dir: "asc" }]);
-    }
-  };
+    },
+    [sorting, table],
+  );
 
   const colSpan = visibleColumns.length + (table.showCheckBox ? 1 : 0) + (table.showIndex ? 1 : 0);
 
@@ -58,7 +68,7 @@ export function DataTableBase<T>({
           onSort={handleSort}
           showCheckBox={table.showCheckBox}
           showIndex={table.showIndex}
-          isAllSelected={table.isAllSelected()}
+          isAllSelected={isAllSelected}
           onToggleAll={() => table.toggleAllItemsSelection()}
           table={table}
         />
@@ -70,7 +80,7 @@ export function DataTableBase<T>({
               <RowBuilder
                 key={((item as Record<string, unknown>).id as string) ?? i}
                 item={item}
-                index={i}
+                index={startIndex + i}
                 columns={visibleColumns}
                 isSelected={table.isItemSelected(item)}
                 showCheckBox={table.showCheckBox}
@@ -105,7 +115,7 @@ function DefaultTableHead<T>({ columns, sorting, onSort, showCheckBox, showIndex
           const sort = sorting.find((s) => s.id === col.id);
           return (
             <th key={col.id} className="ez-table__th" data-sort-dir={sort?.dir} onClick={() => onSort(col.id)}>
-              {col.headerComponent ? col.headerComponent(table) : col.header}
+              {col.renderHeader ? col.renderHeader(table) : (col.header ?? col.id)}
             </th>
           );
         })}
@@ -132,7 +142,7 @@ function DefaultTableRow<T>({ item, index, columns, isSelected, showCheckBox, sh
       {showIndex && <td className="ez-table__td ez-table__td--index">{index + 1}</td>}
       {columns.map((col) => (
         <td key={col.id} className="ez-table__td">
-          {col.cell!(item, { index })}
+          {col.cell!(item, col, { index })}
         </td>
       ))}
     </tr>

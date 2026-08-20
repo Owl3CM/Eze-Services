@@ -11,6 +11,7 @@ export function createListFactory<
     load: (...args: any[]) => Promise<any>;
     reload: (...args: any[]) => Promise<any>;
     loadMore: () => Promise<any>;
+    goToPage: (page: number) => Promise<any>;
     hasMore: boolean;
     limit: number;
   },
@@ -22,6 +23,6 @@ export function createListFactory<
 >(config: { status: StatusSliceConfig<K, OperationName>; query?: QuerySliceConfig<M, any>; paginator: PaginatorProps<P, R, Fmt, any> }) {
   return createFactory()
     .use(StatusSlice<K, OperationName>(config.status))
-    .use(QuerySlice(config.query ?? ({ filters: {} as Record<string, never>, componentMap: {} as M } as QuerySliceConfig<M, Record<string, never>>)))
+    .use(QuerySlice(config.query ?? ({ filters: {}, componentMap: {} } as QuerySliceConfig<M, Record<string, never>>)))
     .use(PaginatorSlice<P, R, Fmt>({ ...config.paginator, operation: config.paginator.operation ?? "paginator" }));
 }

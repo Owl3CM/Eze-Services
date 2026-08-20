@@ -30,10 +30,22 @@ interface FlowViewProps<F = any> {
     leavePrev?: string;
   };
   duration?: number;
+  footer?: ReactNode;
+  header?: ReactNode;
   [key: string]: any;
 }
 
-export function FlowView<F = any>({ factory, registry, className, animation = "slide", customAnimations, duration = 500, ...props }: FlowViewProps<F>) {
+export function FlowView<F = any>({
+  factory,
+  registry,
+  className,
+  animation = "slide",
+  customAnimations,
+  duration = 500,
+  footer,
+  header,
+  ...props
+}: FlowViewProps<F>) {
   const { currentStep } = useHoney(factory.flow.hive);
 
   const [state, setState] = useState({
@@ -121,14 +133,15 @@ export function FlowView<F = any>({ factory, registry, className, animation = "s
           <PrevComp factory={factory} />
         </div>
       )}
-
       {/* Current Step (Entering/Active) */}
       <div
         // Append transitionId to key to force complete DOM replacement
         key={`${state.currStep}-entering-${state.transitionId}`}
         className={`ez-flow-step ${state.animating ? getAnimationClass("enter", state.direction) : ""}`}
         data-transitional-stage={state.animating ? `${state.direction}-entering` : ""}>
+        {header}
         <CurrentComp factory={factory} />
+        {footer}
       </div>
     </div>
   );

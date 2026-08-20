@@ -1,6 +1,6 @@
 import { Hive, IHive } from "../../Hives";
 import { TableMechanics } from "./TableMechanics";
-import { TableAPI, TableColumnDef, TableDependencies, TableSliceConfig, TableSort } from "./Types";
+import { TABLE_HIDDEN_FLAG, TableAPI, TableColumnDef, TableDependencies, TableSliceConfig, TableSort } from "./Types";
 
 export function TableSlice<TItem = any, Ctx = any>(config: TableSliceConfig<TItem, Ctx>) {
   return (ctx: Ctx & TableDependencies<TItem>): { table: TableAPI<TItem> } => {
@@ -12,53 +12,37 @@ export function TableSlice<TItem = any, Ctx = any>(config: TableSliceConfig<TIte
 
     const columnsHive = Hive.state<TableColumnDef<TItem>[]>([]);
     const selectedItemsHive = Hive.state<Record<string, TItem>>({}) as IHive<Record<string, TItem>>;
-    const sortingHive = Hive.state<TableSort<TItem>[]>([] as any);
-
-    const normalizeColumn = (col: TableColumnDef<TItem>) => {
-      let header = col.header;
-      if (!header) header = col.id;
-      const cell = col.cell ?? ((item: TItem) => String((item as Record<string, unknown>)[col.id] ?? ""));
-      return { ...col, header, cell };
-    };
+    const sortingHive = Hive.state<TableSort<TItem>[]>([] as TableSort<TItem>[]);
 
     const initializeColumns = () => {
-      const cols = TableMechanics.Columns.initialize(config, ctx, storeKey).map(normalizeColumn);
+      const cols = TableMechanics.Columns.initialize(config, ctx, storeKey);
       columnsHive.setHoney(cols);
     };
 
     const setVisibleColumns = (cols: TableColumnDef<TItem>[]) => {
-      const updated = TableMechanics.Columns.setVisible(config, ctx, cols, storeKey).map(normalizeColumn);
+      const updated = TableMechanics.Columns.setVisible(columnsHive.honey, cols, storeKey);
       columnsHive.setHoney(updated);
     };
 
     const getVisibleColumns = () => columnsHive.honey.filter((c: TableColumnDef<TItem>) => c.visible !== false);
     const toggleColumnVisibility = (colId: string) => {
-      const newCols = columnsHive.honey.map((c: TableColumnDef<TItem>) => (c.id === colId ? { ...c, visible: !c.visible } : c));
-      columnsHive.setHoney([...newCols]);
-      TableMechanics.Storage.saveColumns(storeKey, columnsHive.honey);
+      const updated = columnsHive.honey.map((c: TableColumnDef<TItem>) => (c.id === colId ? { ...c, visible: !c.visible } : c));
+      columnsHive.setHoney(updated);
+      TableMechanics.Storage.saveColumns(storeKey, updated);
     };
-    const toggleAllColumns = (val?: boolean) => {
-      const newCols = columnsHive.honey.map((c: TableColumnDef<TItem>) => ({ ...c, visible: typeof val === "boolean" ? val : true }));
-      columnsHive.setHoney(newCols as any);
-      TableMechanics.Storage.saveColumns(storeKey, columnsHive.honey);
+    const toggleAllColumns = (val = true) => {
+      const updated = columnsHive.honey.map((c: TableColumnDef<TItem>) => ({ ...c, visible: val }));
+      columnsHive.setHoney(updated);
+      TableMechanics.Storage.saveColumns(storeKey, updated);
     };
     const resetColumns = () => {
-      const defaults = config.columns(ctx).map((c) => ({ ...c, visible: c.visible !== false }));
-      columnsHive.setHoney(defaults as any);
-      TableMechanics.Storage.clearColumns(storeKey);
-    };
-    const restoreColumns = () => {
-      initializeColumns();
-    };
-
-    const clearStoredColumns = () => {
       TableMechanics.Storage.clearColumns(storeKey);
       initializeColumns();
     };
 
     const setSelected = (next: Record<string, TItem> | ((prev: Record<string, TItem>) => Record<string, TItem>)) => {
       if (typeof next === "function") {
-        const newVal = (next as any)(selectedItemsHive.honey);
+        const newVal = (next as (prev: Record<string, TItem>) => Record<string, TItem>)(selectedItemsHive.honey);
         selectedItemsHive.setHoney(newVal);
       } else {
         selectedItemsHive.setHoney(next);
@@ -69,10 +53,12 @@ export function TableSlice<TItem = any, Ctx = any>(config: TableSliceConfig<TIte
       setSelected((prev) => TableMechanics.Selection.toggle(prev, item, idKey));
     };
 
-    const isAllSelected = () => {
-      const rows = dataHive.honey as TItem[];
-      return TableMechanics.Selection.isAllSelected(rows, selectedItemsHive.honey, idKey);
-    };
+    const isAllSelectedHive = Hive.observer((observe) => {
+      const rows = observe(dataHive as IHive<TItem[]>);
+      const selected = observe(selectedItemsHive);
+      return TableMechanics.Selection.isAllSelected(rows, selected, idKey);
+    });
+    const isAllSelected = () => isAllSelectedHive.honey;
 
     const selectAllItems = () => {
       const rows = dataHive.honey as TItem[];
@@ -82,15 +68,14 @@ export function TableSlice<TItem = any, Ctx = any>(config: TableSliceConfig<TIte
     const toggleAllItemsSelection = () => {
       if (isAllSelected()) unselectAllItems();
       else selectAllItems();
-      dataHive.setHoney([...dataHive.honey]);
     };
 
-    const setSorting = (sorts: TableSort<TItem>[]) => sortingHive.setHoney(sorts as any);
-    const clearSorting = () => sortingHive.setHoney([] as any);
-    const addSort = (s: TableSort<TItem>) => sortingHive.setHoney([...sortingHive.honey, s] as any);
+    const setSorting = (sorts: TableSort<TItem>[]) => sortingHive.setHoney(sorts as TableSort<TItem>[]);
+    const clearSorting = () => sortingHive.setHoney([] as TableSort<TItem>[]);
+    const addSort = (s: TableSort<TItem>) => sortingHive.setHoney([...sortingHive.honey, s] as TableSort<TItem>[]);
 
     const getRawRows = (): TItem[] => (dataHive?.honey ?? []) as TItem[];
-    const getFilteredRows = (): TItem[] => getRawRows().filter((r: any) => !(r && r.__table__hidden__ === true));
+    const getFilteredRows = (): TItem[] => getRawRows().filter((r: any) => !(r && r[TABLE_HIDDEN_FLAG] === true));
     const getSortedRows = (): TItem[] => {
       const rows = getFilteredRows();
       const sorts = sortingHive.honey as TableSort<TItem>[];
@@ -99,15 +84,14 @@ export function TableSlice<TItem = any, Ctx = any>(config: TableSliceConfig<TIte
 
     const getViewRows = (applySorting = true) => (applySorting ? getSortedRows() : getFilteredRows());
 
-    setTimeout(() => {
-      restoreColumns();
-    }, 1);
+    queueMicrotask(initializeColumns);
 
     return {
       table: {
         columnsHive,
         selectedItemsHive,
         sortingHive,
+        isAllSelectedHive,
         storeKey,
         showIndex: config.showIndex !== false,
         showCheckBox: config.showCheckBox === true,
@@ -117,8 +101,6 @@ export function TableSlice<TItem = any, Ctx = any>(config: TableSliceConfig<TIte
         toggleColumnVisibility,
         toggleAllColumns,
         resetColumns,
-        restoreColumns,
-        clearStoredColumns,
         setSelected,
         toggleItemSelection,
         toggleAllItemsSelection,

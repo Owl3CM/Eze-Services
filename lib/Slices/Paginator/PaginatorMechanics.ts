@@ -31,6 +31,7 @@ export const PaginatorMechanics = {
       load: (...args: any[]) => Promise<any>;
       reload: (...args: any[]) => Promise<any>;
       loadMore: () => Promise<any>;
+      goToPage: (page: number) => Promise<any>;
       hasMore: boolean;
       limit: number;
     },
@@ -58,8 +59,14 @@ export const PaginatorMechanics = {
       await action();
       handler.idle();
     } catch (e) {
-      handler.error({ message: String(e) });
+      handler.error(errorPayload(e));
       props.onError?.(e);
     }
   },
 };
+
+function errorPayload(error: unknown) {
+  const payload = { message: String(error) } as { message: string; error?: unknown };
+  Object.defineProperty(payload, "error", { value: error, enumerable: false });
+  return payload;
+}

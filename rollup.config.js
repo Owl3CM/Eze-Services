@@ -5,10 +5,6 @@ import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import postcss from "rollup-plugin-postcss";
 import { terser } from "rollup-plugin-terser";
-import { createRequire } from "node:module";
-
-const require = createRequire(import.meta.url);
-const packageJson = require("./package.json");
 
 const config = {
   input: "lib/index.ts",
@@ -31,11 +27,19 @@ const config = {
       exclude: "node_modules/**",
     }),
   ],
-  output: {
-    file: packageJson.main,
-    format: "cjs",
-    sourcemap: true,
-  },
+  output: [
+    {
+      file: "dist/index.js",
+      format: "esm",
+      sourcemap: true,
+    },
+    {
+      file: "dist/index.cjs",
+      format: "cjs",
+      exports: "named",
+      sourcemap: true,
+    },
+  ],
 };
 
 export default config;

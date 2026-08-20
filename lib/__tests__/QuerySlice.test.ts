@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { QuerySlice } from "../Slices/Query/QuerySlice";
-import type { FilterDefinition, QueryComponentMap } from "../Slices/Query/Types";
+import { QuerySlice, createTypedQuerySlice } from "../Slices/Query/QuerySlice";
+import type { FilterDefinition, QueryComponentMap, QueryEngine } from "../Slices/Query/Types";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -11,18 +11,54 @@ const testMap: QueryComponentMap = {
 };
 
 /** Build a query context from config — calls the slice factory with a dummy ctx. */
-function buildQuery<F extends Record<string, FilterDefinition<typeof testMap>>>(
-  filters: F,
-  options?: { initialQuery?: Partial<{ [K in keyof F]?: any }>; debounce?: number; onQueryChange?: (q: any) => void },
+function buildQuery(
+  filters: Record<string, FilterDefinition<typeof testMap>>,
+  options?: { initialQuery?: Record<string, any>; debounce?: number; onQueryChange?: (q: any) => void; engine?: QueryEngine },
 ) {
   const slice = QuerySlice({
     componentMap: testMap,
-    filters,
+    filters: filters as any,
     initialQuery: options?.initialQuery,
     debounce: options?.debounce,
     onQueryChange: options?.onQueryChange,
+    engine: options?.engine,
   });
   return slice({}).query;
+}
+
+/** Create a mock QueryEngine for testing engine integration. */
+function createMockEngine(): QueryEngine & {
+  params: Record<string, any>;
+  subscribers: ((q: Record<string, any> | null) => void)[];
+  fireChange: (params: Record<string, any> | null) => void;
+} {
+  const state = {
+    params: {} as Record<string, any>,
+    subscribers: [] as ((q: Record<string, any> | null) => void)[],
+  };
+  const dispose = vi.fn();
+  return {
+    get params() {
+      return state.params;
+    },
+    get subscribers() {
+      return state.subscribers;
+    },
+    set: (p: Record<string, any>) => {
+      state.params = p;
+    },
+    subscribe: (cb: (q: Record<string, any> | null) => void) => {
+      state.subscribers.push(cb);
+      cb(state.params);
+      return () => {
+        state.subscribers = state.subscribers.filter((l) => l !== cb);
+      };
+    },
+    fireChange: (params: Record<string, any> | null) => {
+      for (const cb of state.subscribers) cb(params);
+    },
+    dispose,
+  };
 }
 
 // ─── Tests ──────────────────────────────────────────────────────────────────
@@ -431,6 +467,364 @@ describe("QuerySlice", () => {
       unsub();
       q.updateQuery({ id: "search", value: "after-unsub" });
       expect(listener).toHaveBeenCalledTimes(2); // No additional call
+    });
+  });
+
+  // ── isDirty ──────────────────────────────────────────────────────────────
+
+  describe("isDirty", () => {
+    it("returns false at initial state", () => {
+      const q = buildQuery({
+        search: { type: "text", value: "hello" },
+        status: { type: "selector", value: "active" },
+      });
+      expect(q.isDirty()).toBe(false);
+    });
+
+    it("returns true after a value changes", () => {
+      const q = buildQuery({
+        search: { type: "text", value: "hello" },
+      });
+      q.updateQuery({ id: "search", value: "changed" });
+      expect(q.isDirty()).toBe(true);
+    });
+
+    it("returns false after resetQuery()", () => {
+      const q = buildQuery({
+        search: { type: "text", value: "hello" },
+      });
+      q.updateQuery({ id: "search", value: "changed" });
+      q.resetQuery();
+      expect(q.isDirty()).toBe(false);
+    });
+
+    it("considers initialQuery overrides in dirty check", () => {
+      const q = buildQuery({ status: { type: "selector", value: "pending" } }, { initialQuery: { status: "active" } });
+      // Initial state is "active" (from initialQuery), not "pending"
+      expect(q.isDirty()).toBe(false);
+
+      q.updateQuery({ id: "status", value: "pending" });
+      expect(q.isDirty()).toBe(true);
+    });
+  });
+
+  // ── activeFilterCount ──────────────────────────────────────────────────
+
+  describe("activeFilterCount", () => {
+    it("returns 0 when no filter has a defined value", () => {
+      const q = buildQuery({
+        search: { type: "text" },
+        status: { type: "selector" },
+      });
+      expect(q.activeFilterCount()).toBe(0);
+    });
+
+    it("counts filters with defined values", () => {
+      const q = buildQuery({
+        search: { type: "text", value: "hello" },
+        status: { type: "selector" },
+        active: { type: "text", value: true },
+      });
+      expect(q.activeFilterCount()).toBe(2); // search + active
+    });
+
+    it("updates count when params are set or removed", () => {
+      const q = buildQuery({
+        search: { type: "text" },
+        status: { type: "selector" },
+      });
+
+      q.updateQuery({ id: "search", value: "hello" });
+      expect(q.activeFilterCount()).toBe(1);
+
+      q.updateQuery({ id: "status", value: "active" });
+      expect(q.activeFilterCount()).toBe(2);
+
+      q.removeParam("search");
+      expect(q.activeFilterCount()).toBe(1);
+    });
+
+    it("returns 0 after clearQuery()", () => {
+      const q = buildQuery({
+        search: { type: "text", value: "hello" },
+        status: { type: "selector", value: "active" },
+      });
+      q.clearQuery();
+      expect(q.activeFilterCount()).toBe(0);
+    });
+  });
+
+  // ── removeMany ──────────────────────────────────────────────────────────
+
+  describe("removeMany", () => {
+    it("removes multiple params atomically", () => {
+      const onChange = vi.fn();
+      const q = buildQuery(
+        {
+          a: { type: "text", value: "x" },
+          b: { type: "text", value: "y" },
+          c: { type: "text", value: "z" },
+        },
+        { onQueryChange: onChange },
+      );
+
+      onChange.mockClear();
+
+      q.removeMany(["a", "b"]);
+
+      expect(q.getParam("a")).toBeUndefined();
+      expect(q.getParam("b")).toBeUndefined();
+      expect(q.getParam("c")).toBe("z");
+      // Single commit — only one notification
+      expect(onChange).toHaveBeenCalledTimes(1);
+    });
+
+    it("is a no-op when all keys are already undefined", () => {
+      const onChange = vi.fn();
+      const q = buildQuery(
+        {
+          a: { type: "text" },
+          b: { type: "text" },
+        },
+        { onQueryChange: onChange },
+      );
+
+      onChange.mockClear();
+
+      q.removeMany(["a", "b"]);
+      expect(onChange).not.toHaveBeenCalled();
+    });
+  });
+
+  // ── Engine Integration ──────────────────────────────────────────────────────
+
+  describe("engine integration", () => {
+    it("does NOT sync defaults to engine on init (prevents URL pollution)", () => {
+      const engine = createMockEngine();
+      buildQuery({ search: { type: "text", value: "hello" }, count: { type: "text", value: 42 } }, { engine });
+
+      // Defaults live in hive only — engine stays clean
+      expect(engine.params.search).toBeUndefined();
+      expect(engine.params.count).toBeUndefined();
+    });
+
+    it("seeds hive from engine on init when engine has existing params", () => {
+      const engine = createMockEngine();
+      engine.params.search = "from-engine";
+      engine.params.active = true;
+
+      const q = buildQuery({ search: { type: "text", value: "" }, active: { type: "text", value: false } }, { engine });
+
+      // Hive seeded from engine values
+      expect(q.getParam("search")).toBe("from-engine");
+      expect(q.getParam("active")).toBe(true);
+    });
+
+    it("forwards mutations to engine instead of direct hive write", () => {
+      const engine = createMockEngine();
+      const q = buildQuery({ search: { type: "text", value: "" }, active: { type: "text", value: false } }, { engine });
+
+      q.updateQuery({ id: "search", value: "hello" });
+      expect(engine.params.search).toBe("hello");
+
+      q.updateQuery({ id: "active", value: true });
+      expect(engine.params.active).toBe(true);
+    });
+
+    it("responds to external engine changes (popstate)", () => {
+      const engine = createMockEngine();
+      const q = buildQuery({ search: { type: "text", value: "" } }, { engine });
+
+      // Simulate external change (e.g. browser back)
+      engine.fireChange({ search: "external" });
+      expect(q.getParam("search")).toBe("external");
+    });
+
+    it("clearQuery preserves required filters via engine", () => {
+      const engine = createMockEngine();
+      const q = buildQuery(
+        {
+          page: { type: "text", value: 1, required: true },
+          search: { type: "text", value: "" },
+        },
+        { engine },
+      );
+
+      q.updateQuery({ id: "search", value: "hello" });
+      q.clearQuery();
+
+      expect(engine.params.page).toBe(1);
+      expect(engine.params.search).toBeUndefined();
+    });
+
+    it("dispose unsubscribes and disposes the engine exactly once", () => {
+      const engine = createMockEngine();
+      const q = buildQuery({ search: { type: "text", value: "" } }, { engine });
+
+      expect(engine.subscribers).toHaveLength(1);
+      q.dispose();
+      q.dispose();
+
+      expect(engine.subscribers).toHaveLength(0);
+      expect(engine.dispose).toHaveBeenCalledTimes(1);
+
+      engine.fireChange({ search: "ignored-after-dispose" });
+      expect(q.getParam("search")).toBe("");
+    });
+  });
+
+  // ── Required Filters ───────────────────────────────────────────────────────
+
+  describe("required filters", () => {
+    it("clearQuery preserves required filter defaults", () => {
+      const q = buildQuery({
+        search: { type: "text", value: "hello" },
+        page: { type: "text", value: 1, required: true },
+        sort: { type: "text", value: "name", required: true },
+      });
+
+      q.updateQuery({ id: "search", value: "changed" });
+      q.updateQuery({ id: "page", value: 5 });
+
+      q.clearQuery();
+
+      // Non-required cleared to undefined
+      expect(q.getParam("search")).toBeUndefined();
+      // Required restored to defaults
+      expect(q.getParam("page")).toBe(1);
+      expect(q.getParam("sort")).toBe("name");
+    });
+
+    it("removeParam on required filter restores default instead of deleting", () => {
+      const q = buildQuery({
+        page: { type: "text", value: 1, required: true },
+        search: { type: "text", value: "hello" },
+      });
+
+      q.updateQuery({ id: "page", value: 10 });
+      q.removeParam("page");
+      expect(q.getParam("page")).toBe(1); // restored, not undefined
+
+      q.removeParam("search");
+      expect(q.getParam("search")).toBeUndefined(); // non-required → deleted
+    });
+
+    it("removeMany on required filters restores defaults", () => {
+      const onChange = vi.fn();
+      const q = buildQuery(
+        {
+          page: { type: "text", value: 1, required: true },
+          sort: { type: "text", value: "name", required: true },
+          search: { type: "text", value: "hello" },
+        },
+        { onQueryChange: onChange },
+      );
+
+      q.updateQuery({ id: "page", value: 5 });
+      q.updateQuery({ id: "sort", value: "date" });
+      onChange.mockClear();
+
+      q.removeMany(["page", "sort", "search"]);
+
+      // Required restored
+      expect(q.getParam("page")).toBe(1);
+      expect(q.getParam("sort")).toBe("name");
+      // Non-required deleted
+      expect(q.getParam("search")).toBeUndefined();
+      // Single commit
+      expect(onChange).toHaveBeenCalledTimes(1);
+    });
+
+    it("resetQuery ignores required flag — resets everything to initial state", () => {
+      const q = buildQuery({
+        page: { type: "text", value: 1, required: true },
+        search: { type: "text", value: "hello" },
+      });
+
+      q.updateQuery({ id: "page", value: 99 });
+      q.updateQuery({ id: "search", value: "changed" });
+
+      q.resetQuery();
+
+      // resetQuery restores to initial state regardless of required
+      expect(q.getParam("page")).toBe(1);
+      expect(q.getParam("search")).toBe("hello");
+    });
+
+    it("clearQuery with initialQuery on required filter uses initialQuery value", () => {
+      const q = buildQuery({ page: { type: "text", value: 1, required: true } }, { initialQuery: { page: 3 } });
+
+      q.updateQuery({ id: "page", value: 10 });
+      q.clearQuery();
+
+      // Default = initialQuery value (3), not def.value (1)
+      expect(q.getParam("page")).toBe(3);
+    });
+  });
+
+  // ── createTypedQuerySlice ──────────────────────────────────────────────────
+
+  describe("createTypedQuerySlice", () => {
+    it("returns same runtime behavior as createQuerySlice", () => {
+      const typedQuery = createTypedQuerySlice(testMap);
+      const slice = typedQuery({
+        filters: {
+          search: { type: "text", value: "" },
+          active: { type: "text", value: false },
+          count: { type: "text", value: 0 },
+        },
+      });
+
+      const ctx = slice({});
+      const q = ctx.query;
+
+      // Runtime behavior is identical
+      expect(q.getParam("search")).toBe("");
+      expect(q.getParam("active")).toBe(false);
+      expect(q.getParam("count")).toBe(0);
+
+      q.updateQuery({ id: "search", value: "hello" });
+      expect(q.getParam("search")).toBe("hello");
+
+      q.resetQuery();
+      expect(q.getParam("search")).toBe("");
+    });
+
+    it("supports required filters", () => {
+      const typedQuery = createTypedQuerySlice(testMap);
+      const slice = typedQuery({
+        filters: {
+          page: { type: "text", value: 1, required: true },
+          search: { type: "text", value: "" },
+        },
+      });
+
+      const q = slice({}).query;
+
+      q.updateQuery({ id: "page", value: 5 });
+      q.clearQuery();
+
+      expect(q.getParam("page")).toBe(1); // preserved
+      expect(q.getParam("search")).toBeUndefined(); // cleared
+    });
+
+    it("supports initialQuery and onQueryChange", () => {
+      const onChange = vi.fn();
+      const typedQuery = createTypedQuerySlice(testMap);
+      const slice = typedQuery({
+        filters: {
+          search: { type: "text", value: "" },
+        },
+        initialQuery: { search: "initial" },
+        onQueryChange: onChange,
+      });
+
+      const q = slice({}).query;
+      expect(q.getParam("search")).toBe("initial");
+
+      onChange.mockClear();
+      q.updateQuery({ id: "search", value: "changed" });
+      expect(onChange).toHaveBeenCalledTimes(1);
     });
   });
 });

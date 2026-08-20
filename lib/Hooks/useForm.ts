@@ -1,4 +1,4 @@
-import { useHoney } from "./index";
+import useHoney from "./useHoney";
 import { IFormHive } from "../Hives/Types";
 
 export default function useForm<T>(formHive: IFormHive<T>) {

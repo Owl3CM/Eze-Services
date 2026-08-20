@@ -5,8 +5,14 @@
 ```typescript
 import { createFactory } from "eze-factory";
 
+// Pure TS — use in non-React contexts
 const ctx = createFactory().use(SliceA()).use(SliceB()).build();
+
+// React — memoized via useRef, stable across re-renders
+const ctx = createFactory().use(SliceA()).use(SliceB()).useBuild();
 ```
+
+> **Convention:** Factory creator functions that use `.useBuild()` must be named `use*` (e.g. `useLoaderDataFactory`) to signal React hook usage. Always call at the top level of a component.
 
 **Types:** `Slice<T,Ctx>`, `Factory<Ctx>`, `SliceConfig`, `SliceFactory`
 
@@ -39,7 +45,20 @@ createListFactory({
 });
 ```
 
-Shared config type: `FactoryQueryConfig<M>`.
+Extract preset config type: `PresetConfig<F>` (e.g. `PresetConfig<typeof createTableFactory>`).
+
+## Factory Interfaces
+
+From `Presets/Types.ts` — used to type the factory context in consuming code:
+
+| Interface              | Context key |
+| ---------------------- | ----------- |
+| `IStatusFactory<K>`    | `status`    |
+| `IQueryFactory<M>`     | `query`     |
+| `IPaginatorFactory<T>` | `paginator` |
+| `ILoaderFactory<R>`    | `loader`    |
+| `ITableFactory<T>`     | `table`     |
+| `IExporterFactory`     | `exporter`  |
 
 ## Source Files
 
@@ -52,3 +71,4 @@ Shared config type: `FactoryQueryConfig<M>`.
 | createDetailFactory      | `lib/Presets/DetailFactory.ts`      |
 | createStaticTableFactory | `lib/Presets/StaticTableFactory.ts` |
 | Preset types             | `lib/Presets/Types.ts`              |
+| Barrel export            | `lib/Presets/index.ts`              |

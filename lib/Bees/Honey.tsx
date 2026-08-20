@@ -23,10 +23,9 @@ function HoneyCluster<T extends HiveCluster>({ hives, children }: HoneyClusterPr
   return <>{children({ cell })}</>;
 }
 
-/** Read-only form field. Subscribes to a nested form hive. Provides honey, value, error. */
-function HoneyField<T>({ hive, children }: HoneyFieldProps<T>) {
-  const honey = useHoney(hive);
-  return <>{children({ honey, value: honey.value, error: honey.error })}</>;
+/** Read-only form field. Subscribes to a nested form hive. Provides honey, value, error, and flat TState. */
+function HoneyField<T, TState = {}>({ hive, children }: HoneyFieldProps<T, TState>) {
+  return <>{children({ ...useHoney(hive) })}</>;
 }
 
 Honey.List = HoneyList;

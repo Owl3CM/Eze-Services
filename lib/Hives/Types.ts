@@ -52,13 +52,32 @@ export interface IProxyHive<HiveType> extends IHive<HiveType> {
   reset: () => void;
 }
 
-export interface IFormHive<HiveType> extends IHive<HiveType> {
-  createFieldHive: <FieldType>(key: string, initialValue: FieldType, storeKey?: string) => INestedFormHive<FieldType>;
-  getFieldHive: <K extends keyof HiveType>(key: K) => INestedFormHive<HiveType[K]>;
+// ─── Field State Types ──────────────────────────────────────────────────────
+
+export type FieldHoney<T, TState = {}> = { value: T; error?: string } & TState;
+
+type ReservedFieldKeys = "value" | "error" | "set" | "setState" | "validate";
+export type SafeFieldState<T> = keyof T extends string ? (Extract<keyof T, ReservedFieldKeys> extends never ? T : never) : T;
+
+/** Backward-compatible value setter with an overload for one custom state key. */
+export type FormFieldSetter<T, TState = {}> = {
+  (value: T | ((prev: T) => T)): void;
+  <K extends keyof TState>(key: K, value: TState[K]): void;
+};
+
+// ─── Form Hive ──────────────────────────────────────────────────────────────
+
+export interface IFormHive<HiveType, TState = {}> extends IHive<HiveType> {
+  createFieldHive: <FieldType>(
+    key: string,
+    initialValue: FieldType,
+    initialState?: SafeFieldState<TState>,
+    storeKey?: string,
+  ) => INestedFormHive<FieldType, TState>;
+  getFieldHive: <K extends keyof HiveType>(key: K) => INestedFormHive<HiveType[K], TState>;
   setFieldValue: <K extends keyof HiveType>(key: K, value: HiveType[K] | ((prev: HiveType[K]) => HiveType[K]), effect?: boolean) => void;
   getFieldValue: <K extends keyof HiveType>(key: K) => HiveType[K];
   subscribeToField: <K extends keyof HiveType>(key: K, callback: (value: HiveType[K]) => void) => void;
-  // validate: (key: keyof HiveType, value: HiveType[keyof HiveType], effect?: boolean) => void;
   validate: <K extends keyof HiveType>(key: K, value: HiveType[K], effect?: boolean) => void;
   errors: { [key: string]: string | undefined };
   getError: (key: keyof HiveType) => string | undefined;
@@ -70,25 +89,33 @@ export interface IFormHive<HiveType> extends IHive<HiveType> {
   submit: <K extends keyof HiveType>(e?: React.FormEvent<HTMLFormElement>, validateKeys?: K[]) => void;
   validateMode: FormValidateMode;
   reset: (initialValue?: Partial<HiveType>) => void;
+  setFieldState: <K extends keyof HiveType>(fieldId: K, state: Partial<TState>) => void;
+  getFieldState: <K extends keyof HiveType>(fieldId: K) => TState;
 }
 
-export interface INestedFormHive<HiveType> {
-  // honey: HiveType;
+// ─── Nested Form Hive (per-field) ───────────────────────────────────────────
+
+export interface INestedFormHive<HiveType, TState = {}> {
   initialValue: HiveType;
   setHoney: (newValue: HiveType | ((prev: HiveType) => HiveType)) => void;
   silentSetHoney: (newValue: HiveType | ((prev: HiveType) => HiveType)) => void;
-  subscribe: (callback: (newValue: { value: HiveType; error?: string }) => void) => () => void;
+  subscribe: (callback: (newValue: FieldHoney<HiveType, TState>) => void) => () => void;
   _subscribers: () => number;
   clearStore?: () => void;
 
-  honey: { value: HiveType; error?: string };
+  honey: FieldHoney<HiveType, TState>;
 
   error?: string;
   setError: (err?: string) => void;
   validate: (honey: HiveType, effect?: boolean) => void;
   isValid: () => boolean | Promise<boolean>;
   reset: () => void;
+
+  set: <K extends keyof TState>(key: K, value: TState[K]) => void;
+  setState: (state: Partial<TState>) => void;
 }
+
+// ─── Shared ─────────────────────────────────────────────────────────────────
 
 export type IStoreKey = string | { storeKey: string; storage: StorageType };
 

@@ -7,6 +7,7 @@ export interface PaginatorProps<
     load: (...args: any[]) => Promise<any>;
     reload: (...args: any[]) => Promise<any>;
     loadMore: () => Promise<any>;
+    goToPage: (page: number) => Promise<any>;
     hasMore: boolean;
     limit: number;
   },
@@ -31,6 +32,7 @@ export interface PaginatorAPI<Item, Query = any> {
   load: (q?: Query) => Promise<void>;
   reload: (q?: Query) => Promise<void>;
   loadMore: () => Promise<void>;
+  goToPage: (page: number) => Promise<void>;
   hasMore: boolean;
   limit: number;
   canLoadHive: IHive<boolean>;

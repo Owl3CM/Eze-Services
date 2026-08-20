@@ -28,7 +28,7 @@ export function LoaderSlice<L extends LoaderFunction, R = Awaited<ReturnType<L>>
 
         op.idle();
       } catch (error) {
-        op.error({ message: String(error) });
+        op.error(errorPayload(error));
         throw error;
       } finally {
         loading = false;
@@ -64,4 +64,10 @@ export function LoaderSlice<L extends LoaderFunction, R = Awaited<ReturnType<L>>
       },
     };
   };
+}
+
+function errorPayload(error: unknown) {
+  const payload = { message: String(error) } as { message: string; error?: unknown };
+  Object.defineProperty(payload, "error", { value: error, enumerable: false });
+  return payload;
 }

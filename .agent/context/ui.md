@@ -28,14 +28,16 @@
 
 ## Table Components (`Ui/Table/`)
 
-| Export          | Purpose                            |
-| --------------- | ---------------------------------- |
-| `DataTableBase` | Core data table component          |
-| `TableBody`     | Table body section                 |
-| `TableHead`     | Table header section               |
-| `TableRow`      | Table row component                |
-| `TableFooter`   | Table footer section               |
-| `Columns/*`     | Column components (subpath export) |
+| Export                | Purpose                                                                          |
+| --------------------- | -------------------------------------------------------------------------------- |
+| `DataTableBase`       | Orchestrator — wires hives, sorting, selection; delegates to 4 builders          |
+| `createTableCell`     | Adapter — wraps React component into a `CellFunction` for cellMap                |
+| `BrandedCellFunction` | Phantom type carrying passthrough props for `TypedCellProps` extraction          |
+| `StandardCells`       | 5 default cells: `TextCell`, `DateCell`, `MoneyCell`, `StatusCell`, `ActionCell` |
+
+Builder pattern: `DataTableBase` accepts `headBuilder`, `rowBuilder`, `footerBuilder`, `emptyBuilder` props. The DS project provides its own builders (e.g. `DSTableHead`, `DSTableRow`) via a wrapping `DataTable` component.
+
+The default head renders `renderHeader(table)` when a custom header was resolved; otherwise it safely falls back to the column's `header`, then `id`.
 
 ## Query Components (`Ui/Query/`)
 
@@ -55,14 +57,16 @@
 
 ## Source Files
 
-| File              | Path                                 |
-| ----------------- | ------------------------------------ |
-| StatusIndicator   | `lib/Ui/Status/StatusIndicator.tsx`  |
-| StatusDefaults    | `lib/Ui/Status/StatusDefaults.ts`    |
-| FlowView          | `lib/Ui/Flow/FlowView.tsx`           |
-| FlowIndicator     | `lib/Ui/Flow/FlowIndicator.tsx`      |
-| useFlowSteps      | `lib/Ui/Flow/useFlowSteps.ts`        |
-| DataTableBase     | `lib/Ui/Table/DataTableBase.tsx`     |
-| createQueryFilter | `lib/Ui/Query/createQueryFilter.tsx` |
-| Wrapper           | `lib/Ui/Wrappers/Wrapper.tsx`        |
-| Wrapper types     | `lib/Ui/Wrappers/types.ts`           |
+| File              | Path                                     |
+| ----------------- | ---------------------------------------- |
+| StatusIndicator   | `lib/Ui/Status/StatusIndicator.tsx`      |
+| StatusDefaults    | `lib/Ui/Status/StatusDefaults.ts`        |
+| FlowView          | `lib/Ui/Flow/FlowView.tsx`               |
+| FlowIndicator     | `lib/Ui/Flow/FlowIndicator.tsx`          |
+| useFlowSteps      | `lib/Ui/Flow/useFlowSteps.ts`            |
+| DataTableBase     | `lib/Ui/Table/DataTableBase.tsx`         |
+| createTableCell   | `lib/Ui/Table/createTableCell.tsx`       |
+| StandardCells     | `lib/Ui/Table/Columns/StandardCells.tsx` |
+| createQueryFilter | `lib/Ui/Query/createQueryFilter.tsx`     |
+| Wrapper           | `lib/Ui/Wrappers/Wrapper.tsx`            |
+| Wrapper types     | `lib/Ui/Wrappers/types.ts`               |

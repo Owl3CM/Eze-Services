@@ -11,14 +11,16 @@ export interface QueryFilterProps {
  * Branded component type that preserves passthrough prop types.
  * `Passthrough` carries the component props that flow through to FilterDefinition.props.
  */
-export type QueryFilterAdapter<Passthrough = Record<string, any>> = React.FC<QueryFilterProps> & { readonly __passthrough?: Passthrough };
+export type QueryFilterAdapter<Passthrough = Record<string, any>> = React.FC<QueryFilterProps> & {
+  readonly __passthrough?: Passthrough;
+};
 
 export interface CreateQueryFilterOptions {
   /** Which prop to pass the current value to. Default: "value" */
   valueProp?: string;
   /** Which prop to listen for changes on. Default: "onChange" */
   changeProp?: string;
-  /** Debounce delay in ms before writing to query state. */
+  /** Debounce delay in ms before writing to query state (UX concern — delays hive write for controlled inputs). */
   debounce?: number;
   /** Transform the raw component output before storing in query. */
   transform?: (raw: any) => any;
@@ -37,7 +39,9 @@ export interface CreateQueryFilterOptions {
  *
  * @example
  * const TextFilter = createQueryFilter(InputField, { debounce: 300 });
- * const DateFilter = createQueryFilter(DatePicker, { transform: d => d?.toISOString() });
+ * const DateFilter = createQueryFilter(DatePicker, {
+ *   transform: d => d?.toISOString(),
+ * });
  */
 export function createQueryFilter<P extends Record<string, any>, Excluded extends keyof P = "value" | "onChange">(
   Component: React.ComponentType<P>,
@@ -64,6 +68,8 @@ export function createQueryFilter<P extends Record<string, any>, Excluded extend
       if (debounce) {
         isDirty.current = true;
         setLocalValue(v);
+        // TimedCallback.create REPLACES the callback for the same id —
+        // so rapid keystrokes discard earlier closures, and only the latest `v` fires.
         TimedCallback.create({
           id: `query-filter-${id}`,
           timeout: debounce,
@@ -90,5 +96,6 @@ export function createQueryFilter<P extends Record<string, any>, Excluded extend
   };
 
   FilterAdapter.displayName = `QueryFilter(${Component.displayName || Component.name || "Component"})`;
-  return FilterAdapter;
+
+  return FilterAdapter as QueryFilterAdapter<Omit<P, Excluded | "id" | "query" | "label" | "disabled">>;
 }

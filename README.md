@@ -1,10 +1,13 @@
 # Eze-Factory
 
-**A revolutionary architecture for building React applications through composable state and modular logic.**
+Composable reactive state, form, query, table, and async-operation primitives for React applications.
 
 ## Documentation
 
-📖 **[Complete Documentation](./Eze-Factory-Docs.md)** — Everything about Eze-Factory's philosophy, patterns, and usage.
+- [Package context and API map](./.agent/_index.md)
+- Installed-agent entry point: `node_modules/eze-factory/.agent/_index.md`
+
+The published package includes its TypeScript source and stable `.agent/context` documentation, so source references in those guides also work from `node_modules`.
 
 ## Quick Start
 
@@ -27,24 +30,26 @@ counter.subscribe((value) => console.log(value));
 ```tsx
 import { Bee } from "eze-factory";
 
-<Bee hive={counter} Component={({ honey, setHoney }) => <button onClick={() => setHoney(honey + 1)}>Count: {honey}</button>} />;
+<Bee hive={counter}>
+  {({ honey, set }) => <button onClick={() => set(honey + 1)}>Count: {honey}</button>}
+</Bee>;
 ```
 
 ### Factory Composition
 
 ```typescript
-import { createTableFactory } from 'eze-factory';
+import { createTableFactory } from "eze-factory";
 
 // Compose slices into a complete feature
 const UsersFactory = createTableFactory({
   paginator: { paginator: UsersAPI },
-  table: { columns: () => [...] }
+  table: { columns: () => [...] },
 }).build();
 
 // Use directly — no useState needed!
 UsersFactory.paginator.load();
-UsersFactory.table.toggleColumnVisibility('email');
-UsersFactory.exporter.download({ type: 'csv' });
+UsersFactory.table.toggleColumnVisibility("email");
+UsersFactory.exporter.download({ type: "csv" });
 ```
 
 ### Form Handling
@@ -61,13 +66,11 @@ const loginForm = Hive.form({
 });
 
 // In JSX:
-<Bee.Field
-  formHive={loginForm}
-  id="email"
-  children={({ value, error, set }) => (
+<Bee.Field hive={loginForm.getFieldHive("email")}>
+  {({ value, error, set }) => (
     <input value={value} onChange={(e) => set(e.target.value)} />
   )}
-/>
+</Bee.Field>
 ```
 
 ### Validation
@@ -89,4 +92,4 @@ validate("a@b.com"); // → undefined (valid)
 
 ## License
 
-MIT
+[MIT](./LICENSE)

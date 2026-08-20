@@ -1,17 +1,32 @@
 {
   "name": "eze-factory",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Eze-Factory is a flexible, high-performance state management library for React applications. It provides modular state handling through hives, enabling scalable and efficient management of simple and complex state types like primitives, arrays, forms, and nested objects without a centralized store. Built-in support for persistent storage, real-time updates, and simplified form handling makes Eze-Factory ideal for both small and large-scale applications.",
   "private": false,
+  "license": "MIT",
+  "author": "Owl3CM",
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
   },
-  "main": "dist/index.js",
-  "source": "lib/index.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "source": "./lib/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
-    "build": "pnpm test && rm -rf dist && rollup -c --exports auto",
+    "build": "rm -rf dist && rollup -c",
     "test": "vitest run",
-    "prod": "node ./scripts/publish.js"
+    "typecheck": "tsc --noEmit",
+    "verify": "pnpm test && pnpm run typecheck && pnpm run build",
+    "prepack": "pnpm run verify"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
@@ -41,7 +56,21 @@
   },
   "files": [
     "dist",
-    ".agent"
+    "lib/Bees",
+    "lib/Factory",
+    "lib/Hives",
+    "lib/Hooks",
+    "lib/Presets",
+    "lib/Slices",
+    "lib/Ui",
+    "lib/Utils",
+    "lib/Validator",
+    "lib/index.ts",
+    "lib/index.css",
+    ".agent/_index.md",
+    ".agent/context",
+    "AGENTS.md",
+    "LICENSE"
   ],
   "publishConfig": {
     "access": "public"
@@ -69,5 +98,14 @@
   "dependencies": {
     "validator": "^13.15.26"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Owl3CM/Eze-Services.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Owl3CM/Eze-Services/issues"
+  },
+  "homepage": "https://github.com/Owl3CM/Eze-Services#readme",
+  "packageManager": "pnpm@10.30.2",
   "type": "module"
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { IHive, IHiveList, IHiveObserver, INestedFormHive, IProxyHive } from "../Hives/Types";
+import { FormFieldSetter, IHive, IHiveList, IHiveObserver, INestedFormHive, IProxyHive } from "../Hives/Types";
 
 // ─── Honey (Read-Only) ──────────────────────────────────────────────────────
 
@@ -10,15 +10,14 @@ export type HoneyProps<T> = {
   children: (args: HoneyChildrenArgs<T>) => React.ReactNode;
 };
 
-export type HoneyFieldChildrenArgs<T> = {
-  honey: { value: T; error?: string };
+export type HoneyFieldChildrenArgs<T, TState = {}> = {
   value: T;
   error?: string;
-};
+} & TState;
 
-export type HoneyFieldProps<T> = {
-  hive: INestedFormHive<T>;
-  children: (args: HoneyFieldChildrenArgs<T>) => React.ReactNode;
+export type HoneyFieldProps<T, TState = {}> = {
+  hive: INestedFormHive<T, TState>;
+  children: (args: HoneyFieldChildrenArgs<T, TState>) => React.ReactNode;
 };
 
 // ─── Bee (Read + Write) ─────────────────────────────────────────────────────
@@ -34,17 +33,18 @@ export type BeeProps<T> = {
   children: (args: BeeChildrenArgs<T>) => React.ReactNode;
 };
 
-export type BeeFieldChildrenArgs<T> = {
-  honey: { value: T; error?: string };
+export type BeeFieldChildrenArgs<T, TState = {}> = {
   value: T;
-  set: (value: T | ((prev: T) => T)) => void;
   validate: (value: T, effect?: boolean) => void;
   error?: string;
-};
+  set: FormFieldSetter<T, TState>;
+  setValue: (value: T | ((prev: T) => T)) => void;
+  setState: (state: Partial<TState>) => void;
+} & TState;
 
-export type BeeFieldProps<T> = {
-  hive: INestedFormHive<T>;
-  children: (args: BeeFieldChildrenArgs<T>) => React.ReactNode;
+export type BeeFieldProps<T, TState = {}> = {
+  hive: INestedFormHive<T, TState>;
+  children: (args: BeeFieldChildrenArgs<T, TState>) => React.ReactNode;
 };
 
 export type BeeListChildrenArgs<T> = { item: T; i: number };

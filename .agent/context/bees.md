@@ -4,16 +4,16 @@
 
 ## Component Table
 
-| Component         | Mode       | Children args                            | Hive type                |
-| ----------------- | ---------- | ---------------------------------------- | ------------------------ |
-| `<Honey>`         | Read-only  | `{ honey }`                              | `IHive`, `IHiveObserver` |
-| `<Bee>`           | Read+Write | `{ honey, set, silentSet }`              | `IHive`                  |
-| `<Bee.Field>`     | Form R+W   | `{ honey, value, set, validate, error }` | `INestedFormHive`        |
-| `<Honey.Field>`   | Form Read  | `{ honey, value, error }`                | `INestedFormHive`        |
-| `<Honey.List>`    | Array      | `{ item, i }`                            | `IHiveList`              |
-| `<Bee.Proxy>`     | Nested     | `{ honey, set, silentSet }` + `id` prop  | `IProxyHive`             |
-| `<Honey.Cluster>` | Multi Read | `{ cell }`                               | `HiveCluster`            |
-| `<Bee.Cluster>`   | Multi R+W  | `{ cell, set }`                          | `HiveCluster`            |
+| Component         | Mode       | Children args                                           | Hive type                |
+| ----------------- | ---------- | ------------------------------------------------------- | ------------------------ |
+| `<Honey>`         | Read-only  | `{ honey }`                                             | `IHive`, `IHiveObserver` |
+| `<Bee>`           | Read+Write | `{ honey, set, silentSet }`                             | `IHive`                  |
+| `<Bee.Field>`     | Form R+W   | `{ value, error?, ...TState, validate, set, setValue, setState }` | `INestedFormHive`        |
+| `<Honey.Field>`   | Form Read  | `{ value, error?, ...TState }`                          | `INestedFormHive`        |
+| `<Honey.List>`    | Array      | `{ item, i }`                                           | `IHiveList`              |
+| `<Bee.Proxy>`     | Nested     | `{ honey, set, silentSet }` + `id` prop                 | `IProxyHive`             |
+| `<Honey.Cluster>` | Multi Read | `{ cell }`                                              | `HiveCluster`            |
+| `<Bee.Cluster>`   | Multi R+W  | `{ cell, set }`                                         | `HiveCluster`            |
 
 > `HiveCluster` = `Record<string, IHive<any> | IHiveObserver<any> | IHiveList<any>>`
 
@@ -30,12 +30,12 @@ import { Honey, Bee } from "eze-factory";
 
 // Form field (read+write)
 <Bee.Field hive={formHive.getFieldHive("email")}>
-  {({ honey, validate }) => <input value={honey.value} onChange={e => validate(e.target.value)} />}
+  {({ value, set, error }) => <input value={value} onChange={e => set(e.target.value)} />}
 </Bee.Field>
 
 // Form field (read-only)
 <Honey.Field hive={formHive.getFieldHive("email")}>
-  {({ honey }) => <span>{honey.value}</span>}
+  {({ value }) => <span>{value}</span>}
 </Honey.Field>
 
 // Array iteration
@@ -54,6 +54,8 @@ import { Honey, Bee } from "eze-factory";
   {({ cell, set }) => <button onClick={() => set({ count: 0 })}>{cell.count}</button>}
 </Bee.Cluster>
 ```
+
+For form fields, `set(value)` keeps the historical value-setter behavior. `set(stateKey, stateValue)` updates one custom `TState` key, while `setValue(value)` and `setState(partial)` are explicit alternatives.
 
 ## Type Exports
 

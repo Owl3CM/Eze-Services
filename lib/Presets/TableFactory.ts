@@ -16,6 +16,7 @@ export function createTableFactory<
     load: (...args: any[]) => Promise<any>;
     reload: (...args: any[]) => Promise<any>;
     loadMore: () => Promise<any>;
+    goToPage: (page: number) => Promise<any>;
     hasMore: boolean;
     limit: number;
   },
