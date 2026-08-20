@@ -100,12 +100,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Owl3CM/Eze-Services.git"
+    "url": "git+https://github.com/Owl3CM/Eze-Factory.git"
   },
   "bugs": {
-    "url": "https://github.com/Owl3CM/Eze-Services/issues"
+    "url": "https://github.com/Owl3CM/Eze-Factory/issues"
   },
-  "homepage": "https://github.com/Owl3CM/Eze-Services#readme",
+  "homepage": "https://github.com/Owl3CM/Eze-Factory#readme",
   "packageManager": "pnpm@10.30.2",
   "type": "module"
 }
