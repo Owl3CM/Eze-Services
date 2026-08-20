@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { TimedCallback } from "../Utils/TimedCallback";
+import { TimedCallback } from "../utils/TimedCallback";
 
 describe("TimedCallback", () => {
   beforeEach(() => {

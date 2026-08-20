@@ -1,5 +1,5 @@
-// Path: src/Utils/Hive/HiveBase.ts (Simplified)
-import { StorageType } from "../Utils/Storable";
+// Path: lib/Hives/HiveBase.ts (Simplified)
+import { StorageType } from "../utils/Storable";
 import { CheckSimilarity, getStorable } from "./HiveUtils";
 import { IHive, IHiveBase, IStoreKey } from "./Types";
 

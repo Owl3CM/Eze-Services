@@ -1,4 +1,4 @@
-import { StorageType } from "../Utils/Storable";
+import { StorageType } from "../utils/Storable";
 
 export interface IHive<HiveType> {
   honey: HiveType;

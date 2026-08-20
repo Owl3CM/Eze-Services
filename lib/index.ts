@@ -7,4 +7,4 @@ export * from "./Factory";
 export * from "./Slices";
 export * from "./Presets";
 export * from "./Validator";
-export { ExtractId, ExtractIds, ExtractValue, ExtractValues, shallowEqual } from "./Utils";
+export { ExtractId, ExtractIds, ExtractValue, ExtractValues, shallowEqual } from "./utils";

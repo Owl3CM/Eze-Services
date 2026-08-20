@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { QueryAPI } from "../../Slices/Query/Types";
-import { TimedCallback } from "../../Utils";
+import { TimedCallback } from "../../utils";
 
 export interface QueryFilterProps {
   id: string;

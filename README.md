@@ -90,6 +90,17 @@ validate("a@b.com"); // → undefined (valid)
 - **🏭 Factories** — Compose slices into complete features
 - **📦 Components** — StatusGuard, StatusIndicator filter by operation
 
+## Development
+
+The published runtime supports Node.js 18 and newer. Building, testing, and
+publishing this repository uses Node.js 22 LTS, as pinned in `.nvmrc`.
+
+```bash
+nvm use
+pnpm install --frozen-lockfile
+pnpm run verify
+```
+
 ## License
 
 [MIT](./LICENSE)

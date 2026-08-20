@@ -80,7 +80,7 @@ lib/
 │   ├── Status/       # StatusIndicator + convenience components, DefaultStatusKit
 │   └── Wrappers/     # Wrapper
 ├── Validator/        # Validator builder
-└── Utils/            # TimedCallback, ExtractId/Value
+└── utils/            # TimedCallback, ExtractId/Value
 ```
 
 ## Testing
