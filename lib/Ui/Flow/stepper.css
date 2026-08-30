@@ -1,0 +1,85 @@
+/* ── eze-factory: Stepper Defaults ── */
+/* Uses CSS vars so the factory's fallback is theme-aware. */
+/* DS overrides these via its own renderStep (owl-stepper__* classes). */
+
+.ez-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.ez-stepper__step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  position: relative;
+}
+
+.ez-stepper__step[data-status="future"] {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.ez-stepper__number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 2px solid var(--ez-step-border, #d1d5db);
+  background: var(--ez-step-bg, #fff);
+  color: var(--ez-step-color, #9ca3af);
+  transition: all 0.2s;
+}
+
+.ez-stepper__step[data-status="active"] .ez-stepper__number {
+  border-color: var(--ez-step-active, #3b82f6);
+  background: var(--ez-step-active, #3b82f6);
+  color: #fff;
+}
+
+.ez-stepper__step[data-status="passed"] .ez-stepper__number {
+  border-color: var(--ez-step-active, #3b82f6);
+  background: var(--ez-step-passed-bg, #eff6ff);
+  color: var(--ez-step-active, #3b82f6);
+}
+
+.ez-stepper__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ez-step-color, #9ca3af);
+  white-space: nowrap;
+}
+
+.ez-stepper__step[data-status="active"] .ez-stepper__label {
+  color: var(--ez-step-active-label, #111827);
+  font-weight: 600;
+}
+
+.ez-stepper__step[data-status="passed"] .ez-stepper__label {
+  color: var(--ez-step-active, #3b82f6);
+}
+
+/* ── Connecting line ── */
+.ez-stepper__step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  width: 8px;
+  height: 2px;
+  background: var(--ez-step-border, #d1d5db);
+  transform: translateY(-50%);
+  transition: background 0.2s;
+}
+
+.ez-stepper__step[data-status="passed"]:not(:last-child)::after {
+  background: var(--ez-step-active, #3b82f6);
+}

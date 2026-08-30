@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { IHive, IHiveArray, IHiveObserver, INestedFormHive } from "../Hives/Types";
+import { IHive, IHiveList, IHiveObserver, INestedFormHive } from "../Hives/Types";
 
-export default function useHoney<HiveType>(hive: IHive<HiveType> | IHiveObserver<HiveType> | IHiveArray<HiveType> | INestedFormHive<HiveType>) {
+export default function useHoney<HiveType>(hive: IHive<HiveType> | IHiveObserver<HiveType> | IHiveList<HiveType> | INestedFormHive<HiveType, any>) {
   const [, storeHoneyValue] = useState(hive.honey);
   useEffect(() => hive.subscribe(storeHoneyValue), [hive]);
   return hive.honey;

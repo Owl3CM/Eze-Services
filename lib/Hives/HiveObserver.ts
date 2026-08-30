@@ -21,7 +21,7 @@ export function createHiveObserver<HiveType>(listen: HiveGetter<HiveType>): IHiv
     return currentHoney;
   };
 
-  const pollinate = async () => {
+  const pollinate = () => {
     baseHive.honey = listen(observe);
     _pollinate();
   };

@@ -1,6 +1,7 @@
-lib
 scripts
 node_modules
+.agent/USER_MANUAL_TESTS.md
+lib/__tests__
 .vercel
 .editorconfig
 .prettierrc
@@ -10,3 +11,4 @@ tsconfig.json
 rollup.*
 vite.config.js
 _ignore
+_IgnoreMe

@@ -1,4 +1,4 @@
-import Storable, { StorageType } from "../Utils/Storable";
+import Storable, { StorageType } from "../utils/Storable";
 
 const _Storables = {
   localStorage: null,

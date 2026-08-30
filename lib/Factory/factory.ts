@@ -1,21 +1,38 @@
-import { SliceFactory } from "./types";
+// FactoryPackage.ts
+import { useRef } from "react";
 
-export function createFactory() {
-  return new FactoryBuilder<{}>({});
-}
+export type Slice<T = any, Ctx = any> = (ctx: Ctx) => T;
 
-class FactoryBuilder<Ctx> {
-  constructor(private ctx: Ctx) {}
+export type Factory<Ctx = {}> = {
+  use: <ReqCtx, Add>(
+    slice: (ctx: ReqCtx) => Add,
+  ) => Ctx extends ReqCtx ? Factory<Ctx & Add> : "Error: Factory context is missing required properties for this slice";
+  build: () => Ctx;
+  useBuild: () => Ctx;
+};
 
-  use<Add>(factory: SliceFactory<Ctx, Add>) {
-    const slice = factory(this.ctx);
-    return new FactoryBuilder<Ctx & Add>({
-      ...this.ctx,
-      ...slice,
-    });
-  }
+export function createFactory<Ctx = {}>(): Factory<Ctx> {
+  const slices: Slice[] = [];
 
-  build(): Ctx {
-    return this.ctx;
-  }
+  const factory: Factory<Ctx> = {
+    use: <ReqCtx, Add>(slice: (ctx: ReqCtx) => Add) => {
+      slices.push(slice);
+      return factory as any;
+    },
+    build: () => {
+      const ctx: any = {};
+      for (const slice of slices) {
+        const result = slice(ctx);
+        Object.assign(ctx, result);
+      }
+      return ctx as Ctx;
+    },
+    useBuild: () => {
+      const ref = useRef<Ctx | null>(null);
+      if (!ref.current) ref.current = factory.build();
+      return ref.current;
+    },
+  };
+
+  return factory;
 }
